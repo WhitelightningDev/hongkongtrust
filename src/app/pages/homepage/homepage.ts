@@ -13,6 +13,7 @@ export class Homepage implements OnInit {
   trustForm: FormGroup;
   minDate: string = new Date().toISOString().split('T')[0];
   uploadedFiles: File[] = [];
+  fileMap: { [key: string]: File } = {};
   useUserEmailForTrustEmail = false;
 
   constructor(private fb: FormBuilder) {
@@ -20,24 +21,21 @@ export class Homepage implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       fullName: ['', Validators.required],
       idNumber: ['', Validators.required],
-      isSettlor: [true],  // Always true, no checkbox
-      isTrustee: [false], // Optional, can remove if unused
-      trustEmail: ['', [Validators.email]], // Optional email, no required validator now
+      isSettlor: [true],
+      isTrustee: [false],
+      trustEmail: ['', [Validators.email]],
       phoneNumber: ['', Validators.required],
       trustName: ['', Validators.required],
       establishmentDate: ['', Validators.required],
       altSettlorName: [''],
       beneficiaries: [''],
-      // Initialize trustees with 2 compulsory:
-      // Trustee 1: readonly, synced to fullName/idNumber
-      // Trustee 2: editable, required
       trustees: this.fb.array([
-        this.createTrustee(true),
-        this.createTrustee(false)
+        this.createTrustee(true),  // Trustee 1 (readonly)
+        this.createTrustee(false)  // Trustee 2
       ])
     });
 
-    // Sync fullName to altSettlorName and trustee[0].name (readonly trustee)
+    // Sync fullName to altSettlorName and trustee[0].name
     this.trustForm.get('fullName')!.valueChanges.subscribe(name => {
       this.trustForm.get('altSettlorName')!.setValue(name, { emitEvent: false });
       this.trustees.at(0).get('name')!.setValue(name, { emitEvent: false });
@@ -50,7 +48,6 @@ export class Homepage implements OnInit {
   }
 
   ngOnInit() {
-    // Keep trustEmail synced if checkbox is checked and user email changes
     this.trustForm.get('email')?.valueChanges.subscribe(email => {
       if (this.useUserEmailForTrustEmail) {
         this.trustForm.get('trustEmail')?.setValue(email);
@@ -79,6 +76,15 @@ export class Homepage implements OnInit {
 
   addTrustee(): void {
     this.trustees.push(this.createTrustee(false));
+  }
+
+  onFileUpload(role: string, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (file) {
+      this.fileMap[role] = file;
+      console.log(`Uploaded file for ${role}:`, file.name);
+    }
   }
 
   onFileChange(event: any): void {
@@ -115,11 +121,18 @@ export class Homepage implements OnInit {
       }
     });
 
+    // Append bulk files (general uploads)
     this.uploadedFiles.forEach((file, index) => {
       formData.append(`documents[${index}]`, file, file.name);
     });
 
+    // Append per-role documents
+    Object.entries(this.fileMap).forEach(([role, file]) => {
+      formData.append(`document_${role}`, file, file.name);
+    });
+
     console.log('Form submitted:', this.trustForm.value);
-    console.log('Files uploaded:', this.uploadedFiles);
+    console.log('General Files:', this.uploadedFiles);
+    console.log('Individual Documents:', this.fileMap);
   }
 }

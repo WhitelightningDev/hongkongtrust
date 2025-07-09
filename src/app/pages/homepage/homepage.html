@@ -1,7 +1,6 @@
 <form [formGroup]="trustForm" (ngSubmit)="onSubmit()" enctype="multipart/form-data"
-      class="p-5 m-4 shadow-lg rounded-4 bg-white border border-2 border-danger-subtle">
+      class="p-5 m-4 shadow-lg rounded-4 bg-light border border-2 border-danger-subtle">
 
-  <!-- Heading -->
   <h2 class="mb-4 text-danger border-bottom pb-2">
     🇭🇰 Application for <span class="fw-bold">Hong Kong Foreign Trust</span>
   </h2>
@@ -38,8 +37,8 @@
     </div>
   </div>
 
-  <!-- Trust Details Card -->
-  <div class="card border-danger-subtle shadow-sm mb-4">
+  <!-- Trust Details -->
+  <div class="card border-danger-subtle shadow mb-4">
     <div class="card-header bg-danger text-white fs-5">
       🧾 Trust Structure & Details
     </div>
@@ -88,7 +87,7 @@
       <!-- Settlor & Trustee 1 -->
       <div class="mb-4">
         <label class="form-label fw-semibold">Settlor & Trustee 1</label>
-        <div class="card border p-3 bg-light-subtle">
+        <div class="card border shadow bg-light-subtle p-3">
           <div class="row">
             <!-- Settlor -->
             <div class="col-md-6 mb-3">
@@ -96,7 +95,9 @@
               <label>Full Name *</label>
               <input type="text" [value]="trustForm.get('fullName')?.value" class="form-control" readonly />
               <label>ID / Passport No *</label>
-              <input type="text" [value]="trustForm.get('idNumber')?.value" class="form-control" readonly />
+              <input type="text" [value]="trustForm.get('idNumber')?.value" class="form-control mb-2" readonly />
+              <label>Upload Document *</label>
+              <input type="file" class="form-control" (change)="onFileUpload('settlor', $event)" />
             </div>
 
             <!-- Trustee 1 -->
@@ -106,32 +107,38 @@
                 <label>Full Name *</label>
                 <input type="text" formControlName="name" class="form-control" readonly />
                 <label>ID / Passport No *</label>
-                <input type="text" formControlName="id" class="form-control" readonly />
+                <input type="text" formControlName="id" class="form-control mb-2" readonly />
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Trustee 2+ -->
+      <!-- Trustee 2 and Additional -->
       <div class="mb-4">
         <label class="form-label">Trustee 2 and Additional Trustees</label>
         <div class="row g-3">
 
+          <!-- Trustee 2 -->
           <div class="col-md-6" [formGroup]="secondTrustee">
-            <div class="border p-3 rounded bg-light-subtle h-100">
+            <div class="card shadow bg-light-subtle p-3 h-100">
               <label class="form-label">Trustee 2</label>
               <input type="text" formControlName="name" class="form-control mb-2" placeholder="Full name" />
-              <input type="text" formControlName="id" class="form-control" placeholder="ID/Passport" />
+              <input type="text" formControlName="id" class="form-control mb-2" placeholder="ID/Passport" />
+              <label>Upload Document *</label>
+              <input type="file" class="form-control" (change)="onFileUpload('trustee2', $event)" />
             </div>
           </div>
 
+          <!-- Dynamic Trustees -->
           <ng-container *ngFor="let trustee of trustees.controls; let i = index">
             <div *ngIf="i > 1" class="col-md-6" [formGroupName]="i">
-              <div class="border p-3 rounded bg-light-subtle h-100">
+              <div class="card shadow bg-light-subtle p-3 h-100">
                 <label class="form-label">Trustee {{ i + 1 }} (Optional)</label>
                 <input type="text" formControlName="name" class="form-control mb-2" />
-                <input type="text" formControlName="id" class="form-control" />
+                <input type="text" formControlName="id" class="form-control mb-2" />
+                <label>Upload Document</label>
+                <input type="file" class="form-control" (change)="onFileUpload('trustee' + i, $event)" />
               </div>
             </div>
           </ng-container>
@@ -150,13 +157,6 @@
         <textarea formControlName="beneficiaries" class="form-control" rows="4"
                   placeholder="e.g. John Lee - 9001011234567"></textarea>
       </div>
-
-      <!-- Upload -->
-      <div class="mb-4">
-        <label class="form-label fw-semibold">Upload ID / Passport Documents *</label>
-        <input type="file" multiple (change)="onFileChange($event)" class="form-control" />
-      </div>
-
     </div>
   </div>
 
@@ -166,5 +166,4 @@
       📤 Submit Trust Application
     </button>
   </div>
-
 </form>

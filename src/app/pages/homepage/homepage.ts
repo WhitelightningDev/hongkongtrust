@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-homepage',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, HttpClientModule],
   templateUrl: './homepage.html',
   styleUrls: ['./homepage.css']
 })
@@ -16,7 +17,13 @@ export class Homepage implements OnInit {
   fileMap: { [key: string]: File } = {};
   useUserEmailForTrustEmail = false;
 
-  constructor(private fb: FormBuilder) {
+  // Controls loading spinner and blur overlay visibility
+  loading = false;
+
+  // Controls success popup visibility
+  showSuccessPopup = false;
+
+  constructor(private fb: FormBuilder, private http: HttpClient) {
     this.trustForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       fullName: ['', Validators.required],
@@ -29,25 +36,38 @@ export class Homepage implements OnInit {
       establishmentDate: ['', Validators.required],
       altSettlorName: [''],
       beneficiaries: [''],
+      isBullionMember: [false],
+      memberNumber: [''],
       trustees: this.fb.array([
-        this.createTrustee(true),  // Trustee 1 (readonly)
-        this.createTrustee(false)  // Trustee 2
+        this.createTrustee(true),
+        this.createTrustee(false)
       ])
     });
 
-    // Sync fullName to altSettlorName and trustee[0].name
     this.trustForm.get('fullName')!.valueChanges.subscribe(name => {
       this.trustForm.get('altSettlorName')!.setValue(name, { emitEvent: false });
       this.trustees.at(0).get('name')!.setValue(name, { emitEvent: false });
     });
 
-    // Sync idNumber to trustee[0].id
     this.trustForm.get('idNumber')!.valueChanges.subscribe(id => {
       this.trustees.at(0).get('id')!.setValue(id, { emitEvent: false });
     });
+
+    this.trustForm.get('isBullionMember')!.valueChanges.subscribe((isMember: boolean) => {
+      const memberNumberControl = this.trustForm.get('memberNumber')!;
+      if (isMember) {
+        memberNumberControl.setValidators([
+          Validators.required,
+          Validators.pattern(/^BB\d{6}$/i)
+        ]);
+      } else {
+        memberNumberControl.clearValidators();
+      }
+      memberNumberControl.updateValueAndValidity();
+    });
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.trustForm.get('email')?.valueChanges.subscribe(email => {
       if (this.useUserEmailForTrustEmail) {
         this.trustForm.get('trustEmail')?.setValue(email);
@@ -112,27 +132,48 @@ export class Homepage implements OnInit {
       return;
     }
 
+    this.loading = true; // Show spinner & blur overlay
+
+    const raw = this.trustForm.getRawValue();
     const formData = new FormData();
-    Object.entries(this.trustForm.value).forEach(([key, value]) => {
-      if (key === 'trustees') {
-        formData.append(key, JSON.stringify(value));
-      } else {
-        formData.append(key, value as string);
+
+    formData.append('full_name', raw.fullName);
+    formData.append('id_number', raw.idNumber);
+    formData.append('email', raw.email);
+    formData.append('phone_number', raw.phoneNumber);
+    formData.append('trust_email', raw.trustEmail || '');
+    formData.append('trust_name', raw.trustName);
+    formData.append('establishment_date', raw.establishmentDate);
+    formData.append('beneficiaries', raw.beneficiaries || '');
+    formData.append('is_bullion_member', raw.isBullionMember ? 'true' : 'false');
+    formData.append('member_number', raw.memberNumber || '');
+
+    formData.append('trustees', JSON.stringify(raw.trustees));
+
+    Object.entries(this.fileMap).forEach(([role, file]) => {
+      formData.append('documents', file, file.name);
+    });
+
+    this.uploadedFiles.forEach(file => {
+      formData.append('documents', file, file.name);
+    });
+
+    this.http.post('http://localhost:8000/submit-trust', formData).subscribe({
+      next: (res) => {
+        this.loading = false;        // Hide spinner & blur
+        this.showSuccessPopup = true;
+
+        setTimeout(() => {
+          this.showSuccessPopup = false;
+        }, 4000);
+
+        this.trustForm.reset();
+      },
+      error: (err) => {
+        this.loading = false;        // Hide spinner & blur
+        console.error('❌ Submission error:', err);
+        alert('Error submitting form. See console for details.');
       }
     });
-
-    // Append bulk files (general uploads)
-    this.uploadedFiles.forEach((file, index) => {
-      formData.append(`documents[${index}]`, file, file.name);
-    });
-
-    // Append per-role documents
-    Object.entries(this.fileMap).forEach(([role, file]) => {
-      formData.append(`document_${role}`, file, file.name);
-    });
-
-    console.log('Form submitted:', this.trustForm.value);
-    console.log('General Files:', this.uploadedFiles);
-    console.log('Individual Documents:', this.fileMap);
   }
 }

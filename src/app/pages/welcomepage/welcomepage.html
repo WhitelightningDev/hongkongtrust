@@ -1,8 +1,8 @@
-<div class="container my-5">
+<div class="container my-5 px-3 px-md-5">
 
-  <h1 class="text-danger mb-5 fw-bold border-bottom pb-3">
-     <img src="hongkonglogo.png" alt="" width="100px" class="rounded-3 align-self-center">
-    Application to set up Hong Kong Foreign Trust
+  <h1 class="text-danger mb-5 fw-bold border-bottom pb-3 d-flex flex-column flex-md-row align-items-center gap-3 text-center text-md-start">
+    <img src="hongkonglogo.png" alt="Logo" width="80" class="rounded-3">
+    <span class="fs-4 fs-md-2">Application to set up Hong Kong Foreign Trust</span>
   </h1>
 
   <div class="card shadow-lg p-4 mb-5 rounded-4 border-danger-subtle">
@@ -51,7 +51,7 @@
   </div>
 
   <!-- Confirmation -->
-  <div class="form-check mb-5">
+  <div class="form-check mb-4">
     <input class="form-check-input" type="checkbox" id="confirmCheck" [(ngModel)]="isConfirmed" />
     <label class="form-check-label fs-5" for="confirmCheck">
       I confirm I have read and understood the above terms.
@@ -70,7 +70,7 @@
 
 <!-- Modal -->
 <div class="modal fade show" tabindex="-1" [ngClass]="{ 'd-block': showModal }" *ngIf="showModal" style="background: rgba(0, 0, 0, 0.6);">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-sm modal-md modal-lg">
     <div class="modal-content shadow-lg rounded-4 border-danger-subtle">
       <div class="modal-header bg-danger text-white rounded-top-4">
         <h5 class="modal-title fw-bold">Enter Member Number</h5>

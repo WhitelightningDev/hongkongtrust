@@ -1,0 +1,95 @@
+<div class="container my-5">
+  <h1 class="text-danger mb-5 fw-bold border-bottom pb-3">
+    Application to set up Hong Kong Foreign Trust
+  </h1>
+
+  <div class="card shadow-lg p-4 mb-5 rounded-4 border-danger-subtle">
+    <h4 class="mb-3 text-primary fw-semibold">Trust Setup Service – Overview & Terms</h4>
+    <p class="lead text-secondary">
+      A professional legal expert has developed the trust deed to provide the settlor with maximum control while minimizing
+      potential tax implications for both the trust and its beneficiaries.
+    </p>
+
+    <h5 class="mt-4 mb-3 text-danger fw-bold">Pricing</h5>
+    <ul class="list-group list-group-flush mb-4">
+      <li class="list-group-item px-0">Standard Setup Fee: <strong>R4,500</strong></li>
+      <li class="list-group-item px-0">Exclusive Offer for Bullion Members: <strong>R3,000</strong> (30% discount)</li>
+      <li class="list-group-item px-0">Payable upfront via EFT or cryptocurrency.</li>
+    </ul>
+
+    <h5 class="text-danger fw-bold mb-3">Key Details</h5>
+    <ul class="list-group list-group-flush mb-4">
+      <li class="list-group-item px-0">You may act as both the <strong>settlor</strong> and one of the <strong>trustees</strong>.</li>
+      <li class="list-group-item px-0"><strong>Minimum two trustees</strong> must be appointed (including yourself).</li>
+      <li class="list-group-item px-0"><strong>Trustees cannot be beneficiaries</strong>. Beneficiaries may include family or another entity.</li>
+      <li class="list-group-item px-0">ID numbers or passport numbers are accepted.</li>
+      <li class="list-group-item px-0">A trust number will be issued even though it's not registered.</li>
+    </ul>
+
+    <h5 class="text-danger fw-bold mb-3">Structure & Control</h5>
+    <ul class="list-group list-group-flush mb-4">
+      <li class="list-group-item px-0">This is an external service by AEM Co-op Ltd; a formal invoice will be issued.</li>
+      <li class="list-group-item px-0">No annual, registration, or accounting fees—<strong>you retain full control</strong>.</li>
+    </ul>
+
+    <h5 class="text-danger fw-bold mb-3">Important Note</h5>
+    <p class="text-danger fst-italic border border-danger-subtle rounded-3 p-3 shadow-sm">
+      AEM Co-op Ltd does not provide tax advice or legal opinions. You must ensure compliance with all applicable laws.
+    </p>
+
+    <h5 class="text-danger fw-bold mb-3">Features of a Hong Kong Foreign Trust</h5>
+    <ul class="list-group list-group-flush mb-4">
+      <li class="list-group-item px-0">No registration required; no disclosure of settlor/beneficiary info.</li>
+      <li class="list-group-item px-0">No requirement for settlor, beneficiary, or trustee to be HK residents.</li>
+      <li class="list-group-item px-0">No licensing required for trustee.</li>
+      <li class="list-group-item px-0">Optional protector; 80-year max duration.</li>
+      <li class="list-group-item px-0">No asset/property restrictions; no specific asset protection law.</li>
+      <li class="list-group-item px-0">No reporting requirements; foreign income not taxable in HK.</li>
+    </ul>
+  </div>
+
+  <!-- Confirmation -->
+  <div class="form-check mb-5">
+    <input class="form-check-input" type="checkbox" id="confirmCheck" [(ngModel)]="isConfirmed" />
+    <label class="form-check-label fs-5" for="confirmCheck">
+      I confirm I have read and understood the above terms.
+    </label>
+  </div>
+
+  <button
+    class="btn btn-danger btn-lg w-100 fw-semibold shadow-sm"
+    (click)="openModal()"
+    [disabled]="!isConfirmed"
+    style="letter-spacing: 0.05em;"
+  >
+    Continue
+  </button>
+</div>
+
+<!-- Modal -->
+<div class="modal fade show" tabindex="-1" [ngClass]="{ 'd-block': showModal }" *ngIf="showModal" style="background: rgba(0, 0, 0, 0.6);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow-lg rounded-4 border-danger-subtle">
+      <div class="modal-header bg-danger text-white rounded-top-4">
+        <h5 class="modal-title fw-bold">Enter Member Number</h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
+      </div>
+      <div class="modal-body">
+        <label for="memberInput" class="form-label fw-semibold">Member Number</label>
+        <input
+          type="text"
+          id="memberInput"
+          class="form-control form-control-lg"
+          [(ngModel)]="memberNumber"
+          placeholder="e.g. BB000055"
+          autofocus
+        />
+        <div *ngIf="memberNumberError" class="text-danger mt-2 fst-italic fw-semibold">{{ memberNumberError }}</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary fw-semibold" (click)="closeModal()">Cancel</button>
+        <button class="btn btn-danger fw-semibold" (click)="validateAndContinue()">Continue</button>
+      </div>
+    </div>
+  </div>
+</div>

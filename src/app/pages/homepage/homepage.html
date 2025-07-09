@@ -1,3 +1,10 @@
+<!-- Loading spinner overlay with blur -->
+<div *ngIf="loading" class="loading-overlay" aria-live="assertive" aria-busy="true">
+  <div class="spinner-border text-danger" role="status" aria-label="Loading...">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+
 <form
   [formGroup]="trustForm"
   (ngSubmit)="onSubmit()"
@@ -160,9 +167,59 @@
     </div>
   </div>
 
+  <!-- Bullion Membership Section -->
+  <div class="mb-4">
+    <label class="form-label fw-semibold d-block">Are you a Bullion Member?</label>
+    <div class="form-check form-check-inline">
+      <input
+        class="form-check-input"
+        type="radio"
+        id="bullionYes"
+        [value]="true"
+        formControlName="isBullionMember"
+      />
+      <label class="form-check-label" for="bullionYes">Yes</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input
+        class="form-check-input"
+        type="radio"
+        id="bullionNo"
+        [value]="false"
+        formControlName="isBullionMember"
+      />
+      <label class="form-check-label" for="bullionNo">No</label>
+    </div>
+
+    <!-- Conditionally show member number input if isBullionMember is true -->
+    <div class="mt-3" *ngIf="trustForm.get('isBullionMember')?.value">
+      <label for="memberNumber" class="form-label fw-semibold">Enter your Bullion Member Number *</label>
+      <input
+        type="text"
+        id="memberNumber"
+        class="form-control form-control-lg border-secondary-subtle"
+        formControlName="memberNumber"
+        placeholder="e.g. BB000055"
+      />
+      <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('memberNumber')?.invalid && trustForm.get('memberNumber')?.touched">
+        Please enter a valid member number (e.g. BB000055).
+      </div>
+    </div>
+  </div>
+
+  <!-- Success popup modal -->
+  <div
+    *ngIf="showSuccessPopup"
+    class="position-fixed top-50 start-50 translate-middle p-4 bg-success text-white rounded shadow"
+    style="z-index: 1050; min-width: 300px; text-align:center;"
+  >
+    <h4>✅ Success!</h4>
+    <p>Your trust application was submitted successfully.</p>
+  </div>
+
   <!-- Submit Button -->
   <div class="d-grid">
-    <button type="submit" class="btn btn-danger btn-lg" [disabled]="trustForm.invalid">
+    <button type="submit" class="btn btn-danger btn-lg" [disabled]="trustForm.invalid || loading">
       📤 Submit Trust Application
     </button>
   </div>

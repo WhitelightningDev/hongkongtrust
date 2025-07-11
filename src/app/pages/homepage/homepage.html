@@ -1,3 +1,10 @@
+<!-- Loading spinner overlay with blur -->
+<div *ngIf="loading" class="loading-overlay" aria-live="assertive" aria-busy="true">
+  <div class="spinner-border text-danger" role="status" aria-label="Loading...">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+
 <form
   [formGroup]="trustForm"
   (ngSubmit)="onSubmit()"
@@ -16,11 +23,17 @@
         <label class="form-label fw-semibold">Full Names and Surname *</label>
         <input formControlName="fullName" type="text" class="form-control form-control-lg border-secondary-subtle"
                placeholder="Full name" />
+        <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('fullName')?.invalid && trustForm.get('fullName')?.touched">
+          Please enter your full name.
+        </div>
       </div>
       <div class="col-12 col-md-6">
         <label class="form-label fw-semibold">Passport or ID Number *</label>
         <input formControlName="idNumber" type="text" class="form-control form-control-lg border-secondary-subtle"
                placeholder="Document number" />
+        <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('idNumber')?.invalid && trustForm.get('idNumber')?.touched">
+          Please enter your ID or passport number.
+        </div>
       </div>
     </div>
   </div>
@@ -32,11 +45,17 @@
         <label class="form-label fw-semibold">Email *</label>
         <input formControlName="email" type="email" class="form-control form-control-lg border-secondary-subtle"
                placeholder="you@example.com" />
+        <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('email')?.invalid && trustForm.get('email')?.touched">
+          Please enter a valid email.
+        </div>
       </div>
       <div class="col-12 col-md-6">
         <label class="form-label fw-semibold">Phone Number *</label>
         <input formControlName="phoneNumber" type="text" class="form-control form-control-lg border-secondary-subtle"
                placeholder="+27..." />
+        <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('phoneNumber')?.invalid && trustForm.get('phoneNumber')?.touched">
+          Please enter your phone number.
+        </div>
       </div>
     </div>
   </div>
@@ -63,6 +82,9 @@
             </label>
           </div>
         </div>
+        <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('trustEmail')?.invalid && trustForm.get('trustEmail')?.touched">
+          Please enter a valid trust email.
+        </div>
       </div>
 
       <!-- Trust Name -->
@@ -74,6 +96,9 @@
             <em>The </em><span class="fw-normal">{{ trustForm.get('trustName')?.value }}</span><em> Hong Kong Foreign Trust</em>
           </div>
         </div>
+        <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('trustName')?.invalid && trustForm.get('trustName')?.touched">
+          Please enter a trust name.
+        </div>
       </div>
 
       <!-- Establishment Date -->
@@ -81,75 +106,137 @@
         <label class="form-label">Date of Establishment *</label>
         <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
           <input formControlName="establishmentDate" type="date" class="form-control w-100 w-md-auto"
-                 [min]="minDate" style="max-width: 300px;" />
+       style="max-width: 300px;" />
           <div *ngIf="trustForm.get('establishmentDate')?.value" class="text-muted">
             <em>{{ trustForm.get('establishmentDate')?.value | date: 'd MMMM yyyy' }}</em>
           </div>
         </div>
+        <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('establishmentDate')?.invalid && trustForm.get('establishmentDate')?.touched">
+          Please select a date of establishment.
+        </div>
       </div>
 
-      <!-- Settlor & Trustee 1 -->
-      <div class="mb-4">
-        <label class="form-label fw-semibold">Settlor & Trustee 1</label>
+      <!-- Settlor -->
+      <div class="mb-4" formGroupName="settlor">
+        <label class="form-label fw-semibold d-flex align-items-center gap-3">
+          <span class="text-danger fs-5">Settlor</span>
+          <div class="form-check form-switch mb-0">
+            <input
+              type="checkbox"
+              id="isSettlorCheckbox"
+              class="form-check-input"
+              [checked]="trustForm.get('isSettlor')?.value"
+              (change)="onSettlorCheckboxChange($event)" />
+            <label for="isSettlorCheckbox" class="form-check-label">I am the Settlor</label>
+          </div>
+        </label>
+
         <div class="card border shadow bg-light-subtle p-3">
-          <div class="row g-4">
-            <div class="col-12 col-md-6">
-              <h6 class="text-danger">Settlor</h6>
-              <label>Full Name *</label>
-              <input type="text" [value]="trustForm.get('fullName')?.value" class="form-control" readonly />
-              <label>ID / Passport No *</label>
-              <input type="text" [value]="trustForm.get('idNumber')?.value" class="form-control mb-2" readonly />
-              <label>Upload Document *</label>
-              <input type="file" class="form-control" (change)="onFileUpload('settlor', $event)" />
-            </div>
-
-            <div class="col-12 col-md-6">
-              <h6 class="text-danger">Trustee 1</h6>
-              <div [formGroup]="firstTrustee">
-                <label>Full Name *</label>
-                <input type="text" formControlName="name" class="form-control" readonly />
-                <label>ID / Passport No *</label>
-                <input type="text" formControlName="id" class="form-control mb-2" readonly />
-              </div>
-            </div>
+          <label>Full Name *</label>
+          <input
+            type="text"
+            formControlName="name"
+            [readonly]="trustForm.get('isSettlor')?.value"
+            class="form-control" />
+          <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('settlor.name')?.invalid && trustForm.get('settlor.name')?.touched">
+            Settlor name is required.
           </div>
+
+          <label>ID / Passport No *</label>
+          <input
+            type="text"
+            formControlName="id"
+            [readonly]="trustForm.get('isSettlor')?.value"
+            class="form-control mb-2" />
+          <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('settlor.id')?.invalid && trustForm.get('settlor.id')?.touched">
+            Settlor ID/Passport is required.
+          </div>
+
+          <label>Upload Document *</label>
+          <input type="file" class="form-control" (change)="onFileUpload('settlor', $event)" />
         </div>
       </div>
 
-      <!-- Trustee 2 and Additional -->
+      <!-- Trustee 1 -->
       <div class="mb-4">
-        <label class="form-label">Trustee 2 and Additional Trustees</label>
-        <div class="row g-3">
+        <label class="form-label fw-semibold d-flex align-items-center gap-3">
+          <span class="text-danger fs-5">Trustee 1</span>
+          <div class="form-check form-switch mb-0">
+            <input
+              type="checkbox"
+              id="isTrusteeCheckbox"
+              class="form-check-input"
+              [checked]="trustForm.get('isTrustee')?.value"
+              (change)="onTrusteeCheckboxChange($event)" />
+            <label for="isTrusteeCheckbox" class="form-check-label">I am Trustee 1</label>
+          </div>
+        </label>
 
-          <div class="col-12 col-md-6" [formGroup]="secondTrustee">
-            <div class="card shadow bg-light-subtle p-3 h-100">
-              <label class="form-label">Trustee 2</label>
-              <input type="text" formControlName="name" class="form-control mb-2" placeholder="Full name" />
-              <input type="text" formControlName="id" class="form-control mb-2" placeholder="ID/Passport" />
-              <label>Upload Document *</label>
-              <input type="file" class="form-control" (change)="onFileUpload('trustee2', $event)" />
-            </div>
+        <div [formGroup]="firstTrustee" class="card border shadow bg-light-subtle p-3">
+          <label>Full Name *</label>
+          <input
+            type="text"
+            formControlName="name"
+            [readonly]="trustForm.get('isTrustee')?.value"
+            class="form-control" />
+          <div class="text-danger mt-1 fst-italic" *ngIf="firstTrustee.get('name')?.invalid && firstTrustee.get('name')?.touched">
+            Trustee 1 name is required.
           </div>
 
-          <ng-container *ngFor="let trustee of trustees.controls; let i = index">
-            <div *ngIf="i > 1" class="col-12 col-md-6" [formGroupName]="i">
-              <div class="card shadow bg-light-subtle p-3 h-100">
-                <label class="form-label">Trustee {{ i + 1 }} (Optional)</label>
-                <input type="text" formControlName="name" class="form-control mb-2" />
-                <input type="text" formControlName="id" class="form-control mb-2" />
-                <label>Upload Document</label>
-                <input type="file" class="form-control" (change)="onFileUpload('trustee' + i, $event)" />
-              </div>
-            </div>
-          </ng-container>
-        </div>
+          <label>ID / Passport No *</label>
+          <input
+            type="text"
+            formControlName="id"
+            [readonly]="trustForm.get('isTrustee')?.value"
+            class="form-control mb-2" />
+          <div class="text-danger mt-1 fst-italic" *ngIf="firstTrustee.get('id')?.invalid && firstTrustee.get('id')?.touched">
+            Trustee 1 ID/Passport is required.
+          </div>
 
-        <div class="mt-3">
-          <button type="button" (click)="addTrustee()" class="btn btn-outline-danger btn-sm">
-            ➕ Add Another Trustee
-          </button>
+          <label>Upload Document *</label>
+          <input type="file" class="form-control" (change)="onFileUpload('trustee1', $event)" />
         </div>
       </div>
+
+     <!-- Trustee 2 -->
+<div class="mb-4">
+  <label class="form-label fw-semibold text-danger fs-5">Trustee 2</label>
+  <div [formGroup]="secondTrustee" class="card border shadow bg-light-subtle p-3">
+    <label>Full Name</label>
+    <input type="text" formControlName="name" class="form-control mb-2" placeholder="Full name" />
+    <label>ID / Passport No</label>
+    <input type="text" formControlName="id" class="form-control mb-2" placeholder="ID/Passport" />
+    <label>Upload Document</label>
+    <input type="file" class="form-control" (change)="onFileUpload('trustee2', $event)" />
+  </div>
+</div>
+
+<!-- Trustee 3 -->
+<div class="mb-4" [formGroup]="thirdTrustee">
+  <label class="form-label fw-semibold text-danger fs-5">Trustee 3 (Optional)</label>
+  <div class="card border shadow bg-light-subtle p-3">
+    <label>Full Name</label>
+    <input type="text" formControlName="name" class="form-control mb-2" placeholder="Full name" />
+    <label>ID / Passport No</label>
+    <input type="text" formControlName="id" class="form-control mb-2" placeholder="ID/Passport" />
+    <label>Upload Document</label>
+    <input type="file" class="form-control" (change)="onFileUpload('trustee3', $event)" />
+  </div>
+</div>
+
+<!-- Trustee 4 -->
+<div class="mb-4" [formGroup]="fourthTrustee">
+  <label class="form-label fw-semibold text-danger fs-5">Trustee 4 (Optional)</label>
+  <div class="card border shadow bg-light-subtle p-3">
+    <label>Full Name</label>
+    <input type="text" formControlName="name" class="form-control mb-2" placeholder="Full name" />
+    <label>ID / Passport No</label>
+    <input type="text" formControlName="id" class="form-control mb-2" placeholder="ID/Passport" />
+    <label>Upload Document</label>
+    <input type="file" class="form-control" (change)="onFileUpload('trustee4', $event)" />
+  </div>
+</div>
+
 
       <!-- Beneficiaries -->
       <div class="mb-4">
@@ -160,10 +247,89 @@
     </div>
   </div>
 
+  <!-- Bullion Membership Section -->
+  <div class="mb-4">
+    <label class="form-label fw-semibold d-block">Are you a Bullion Member?</label>
+    <div class="form-check form-check-inline">
+      <input
+        class="form-check-input"
+        type="radio"
+        id="bullionYes"
+        [value]="true"
+        formControlName="isBullionMember"
+      />
+      <label class="form-check-label" for="bullionYes">Yes</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input
+        class="form-check-input"
+        type="radio"
+        id="bullionNo"
+        [value]="false"
+        formControlName="isBullionMember"
+      />
+      <label class="form-check-label" for="bullionNo">No</label>
+    </div>
+
+    <!-- Member Number Input -->
+    <div class="mt-3" *ngIf="trustForm.get('isBullionMember')?.value">
+      <label for="memberNumber" class="form-label fw-semibold">Enter your Bullion Member Number *</label>
+      <input
+        type="text"
+        id="memberNumber"
+        class="form-control form-control-lg border-secondary-subtle"
+        formControlName="memberNumber"
+        placeholder="e.g. CBXXXXX"
+      />
+      <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('memberNumber')?.invalid && trustForm.get('memberNumber')?.touched">
+        Please enter a valid member number (e.g. CBXXXXX).
+      </div>
+    </div>
+
+    <!-- Referrer Checkbox -->
+    <div class="form-check mt-4">
+      <input
+        type="checkbox"
+        id="wasReferred"
+        class="form-check-input"
+        formControlName="wasReferredByMember"
+      />
+      <label class="form-check-label" for="wasReferred">
+        Were you referred by a Bullion Member?
+      </label>
+    </div>
+
+    <!-- Referrer Number Input -->
+    <div class="mt-3" *ngIf="trustForm.get('wasReferredByMember')?.value">
+      <label for="referrerNumber" class="form-label fw-semibold">Enter the Referrer’s Member Number</label>
+      <input
+        type="text"
+        id="referrerNumber"
+        class="form-control form-control-lg border-secondary-subtle"
+        formControlName="referrerNumber"
+        placeholder="e.g. CBXXXXX"
+      />
+      <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('referrerNumber')?.invalid && trustForm.get('referrerNumber')?.touched">
+        Please enter a valid referrer number (e.g. BB000077).
+      </div>
+    </div>
+  </div>
+
+  <!-- Success popup modal -->
+  <div
+    *ngIf="showSuccessPopup"
+    class="position-fixed top-50 start-50 translate-middle p-4 bg-success text-white rounded shadow"
+    style="z-index: 1050; min-width: 300px; text-align:center;"
+  >
+    <h4>✅ Success!</h4>
+    <p>Your trust application was submitted successfully.</p>
+  </div>
+
   <!-- Submit Button -->
   <div class="d-grid">
-    <button type="submit" class="btn btn-danger btn-lg" [disabled]="trustForm.invalid">
-      📤 Submit Trust Application
-    </button>
+   <button type="submit" class="btn btn-danger btn-lg">
+  📤 Submit Trust Application
+</button>
+
   </div>
 </form>

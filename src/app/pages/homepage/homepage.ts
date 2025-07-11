@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 
@@ -25,8 +25,8 @@ export class Homepage implements OnInit, AfterViewInit {
       email: ['', [Validators.required, Validators.email]],
       fullName: ['', Validators.required],
       idNumber: ['', Validators.required],
-      isSettlor: [false],   // default unchecked
-      isTrustee: [false],   // default unchecked
+      isSettlor: [false],
+      isTrustee: [false],
       trustEmail: ['', [Validators.email]],
       phoneNumber: ['', Validators.required],
       trustName: ['', Validators.required],
@@ -43,13 +43,13 @@ export class Homepage implements OnInit, AfterViewInit {
         id: ['', Validators.required]
       }),
 
-      trustees: this.fb.array([
-        this.createTrustee(false),
-        this.createTrustee(false)
-      ])
+      trustee1: this.createTrustee(false),
+      trustee2: this.createTrustee(false),
+      trustee3: this.createTrustee(false),
+      trustee4: this.createTrustee(false)
     });
 
-    // Validators for bullion member number
+    // Validators for Bullion Member
     this.trustForm.get('isBullionMember')!.valueChanges.subscribe((isMember: boolean) => {
       const memberNumber = this.trustForm.get('memberNumber')!;
       if (isMember) {
@@ -64,7 +64,7 @@ export class Homepage implements OnInit, AfterViewInit {
       memberNumber.updateValueAndValidity();
     });
 
-    // Validators for referrer number
+    // Validators for Referrer
     this.trustForm.get('wasReferredByMember')!.valueChanges.subscribe((wasReferred: boolean) => {
       const referrerControl = this.trustForm.get('referrerNumber')!;
       if (wasReferred) {
@@ -81,7 +81,6 @@ export class Homepage implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    // Sync trustEmail if "use my email" is checked
     this.trustForm.get('email')?.valueChanges.subscribe(email => {
       if (this.useUserEmailForTrustEmail) {
         this.trustForm.get('trustEmail')?.setValue(email);
@@ -90,68 +89,56 @@ export class Homepage implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Autofill settlor and trustee names and IDs after view init (handle autofill/browser quirks)
     setTimeout(() => {
       const fullName = this.trustForm.get('fullName')?.value;
       const idNumber = this.trustForm.get('idNumber')?.value;
 
       if (fullName?.trim()) {
-        if (!this.trustForm.get('isSettlor')?.value) {
-          const settlorNameControl = this.trustForm.get('settlor.name');
-          if (settlorNameControl && !settlorNameControl.value?.trim()) {
-            settlorNameControl.setValue(fullName, { emitEvent: false });
-          }
+        if (!this.trustForm.get('isSettlor')?.value && !this.settlor.get('name')?.value?.trim()) {
+          this.settlor.get('name')?.setValue(fullName, { emitEvent: false });
         }
-
-        if (!this.trustForm.get('isTrustee')?.value) {
-          const trusteeNameControl = this.trustees.at(0)?.get('name');
-          if (trusteeNameControl && !trusteeNameControl.value?.trim()) {
-            trusteeNameControl.setValue(fullName, { emitEvent: false });
-          }
+        if (!this.trustForm.get('isTrustee')?.value && !this.firstTrustee.get('name')?.value?.trim()) {
+          this.firstTrustee.get('name')?.setValue(fullName, { emitEvent: false });
         }
-
         this.trustForm.get('altSettlorName')?.setValue(fullName, { emitEvent: false });
       }
 
       if (idNumber?.trim()) {
-        if (!this.trustForm.get('isSettlor')?.value) {
-          const settlorIdControl = this.trustForm.get('settlor.id');
-          if (settlorIdControl && !settlorIdControl.value?.trim()) {
-            settlorIdControl.setValue(idNumber, { emitEvent: false });
-          }
+        if (!this.trustForm.get('isSettlor')?.value && !this.settlor.get('id')?.value?.trim()) {
+          this.settlor.get('id')?.setValue(idNumber, { emitEvent: false });
         }
-
-        if (!this.trustForm.get('isTrustee')?.value) {
-          const trusteeIdControl = this.trustees.at(0)?.get('id');
-          if (trusteeIdControl && !trusteeIdControl.value?.trim()) {
-            trusteeIdControl.setValue(idNumber, { emitEvent: false });
-          }
+        if (!this.trustForm.get('isTrustee')?.value && !this.firstTrustee.get('id')?.value?.trim()) {
+          this.firstTrustee.get('id')?.setValue(idNumber, { emitEvent: false });
         }
       }
-    }, 100); // delay for autofill fix
+    }, 100);
   }
 
-  get trustees(): FormArray {
-    return this.trustForm.get('trustees') as FormArray;
+  get settlor(): FormGroup {
+    return this.trustForm.get('settlor') as FormGroup;
   }
 
   get firstTrustee(): FormGroup {
-    return this.trustees.at(0) as FormGroup;
+    return this.trustForm.get('trustee1') as FormGroup;
   }
 
   get secondTrustee(): FormGroup {
-    return this.trustees.at(1) as FormGroup;
+    return this.trustForm.get('trustee2') as FormGroup;
+  }
+
+  get thirdTrustee(): FormGroup {
+    return this.trustForm.get('trustee3') as FormGroup;
+  }
+
+  get fourthTrustee(): FormGroup {
+    return this.trustForm.get('trustee4') as FormGroup;
   }
 
   createTrustee(isReadonly = false): FormGroup {
     return this.fb.group({
-      name: [{ value: '', disabled: isReadonly }, Validators.required],
-      id: [{ value: '', disabled: isReadonly }, Validators.required]
+      name: [{ value: '', disabled: isReadonly }],
+      id: [{ value: '', disabled: isReadonly }]
     });
-  }
-
-  addTrustee(): void {
-    this.trustees.push(this.createTrustee(false));
   }
 
   onFileUpload(role: string, event: Event): void {
@@ -166,13 +153,13 @@ export class Homepage implements OnInit, AfterViewInit {
   toggleUseUserEmailForTrustEmail(event: Event): void {
     this.useUserEmailForTrustEmail = (event.target as HTMLInputElement).checked;
 
+    const trustEmailControl = this.trustForm.get('trustEmail');
     if (this.useUserEmailForTrustEmail) {
-      const userEmail = this.trustForm.get('email')?.value || '';
-      this.trustForm.get('trustEmail')?.setValue(userEmail);
-      this.trustForm.get('trustEmail')?.disable();
+      trustEmailControl?.setValue(this.trustForm.get('email')?.value || '');
+      trustEmailControl?.disable();
     } else {
-      this.trustForm.get('trustEmail')?.enable();
-      this.trustForm.get('trustEmail')?.setValue('');
+      trustEmailControl?.enable();
+      trustEmailControl?.setValue('');
     }
   }
 
@@ -180,24 +167,22 @@ export class Homepage implements OnInit, AfterViewInit {
     const checked = (event.target as HTMLInputElement).checked;
     this.trustForm.patchValue({ isSettlor: checked });
 
-    const settlorNameControl = this.trustForm.get('settlor.name');
-    const settlorIdControl = this.trustForm.get('settlor.id');
+    const fullName = this.trustForm.get('fullName')?.value || '';
+    const idNumber = this.trustForm.get('idNumber')?.value || '';
+
+    const nameControl = this.settlor.get('name');
+    const idControl = this.settlor.get('id');
 
     if (checked) {
-      const fullName = this.trustForm.get('fullName')?.value || '';
-      const idNumber = this.trustForm.get('idNumber')?.value || '';
-
-      settlorNameControl?.setValue(fullName);
-      settlorIdControl?.setValue(idNumber);
-
-      settlorNameControl?.disable();
-      settlorIdControl?.disable();
+      nameControl?.setValue(fullName);
+      idControl?.setValue(idNumber);
+      nameControl?.disable();
+      idControl?.disable();
     } else {
-      settlorNameControl?.enable();
-      settlorIdControl?.enable();
-
-      settlorNameControl?.setValue('');
-      settlorIdControl?.setValue('');
+      nameControl?.enable();
+      idControl?.enable();
+      nameControl?.reset();
+      idControl?.reset();
     }
   }
 
@@ -205,87 +190,90 @@ export class Homepage implements OnInit, AfterViewInit {
     const checked = (event.target as HTMLInputElement).checked;
     this.trustForm.patchValue({ isTrustee: checked });
 
-    const trusteeNameControl = this.firstTrustee.get('name');
-    const trusteeIdControl = this.firstTrustee.get('id');
+    const fullName = this.trustForm.get('fullName')?.value || '';
+    const idNumber = this.trustForm.get('idNumber')?.value || '';
+
+    const nameControl = this.firstTrustee.get('name');
+    const idControl = this.firstTrustee.get('id');
 
     if (checked) {
-      const fullName = this.trustForm.get('fullName')?.value || '';
-      const idNumber = this.trustForm.get('idNumber')?.value || '';
-
-      trusteeNameControl?.setValue(fullName);
-      trusteeIdControl?.setValue(idNumber);
-
-      trusteeNameControl?.disable();
-      trusteeIdControl?.disable();
+      nameControl?.setValue(fullName);
+      idControl?.setValue(idNumber);
+      nameControl?.disable();
+      idControl?.disable();
     } else {
-      trusteeNameControl?.enable();
-      trusteeIdControl?.enable();
-
-      trusteeNameControl?.setValue('');
-      trusteeIdControl?.setValue('');
+      nameControl?.enable();
+      idControl?.enable();
+      nameControl?.reset();
+      idControl?.reset();
     }
   }
 
-  onSubmit(): void {
-    if (this.trustForm.invalid) {
-    this.trustForm.markAllAsTouched(); // show errors
-    return; // prevent submission
+ onSubmit(): void {
+  if (this.trustForm.invalid) {
+    this.trustForm.markAllAsTouched();
+    return;
   }
 
-    this.loading = true;
+  this.loading = true;
+  const raw = this.trustForm.getRawValue();
+  const formData = new FormData();
 
-    const raw = this.trustForm.getRawValue();
-    const formData = new FormData();
+  formData.append('full_name', raw.fullName);
+  formData.append('id_number', raw.idNumber);
+  formData.append('email', raw.email);
+  formData.append('phone_number', raw.phoneNumber);
+  formData.append('trust_email', raw.trustEmail || '');
+  formData.append('trust_name', raw.trustName);
+  formData.append('establishment_date', raw.establishmentDate);
+  formData.append('beneficiaries', raw.beneficiaries || '');
+  formData.append('is_bullion_member', raw.isBullionMember ? 'true' : 'false');
+  formData.append('member_number', raw.memberNumber || '');
+  formData.append('was_referred_by_member', raw.wasReferredByMember ? 'true' : 'false');
+  formData.append('referrer_number', raw.referrerNumber || '');
 
-    // Flattened fields
-    formData.append('full_name', raw.fullName);
-    formData.append('id_number', raw.idNumber);
-    formData.append('email', raw.email);
-    formData.append('phone_number', raw.phoneNumber);
-    formData.append('trust_email', raw.trustEmail || '');
-    formData.append('trust_name', raw.trustName);
-    formData.append('establishment_date', raw.establishmentDate);
-    formData.append('beneficiaries', raw.beneficiaries || '');
-    formData.append('is_bullion_member', raw.isBullionMember ? 'true' : 'false');
-    formData.append('member_number', raw.memberNumber || '');
-    formData.append('was_referred_by_member', raw.wasReferredByMember ? 'true' : 'false');
-    formData.append('referrer_number', raw.referrerNumber || '');
+  // Settlor
+  formData.append('settlor_name', raw.settlor.name);
+  formData.append('settlor_id', raw.settlor.id);
 
-    // Settlor fields
-    formData.append('settlor_name', raw.settlor.name);
-    formData.append('settlor_id', raw.settlor.id);
+  // Trustees — prepare JSON array
+  const trusteesArray = [];
 
-    // Trustees as JSON array
-    formData.append('trustees', JSON.stringify(raw.trustees));
-
-    // File uploads (mapped by role)
-    Object.entries(this.fileMap).forEach(([role, file]) => {
-      formData.append('documents', file, file.name);
-    });
-
-    this.uploadedFiles.forEach(file => {
-      formData.append('documents', file, file.name);
-    });
-
-    this.http.post('http://localhost:8000/submit-trust', formData).subscribe({
-      next: () => {
-        this.loading = false;
-        this.showSuccessPopup = true;
-
-        setTimeout(() => {
-          this.showSuccessPopup = false;
-        }, 4000);
-
-        this.trustForm.reset();
-        // reset files as well
-        this.fileMap = {};
-        this.uploadedFiles = [];
-      },
-      error: (err) => {
-        this.loading = false;
-        console.error('❌ Submission error:', err);
-        alert('Error submitting form. See console for details.');
-      }
-    });
+  if (raw.trustee1.name || raw.trustee1.id) {
+    trusteesArray.push({ name: raw.trustee1.name, id: raw.trustee1.id });
   }
+  if (raw.trustee2.name || raw.trustee2.id) {
+    trusteesArray.push({ name: raw.trustee2.name, id: raw.trustee2.id });
+  }
+  if (raw.trustee3.name || raw.trustee3.id) {
+    trusteesArray.push({ name: raw.trustee3.name, id: raw.trustee3.id });
+  }
+  if (raw.trustee4.name || raw.trustee4.id) {
+    trusteesArray.push({ name: raw.trustee4.name, id: raw.trustee4.id });
+  }
+
+  formData.append('trustees', JSON.stringify(trusteesArray));
+
+  // Files
+  Object.entries(this.fileMap).forEach(([role, file]) => {
+    formData.append('documents', file, file.name);
+  });
+
+  this.http.post('http://localhost:8000/submit-trust', formData).subscribe({
+    next: () => {
+      this.loading = false;
+      this.showSuccessPopup = true;
+      setTimeout(() => this.showSuccessPopup = false, 4000);
+      this.trustForm.reset();
+      this.fileMap = {};
+      this.uploadedFiles = [];
+    },
+    error: (err) => {
+      this.loading = false;
+      console.error('❌ Submission error:', err);
+      alert('Error submitting form. See console for details.');
+    }
+  });
+}
+
 }

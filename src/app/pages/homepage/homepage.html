@@ -198,40 +198,45 @@
         </div>
       </div>
 
-      <!-- Trustee 2 and Additional -->
-      <div class="mb-4">
-        <label class="form-label">Trustee 2 and Additional Trustees</label>
-        <div class="row g-3">
+     <!-- Trustee 2 -->
+<div class="mb-4">
+  <label class="form-label fw-semibold text-danger fs-5">Trustee 2</label>
+  <div [formGroup]="secondTrustee" class="card border shadow bg-light-subtle p-3">
+    <label>Full Name</label>
+    <input type="text" formControlName="name" class="form-control mb-2" placeholder="Full name" />
+    <label>ID / Passport No</label>
+    <input type="text" formControlName="id" class="form-control mb-2" placeholder="ID/Passport" />
+    <label>Upload Document</label>
+    <input type="file" class="form-control" (change)="onFileUpload('trustee2', $event)" />
+  </div>
+</div>
 
-          <div class="col-12 col-md-6" [formGroup]="secondTrustee">
-            <div class="card shadow bg-light-subtle p-3 h-100">
-              <label class="form-label">Trustee 2</label>
-              <input type="text" formControlName="name" class="form-control mb-2" placeholder="Full name" />
-              <input type="text" formControlName="id" class="form-control mb-2" placeholder="ID/Passport" />
-              <label>Upload Document *</label>
-              <input type="file" class="form-control" (change)="onFileUpload('trustee2', $event)" />
-            </div>
-          </div>
+<!-- Trustee 3 -->
+<div class="mb-4" [formGroup]="thirdTrustee">
+  <label class="form-label fw-semibold text-danger fs-5">Trustee 3 (Optional)</label>
+  <div class="card border shadow bg-light-subtle p-3">
+    <label>Full Name</label>
+    <input type="text" formControlName="name" class="form-control mb-2" placeholder="Full name" />
+    <label>ID / Passport No</label>
+    <input type="text" formControlName="id" class="form-control mb-2" placeholder="ID/Passport" />
+    <label>Upload Document</label>
+    <input type="file" class="form-control" (change)="onFileUpload('trustee3', $event)" />
+  </div>
+</div>
 
-          <ng-container *ngFor="let trustee of trustees.controls; let i = index">
-            <div *ngIf="i > 1" class="col-12 col-md-6" [formGroupName]="i">
-              <div class="card shadow bg-light-subtle p-3 h-100">
-                <label class="form-label">Trustee {{ i + 1 }} (Optional)</label>
-                <input type="text" formControlName="name" class="form-control mb-2" />
-                <input type="text" formControlName="id" class="form-control mb-2" />
-                <label>Upload Document</label>
-                <input type="file" class="form-control" (change)="onFileUpload('trustee' + i, $event)" />
-              </div>
-            </div>
-          </ng-container>
-        </div>
+<!-- Trustee 4 -->
+<div class="mb-4" [formGroup]="fourthTrustee">
+  <label class="form-label fw-semibold text-danger fs-5">Trustee 4 (Optional)</label>
+  <div class="card border shadow bg-light-subtle p-3">
+    <label>Full Name</label>
+    <input type="text" formControlName="name" class="form-control mb-2" placeholder="Full name" />
+    <label>ID / Passport No</label>
+    <input type="text" formControlName="id" class="form-control mb-2" placeholder="ID/Passport" />
+    <label>Upload Document</label>
+    <input type="file" class="form-control" (change)="onFileUpload('trustee4', $event)" />
+  </div>
+</div>
 
-        <div class="mt-3">
-          <button type="button" (click)="addTrustee()" class="btn btn-outline-danger btn-sm">
-            ➕ Add Another Trustee
-          </button>
-        </div>
-      </div>
 
       <!-- Beneficiaries -->
       <div class="mb-4">

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
@@ -10,17 +10,14 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
   templateUrl: './homepage.html',
   styleUrls: ['./homepage.css']
 })
-export class Homepage implements OnInit {
+export class Homepage implements OnInit, AfterViewInit {
   trustForm: FormGroup;
   minDate: string = new Date().toISOString().split('T')[0];
   uploadedFiles: File[] = [];
   fileMap: { [key: string]: File } = {};
   useUserEmailForTrustEmail = false;
 
-  // Controls loading spinner and blur overlay visibility
   loading = false;
-
-  // Controls success popup visibility
   showSuccessPopup = false;
 
   constructor(private fb: FormBuilder, private http: HttpClient) {
@@ -38,32 +35,47 @@ export class Homepage implements OnInit {
       beneficiaries: [''],
       isBullionMember: [false],
       memberNumber: [''],
+
+      settlor: this.fb.group({
+        name: ['', Validators.required],
+        id: ['', Validators.required]
+      }),
+
       trustees: this.fb.array([
-        this.createTrustee(true),
+        this.createTrustee(false),
         this.createTrustee(false)
       ])
     });
 
     this.trustForm.get('fullName')!.valueChanges.subscribe(name => {
+      const settlorName = this.trustForm.get('settlor.name')!;
+      if (!settlorName.value) settlorName.setValue(name, { emitEvent: false });
+
+      const trusteeName = this.trustees.at(0).get('name')!;
+      if (!trusteeName.value) trusteeName.setValue(name, { emitEvent: false });
+
       this.trustForm.get('altSettlorName')!.setValue(name, { emitEvent: false });
-      this.trustees.at(0).get('name')!.setValue(name, { emitEvent: false });
     });
 
     this.trustForm.get('idNumber')!.valueChanges.subscribe(id => {
-      this.trustees.at(0).get('id')!.setValue(id, { emitEvent: false });
+      const settlorId = this.trustForm.get('settlor.id')!;
+      if (!settlorId.value) settlorId.setValue(id, { emitEvent: false });
+
+      const trusteeId = this.trustees.at(0).get('id')!;
+      if (!trusteeId.value) trusteeId.setValue(id, { emitEvent: false });
     });
 
     this.trustForm.get('isBullionMember')!.valueChanges.subscribe((isMember: boolean) => {
-      const memberNumberControl = this.trustForm.get('memberNumber')!;
+      const memberNumber = this.trustForm.get('memberNumber')!;
       if (isMember) {
-        memberNumberControl.setValidators([
+        memberNumber.setValidators([
           Validators.required,
           Validators.pattern(/^BB\d{6}$/i)
         ]);
       } else {
-        memberNumberControl.clearValidators();
+        memberNumber.clearValidators();
       }
-      memberNumberControl.updateValueAndValidity();
+      memberNumber.updateValueAndValidity();
     });
   }
 
@@ -74,6 +86,45 @@ export class Homepage implements OnInit {
       }
     });
   }
+
+  ngAfterViewInit(): void {
+  // Workaround for browser autofill after Angular's view initialization
+  setTimeout(() => {
+    const fullName = this.trustForm.get('fullName')?.value;
+    const idNumber = this.trustForm.get('idNumber')?.value;
+
+    // Autofill Settlor and Trustee 1 Full Name
+    if (fullName?.trim()) {
+      const settlorNameControl = this.trustForm.get('settlor.name');
+      const trusteeNameControl = this.trustees.at(0)?.get('name');
+
+      if (settlorNameControl && !settlorNameControl.value?.trim()) {
+        settlorNameControl.setValue(fullName, { emitEvent: false });
+      }
+
+      if (trusteeNameControl && !trusteeNameControl.value?.trim()) {
+        trusteeNameControl.setValue(fullName, { emitEvent: false });
+      }
+
+      this.trustForm.get('altSettlorName')?.setValue(fullName, { emitEvent: false });
+    }
+
+    // Autofill Settlor and Trustee 1 ID
+    if (idNumber?.trim()) {
+      const settlorIdControl = this.trustForm.get('settlor.id');
+      const trusteeIdControl = this.trustees.at(0)?.get('id');
+
+      if (settlorIdControl && !settlorIdControl.value?.trim()) {
+        settlorIdControl.setValue(idNumber, { emitEvent: false });
+      }
+
+      if (trusteeIdControl && !trusteeIdControl.value?.trim()) {
+        trusteeIdControl.setValue(idNumber, { emitEvent: false });
+      }
+    }
+  }, 500); // Adjust delay if needed for autofill timing
+}
+
 
   get trustees(): FormArray {
     return this.trustForm.get('trustees') as FormArray;
@@ -132,7 +183,7 @@ export class Homepage implements OnInit {
       return;
     }
 
-    this.loading = true; // Show spinner & blur overlay
+    this.loading = true;
 
     const raw = this.trustForm.getRawValue();
     const formData = new FormData();
@@ -148,6 +199,7 @@ export class Homepage implements OnInit {
     formData.append('is_bullion_member', raw.isBullionMember ? 'true' : 'false');
     formData.append('member_number', raw.memberNumber || '');
 
+    formData.append('settlor', JSON.stringify(raw.settlor));
     formData.append('trustees', JSON.stringify(raw.trustees));
 
     Object.entries(this.fileMap).forEach(([role, file]) => {
@@ -159,8 +211,8 @@ export class Homepage implements OnInit {
     });
 
     this.http.post('http://localhost:8000/submit-trust', formData).subscribe({
-      next: (res) => {
-        this.loading = false;        // Hide spinner & blur
+      next: () => {
+        this.loading = false;
         this.showSuccessPopup = true;
 
         setTimeout(() => {
@@ -170,7 +222,7 @@ export class Homepage implements OnInit {
         this.trustForm.reset();
       },
       error: (err) => {
-        this.loading = false;        // Hide spinner & blur
+        this.loading = false;
         console.error('❌ Submission error:', err);
         alert('Error submitting form. See console for details.');
       }

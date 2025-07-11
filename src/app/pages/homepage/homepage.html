@@ -103,9 +103,9 @@
             <div class="col-12 col-md-6">
               <h6 class="text-danger">Settlor</h6>
               <label>Full Name *</label>
-              <input type="text" [value]="trustForm.get('fullName')?.value" class="form-control" readonly />
+              <input type="text" [value]="trustForm.get('fullName')?.value" class="form-control"  />
               <label>ID / Passport No *</label>
-              <input type="text" [value]="trustForm.get('idNumber')?.value" class="form-control mb-2" readonly />
+              <input type="text" [value]="trustForm.get('idNumber')?.value" class="form-control mb-2"  />
               <label>Upload Document *</label>
               <input type="file" class="form-control" (change)="onFileUpload('settlor', $event)" />
             </div>
@@ -114,9 +114,9 @@
               <h6 class="text-danger">Trustee 1</h6>
               <div [formGroup]="firstTrustee">
                 <label>Full Name *</label>
-                <input type="text" formControlName="name" class="form-control" readonly />
-                <label>ID / Passport No *</label>
-                <input type="text" formControlName="id" class="form-control mb-2" readonly />
+                <input type="text" formControlName="name" class="form-control"  />
+               <label>ID / Passport No *</label>
+              <input type="text" [value]="trustForm.get('idNumber')?.value" class="form-control mb-2"  />
               </div>
             </div>
           </div>

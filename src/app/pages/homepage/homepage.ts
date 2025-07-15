@@ -265,7 +265,7 @@ export class Homepage implements OnInit, AfterViewInit {
     console.log('✅ Submission response:', res);
     this.loading = false;
     this.showSuccessPopup = true;
-    setTimeout(() => this.showSuccessPopup = false, 4000);
+    setTimeout(() => this.showSuccessPopup = false, 5000);
     this.trustForm.reset();
     this.fileMap = {};
     this.uploadedFiles = [];

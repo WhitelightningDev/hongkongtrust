@@ -317,13 +317,17 @@
 
   <!-- Success popup modal -->
   <div
-    *ngIf="showSuccessPopup"
-    class="position-fixed top-50 start-50 translate-middle p-4 bg-success text-white rounded shadow"
-    style="z-index: 1050; min-width: 300px; text-align:center;"
-  >
-    <h4>✅ Success!</h4>
-    <p>Your trust application was submitted successfully.</p>
+  *ngIf="showSuccessPopup"
+  class="position-fixed top-50 start-50 translate-middle bg-white text-success border border-success rounded-4 shadow-lg px-5 py-4"
+  style="z-index: 1050; min-width: 320px; text-align: center;"
+>
+  <div class="mb-2">
+    <i class="bi bi-check-circle-fill fs-1 text-success"></i>
   </div>
+  <h5 class="fw-bold mb-2">Success!</h5>
+  <p class="mb-0">Your trust application was submitted successfully.</p>
+</div>
+
 
   <!-- Submit Button -->
   <div class="d-grid">

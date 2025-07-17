@@ -115,8 +115,7 @@
       </div>
     </div>
   </div>
-
- <!-- PDF Downloads Section -->
+<!-- PDF Downloads Section -->
 <div class="row mb-4">
   <div class="col-12">
     <h5 class="fw-bold mb-3">Download Important Documents</h5>
@@ -125,10 +124,11 @@
         <h6 class="text-primary">Features of HKFT</h6>
         <p class="small text-secondary">Features of a Hong Kong Foreign Trust.</p>
         <button
-          class="btn btn-outline-primary btn-sm w-100"
+          class="btn btn-outline-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
           (click)="downloadPdf('/HongKongForeignTrustFeatures.pdf', 'HongKongForeignTrustFeatures.pdf')"
           type="button"
         >
+          <i class="bi bi-file-earmark-pdf" style="font-size: 1.2rem;"></i>
           Download PDF
         </button>
       </div>
@@ -137,10 +137,11 @@
         <h6 class="text-primary">Trust Law</h6>
         <p class="small text-secondary">Trust Law (Amendment) Ordinance 2013.</p>
         <button
-          class="btn btn-outline-primary btn-sm w-100"
-          (click)="downloadPdf('/HKGTrustOrdinance.pdf', 'HKGTrustOrdinance.pdf.pdf')"
+          class="btn btn-outline-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
+          (click)="downloadPdf('/HKGTrustOrdinance.pdf', 'HKGTrustOrdinance.pdf')"
           type="button"
         >
+          <i class="bi bi-file-earmark-pdf" style="font-size: 1.2rem;"></i>
           Download PDF
         </button>
       </div>
@@ -149,16 +150,18 @@
         <h6 class="text-primary">Article by Munro</h6>
         <p class="small text-secondary">Article by Munro.</p>
         <button
-          class="btn btn-outline-primary btn-sm w-100"
+          class="btn btn-outline-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
           (click)="downloadPdf('/ArticlebyMunro.pdf', 'Article by Munro.pdf')"
           type="button"
         >
+          <i class="bi bi-file-earmark-pdf" style="font-size: 1.2rem;"></i>
           Download PDF
         </button>
       </div>
     </div>
   </div>
 </div>
+
 
 
   <!-- Confirmation & Submit -->

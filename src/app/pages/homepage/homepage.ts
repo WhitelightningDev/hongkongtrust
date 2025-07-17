@@ -260,7 +260,7 @@ export class Homepage implements OnInit, AfterViewInit {
   });
 
   // this.http.post('http://localhost:8000/submit-trust', formData).subscribe({
-  this.http.post<any>('https://hongkongbackend.onrender.com/submit-trust', formData).subscribe({
+  this.http.post<any>('https://hongkongbackend.onrender.com/trusts/submit-trust', formData).subscribe({
   next: (res) => {
     console.log('✅ Submission response:', res);
     this.loading = false;

@@ -20,4 +20,14 @@ export class Welcomepage {
       this.router.navigate(['/homepage']);
     }
   }
+
+  downloadPdf(url: string, filename: string): void {
+    // Create an invisible anchor element
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 }

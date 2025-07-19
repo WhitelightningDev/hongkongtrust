@@ -219,7 +219,7 @@ async onSubmit(): Promise<void> {
     const amount = raw.isBullionMember ? 3000 : 7500;
     const amountInCents = amount * 100;
 
-    // Call your backend to create a Yoco Hosted Checkout session
+    // 🔹 Request payment session from backend
     const paymentInit = await this.http.post<any>(
       'https://hongkongbackend.onrender.com/api/payment-session',
       {
@@ -232,7 +232,7 @@ async onSubmit(): Promise<void> {
       throw new Error('Invalid payment session data from backend');
     }
 
-    // Store form + file data to sessionStorage before redirecting
+    // 🔹 Store form data to sessionStorage before redirecting
     const rawForm = this.trustForm.getRawValue();
     const fileMap = this.fileMap;
 
@@ -251,9 +251,11 @@ async onSubmit(): Promise<void> {
     );
     sessionStorage.setItem('trustFiles', JSON.stringify(serializedFiles));
 
-    this.loading = false;
+    // Optional: Add short delay for UX smoothing
+    await new Promise((res) => setTimeout(res, 500));
 
-    // Redirect to Yoco's Hosted Checkout Page
+    // 🔹 Redirect to Yoco checkout page
+    this.loading = false;
     window.location.href = paymentInit.data.url;
 
   } catch (error: any) {

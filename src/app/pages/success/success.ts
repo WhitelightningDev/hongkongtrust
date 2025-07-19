@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 
@@ -20,8 +20,12 @@ export class SuccessComponent implements OnInit {
     try {
       const rawForm = JSON.parse(sessionStorage.getItem('trustFormData') || '{}');
       const serializedFiles = JSON.parse(sessionStorage.getItem('trustFiles') || '[]');
+      const trustId = sessionStorage.getItem('trustId') || '';
 
       const formData = new FormData();
+
+      // Append trustId
+      formData.append('trust_id', trustId);
 
       formData.append('full_name', rawForm.fullName);
       formData.append('id_number', rawForm.idNumber);
@@ -68,8 +72,10 @@ export class SuccessComponent implements OnInit {
 
       await this.http.post('https://hongkongbackend.onrender.com/trusts/submit-trust', formData).toPromise();
 
+      // Clear sessionStorage keys after successful submission
       sessionStorage.removeItem('trustFormData');
       sessionStorage.removeItem('trustFiles');
+      sessionStorage.removeItem('trustId');
 
       this.success = true;
     } catch (err: any) {

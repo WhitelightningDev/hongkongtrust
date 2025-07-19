@@ -206,6 +206,7 @@ export class Homepage implements OnInit, AfterViewInit {
       idControl?.reset();
     }
   }
+
 async onSubmit(): Promise<void> {
   if (this.trustForm.invalid) {
     this.trustForm.markAllAsTouched();
@@ -216,7 +217,7 @@ async onSubmit(): Promise<void> {
 
   try {
     const rawForm = this.trustForm.getRawValue();
-    const amount = rawForm.isBullionMember ? 3000 : 7500;
+    const amount = rawForm.isBullionMember ? 5 : 7500;
     const amountInCents = amount * 100;
 
     // Request Yoco payment session + trust ID from backend
@@ -230,15 +231,16 @@ async onSubmit(): Promise<void> {
 
     if (
       !paymentInit ||
-      !paymentInit.redirectUrl ||
-      !paymentInit.trust_id
+      !paymentInit.data ||
+      !paymentInit.data.redirectUrl ||
+      !paymentInit.data.trust_id
     ) {
       throw new Error('Invalid response from backend');
     }
 
-    const trustId = paymentInit.trust_id;
+    const trustId = paymentInit.data.trust_id;
 
-    // Save form + files to sessionStorage
+    // Save form + files + trustId to sessionStorage
     sessionStorage.setItem('trustFormData', JSON.stringify(rawForm));
     sessionStorage.setItem('trustId', trustId);
 
@@ -255,12 +257,13 @@ async onSubmit(): Promise<void> {
     );
     sessionStorage.setItem('trustFiles', JSON.stringify(serializedFiles));
 
-    // UX delay
+    // Optional UX delay
     await new Promise((res) => setTimeout(res, 500));
 
-    // Redirect to Yoco checkout
     this.loading = false;
-    window.location.href = paymentInit.redirectUrl;
+
+    // Redirect user to Yoco checkout page
+    window.location.href = paymentInit.data.redirectUrl;
 
   } catch (error: any) {
     alert('Error: ' + (error.message || error));
@@ -268,7 +271,5 @@ async onSubmit(): Promise<void> {
     this.loading = false;
   }
 }
-
-
 
 }

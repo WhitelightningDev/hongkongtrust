@@ -215,8 +215,8 @@ async onSubmit(): Promise<void> {
   this.loading = true;
 
   try {
-    const raw = this.trustForm.getRawValue();
-    const amount = raw.isBullionMember ? 3000 : 7500;
+    const rawForm = this.trustForm.getRawValue();
+    const amount = rawForm.isBullionMember ? 3000 : 7500;
     const amountInCents = amount * 100;
 
     // 🔹 Request payment session from backend
@@ -228,18 +228,15 @@ async onSubmit(): Promise<void> {
       }
     ).toPromise();
 
-    if (!paymentInit || !paymentInit.data || !paymentInit.data.url) {
+    if (!paymentInit || !paymentInit.data || !paymentInit.data.redirectUrl) {
       throw new Error('Invalid payment session data from backend');
     }
 
-    // 🔹 Store form data to sessionStorage before redirecting
-    const rawForm = this.trustForm.getRawValue();
-    const fileMap = this.fileMap;
-
+    // 🔹 Store form data to sessionStorage
     sessionStorage.setItem('trustFormData', JSON.stringify(rawForm));
 
     const serializedFiles = await Promise.all(
-      Object.entries(fileMap).map(async ([role, file]) => {
+      Object.entries(this.fileMap).map(async ([role, file]) => {
         const buffer = await file.arrayBuffer();
         return {
           role,
@@ -251,12 +248,12 @@ async onSubmit(): Promise<void> {
     );
     sessionStorage.setItem('trustFiles', JSON.stringify(serializedFiles));
 
-    // Optional: Add short delay for UX smoothing
+    // Optional: Add delay for UX
     await new Promise((res) => setTimeout(res, 500));
 
     // 🔹 Redirect to Yoco checkout page
     this.loading = false;
-    window.location.href = paymentInit.data.url;
+    window.location.href = paymentInit.data.redirectUrl;
 
   } catch (error: any) {
     alert('Error: ' + (error.message || error));

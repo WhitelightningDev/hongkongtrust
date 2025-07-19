@@ -219,7 +219,7 @@ async onSubmit(): Promise<void> {
     const amount = rawForm.isBullionMember ? 3000 : 7500;
     const amountInCents = amount * 100;
 
-    // 🔹 Request Yoco payment session + trust ID from backend
+    // Request Yoco payment session + trust ID from backend
     const paymentInit = await this.http.post<any>(
       'https://hongkongbackend.onrender.com/api/payment-session',
       {
@@ -230,16 +230,15 @@ async onSubmit(): Promise<void> {
 
     if (
       !paymentInit ||
-      !paymentInit.data ||
-      !paymentInit.data.redirectUrl ||
-      !paymentInit.data.trust_id
+      !paymentInit.redirectUrl ||
+      !paymentInit.trust_id
     ) {
       throw new Error('Invalid response from backend');
     }
 
-    const trustId = paymentInit.data.trust_id;
+    const trustId = paymentInit.trust_id;
 
-    // 🔹 Save form + files to sessionStorage
+    // Save form + files to sessionStorage
     sessionStorage.setItem('trustFormData', JSON.stringify(rawForm));
     sessionStorage.setItem('trustId', trustId);
 
@@ -256,11 +255,12 @@ async onSubmit(): Promise<void> {
     );
     sessionStorage.setItem('trustFiles', JSON.stringify(serializedFiles));
 
-    await new Promise((res) => setTimeout(res, 500)); // UX delay
+    // UX delay
+    await new Promise((res) => setTimeout(res, 500));
 
-    // 🔹 Redirect to Yoco checkout
+    // Redirect to Yoco checkout
     this.loading = false;
-    window.location.href = paymentInit.data.redirectUrl;
+    window.location.href = paymentInit.redirectUrl;
 
   } catch (error: any) {
     alert('Error: ' + (error.message || error));
@@ -268,6 +268,7 @@ async onSubmit(): Promise<void> {
     this.loading = false;
   }
 }
+
 
 
 }

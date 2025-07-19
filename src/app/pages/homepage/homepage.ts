@@ -219,21 +219,29 @@ async onSubmit(): Promise<void> {
     const amount = rawForm.isBullionMember ? 3000 : 7500;
     const amountInCents = amount * 100;
 
-    // 🔹 Request payment session from backend
+    // 🔹 Request Yoco payment session + trust ID from backend
     const paymentInit = await this.http.post<any>(
       'https://hongkongbackend.onrender.com/api/payment-session',
       {
         amount_cents: amountInCents,
-        trust_id: 'TEMP_ID'
+        trust_data: rawForm
       }
     ).toPromise();
 
-    if (!paymentInit || !paymentInit.data || !paymentInit.data.redirectUrl) {
-      throw new Error('Invalid payment session data from backend');
+    if (
+      !paymentInit ||
+      !paymentInit.data ||
+      !paymentInit.data.redirectUrl ||
+      !paymentInit.data.trust_id
+    ) {
+      throw new Error('Invalid response from backend');
     }
 
-    // 🔹 Store form data to sessionStorage
+    const trustId = paymentInit.data.trust_id;
+
+    // 🔹 Save form + files to sessionStorage
     sessionStorage.setItem('trustFormData', JSON.stringify(rawForm));
+    sessionStorage.setItem('trustId', trustId);
 
     const serializedFiles = await Promise.all(
       Object.entries(this.fileMap).map(async ([role, file]) => {
@@ -248,10 +256,9 @@ async onSubmit(): Promise<void> {
     );
     sessionStorage.setItem('trustFiles', JSON.stringify(serializedFiles));
 
-    // Optional: Add delay for UX
-    await new Promise((res) => setTimeout(res, 500));
+    await new Promise((res) => setTimeout(res, 500)); // UX delay
 
-    // 🔹 Redirect to Yoco checkout page
+    // 🔹 Redirect to Yoco checkout
     this.loading = false;
     window.location.href = paymentInit.data.redirectUrl;
 

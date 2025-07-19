@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -10,10 +10,23 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './welcomepage.html',
   styleUrls: ['./welcomepage.css']
 })
-export class Welcomepage {
+export class Welcomepage implements OnInit {
   isConfirmed = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private route: ActivatedRoute) {}
+
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      const paymentStatus = params['payment'];
+      if (paymentStatus === 'success') {
+        this.router.navigate(['/success'], { replaceUrl: true });
+      } else if (paymentStatus === 'cancel') {
+        this.router.navigate(['/cancel'], { replaceUrl: true });
+      } else if (paymentStatus === 'failure') {
+        this.router.navigate(['/failure'], { replaceUrl: true });
+      }
+    });
+  }
 
   continue(): void {
     if (this.isConfirmed) {

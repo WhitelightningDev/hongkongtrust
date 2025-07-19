@@ -220,7 +220,7 @@ async onSubmit(): Promise<void> {
     const amountInCents = amount * 100;
 
     const paymentInit = await this.http.post<any>(
-      'http://127.0.0.1:8000/api/payment-session',
+      'https://hongkongbackend.onrender.com/api/payment-session',
       {
         amount_cents: amountInCents,
         trust_id: 'TEMP_ID'

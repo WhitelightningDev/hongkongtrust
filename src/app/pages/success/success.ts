@@ -66,7 +66,7 @@ export class SuccessComponent implements OnInit {
       // Mark payment done
       formData.append('has_paid', 'true');
 
-      await this.http.post('http://127.0.0.1:8000/trusts/submit-trust', formData).toPromise();
+      await this.http.post('https://hongkongbackend.onrender.com/trusts/submit-trust', formData).toPromise();
 
       sessionStorage.removeItem('trustFormData');
       sessionStorage.removeItem('trustFiles');

@@ -1,0 +1,19 @@
+<div class="container mt-5 text-center">
+  <div *ngIf="loading" class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem;">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+
+  <div *ngIf="!loading && success" class="alert alert-success" role="alert">
+    <h4 class="alert-heading">Success!</h4>
+    <p>Your trust application has been submitted successfully.</p>
+    <hr>
+    <p class="mb-0">Thank you for using our service.</p>
+  </div>
+
+  <div *ngIf="!loading && errorMessage" class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">Error!</h4>
+    <p>{{ errorMessage }}</p>
+    <hr>
+    <p class="mb-0">Please try again or contact support.</p>
+  </div>
+</div>

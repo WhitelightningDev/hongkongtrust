@@ -1,0 +1,9 @@
+/* Center vertically on page */
+.container {
+  max-width: 600px;
+}
+/* You can add spinner related styles or center alignment here if needed */
+.container {
+  max-width: 600px;
+  margin: auto;
+}

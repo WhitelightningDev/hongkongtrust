@@ -49,7 +49,6 @@ export class Homepage implements OnInit, AfterViewInit {
       trustee4: this.createTrustee(false)
     });
 
-    // Validators for Bullion Member
     this.trustForm.get('isBullionMember')!.valueChanges.subscribe((isMember: boolean) => {
       const memberNumber = this.trustForm.get('memberNumber')!;
       if (isMember) {
@@ -64,7 +63,6 @@ export class Homepage implements OnInit, AfterViewInit {
       memberNumber.updateValueAndValidity();
     });
 
-    // Validators for Referrer
     this.trustForm.get('wasReferredByMember')!.valueChanges.subscribe((wasReferred: boolean) => {
       const referrerControl = this.trustForm.get('referrerNumber')!;
       if (wasReferred) {
@@ -208,75 +206,80 @@ export class Homepage implements OnInit, AfterViewInit {
       idControl?.reset();
     }
   }
-
- onSubmit(): void {
+async onSubmit(): Promise<void> {
   if (this.trustForm.invalid) {
     this.trustForm.markAllAsTouched();
     return;
   }
 
   this.loading = true;
-  const raw = this.trustForm.getRawValue();
-  const formData = new FormData();
 
-  formData.append('full_name', raw.fullName);
-  formData.append('id_number', raw.idNumber);
-  formData.append('email', raw.email);
-  formData.append('phone_number', raw.phoneNumber);
-  formData.append('trust_email', raw.trustEmail || '');
-  formData.append('trust_name', raw.trustName);
-  formData.append('establishment_date', raw.establishmentDate);
-  formData.append('beneficiaries', raw.beneficiaries || '');
-  formData.append('is_bullion_member', raw.isBullionMember ? 'true' : 'false');
-  formData.append('member_number', raw.memberNumber || '');
-  formData.append('was_referred_by_member', raw.wasReferredByMember ? 'true' : 'false');
-  formData.append('referrer_number', raw.referrerNumber || '');
+  try {
+    const raw = this.trustForm.getRawValue();
+    const amount = raw.isBullionMember ? 3000 : 7500;
+    const amountInCents = amount * 100;
 
-  // Settlor
-  formData.append('settlor_name', raw.settlor.name);
-  formData.append('settlor_id', raw.settlor.id);
+    const paymentInit = await this.http.post<any>(
+      'http://127.0.0.1:8000/api/payment-session',
+      {
+        amount_cents: amountInCents,
+        trust_id: 'TEMP_ID'
+      }
+    ).toPromise();
 
-  // Trustees — prepare JSON array
-  const trusteesArray = [];
+    if (!paymentInit || !paymentInit.data || !paymentInit.data.id) {
+      throw new Error('Invalid payment session data from backend');
+    }
 
-  if (raw.trustee1.name || raw.trustee1.id) {
-    trusteesArray.push({ name: raw.trustee1.name, id: raw.trustee1.id });
-  }
-  if (raw.trustee2.name || raw.trustee2.id) {
-    trusteesArray.push({ name: raw.trustee2.name, id: raw.trustee2.id });
-  }
-  if (raw.trustee3.name || raw.trustee3.id) {
-    trusteesArray.push({ name: raw.trustee3.name, id: raw.trustee3.id });
-  }
-  if (raw.trustee4.name || raw.trustee4.id) {
-    trusteesArray.push({ name: raw.trustee4.name, id: raw.trustee4.id });
-  }
-
-  formData.append('trustees', JSON.stringify(trusteesArray));
-
-  // Files
-  Object.entries(this.fileMap).forEach(([role, file]) => {
-    formData.append('documents', file, file.name);
-  });
-
-  // this.http.post('http://localhost:8000/submit-trust', formData).subscribe({
-  this.http.post<any>('https://hongkongbackend.onrender.com/trusts/submit-trust', formData).subscribe({
-  next: (res) => {
-    console.log('✅ Submission response:', res);
     this.loading = false;
-    this.showSuccessPopup = true;
-    setTimeout(() => this.showSuccessPopup = false, 5000);
-    this.trustForm.reset();
-    this.fileMap = {};
-    this.uploadedFiles = [];
-  },
-  error: (err) => {
-    this.loading = false;
-    console.error('❌ Submission error:', err);
-    alert('Error submitting form. See console for details.');
-  }
-});
 
+    const yoco = new (window as any).YocoSDK({
+      publicKey: 'pk_live_7a85f9cfM4kyjAk7cfb4'
+    });
+
+    yoco.showPopup({
+      amountInCents,
+      currency: 'ZAR',
+      name: 'Hong Kong Trust Services',
+      description: 'Trust Setup Fee',
+      callback: async (result: any) => {
+        if (result.error) {
+          alert('Payment failed: ' + result.error.message);
+          return;
+        }
+
+        try {
+          // Store form + file data to sessionStorage
+          const rawForm = this.trustForm.getRawValue();
+          const fileMap = this.fileMap;
+
+          sessionStorage.setItem('trustFormData', JSON.stringify(rawForm));
+
+          const serializedFiles = await Promise.all(
+            Object.entries(fileMap).map(async ([role, file]) => {
+              const buffer = await file.arrayBuffer();
+              return {
+                role,
+                name: file.name,
+                type: file.type,
+                buffer: Array.from(new Uint8Array(buffer))
+              };
+            })
+          );
+          sessionStorage.setItem('trustFiles', JSON.stringify(serializedFiles));
+
+          // Redirect to success page to finalize trust submission
+          window.location.href = '/success';
+        } catch (error) {
+          alert('Storing data for submission failed.');
+          console.error(error);
+        }
+      }
+    });
+
+  } catch (error: any) {
+    alert('Error: ' + (error.message || error));
+    this.loading = false;
+  }
 }
-
 }

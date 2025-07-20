@@ -281,7 +281,7 @@ export class Homepage implements OnInit, AfterViewInit {
 
     if (selectedPaymentMethod === 'cardEFT') {
       this.onSubmit();
-    } else if (selectedPaymentMethod === 'crypto') {
+    } else if (selectedPaymentMethod === 'XRP') {
       // Crypto payment not enabled yet
       alert('Crypto payments coming soon.');
     }

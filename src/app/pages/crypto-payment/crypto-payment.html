@@ -26,11 +26,10 @@
         <p>
           Your trust registration price:
           <strong class="text-success">R{{ priceZAR }}</strong>
-          (~USD {{ priceUSD | number:'1.2-2' }})
         </p>
         <p>
           Current XRP price:
-          <strong>${{ xrpPriceUSD }}</strong>
+          <strong>USD ${{ xrpPriceUSD }} / ZAR R{{ xrpPriceZAR }}</strong>
         </p>
         <p>
           You need to send:
@@ -38,9 +37,9 @@
         </p>
       </div>
 
-      <!-- Payment details -->
+      <!-- Payment instructions -->
       <div class="card p-3">
-        <h5>XRP Payment Instructions (via Exodus Wallet)</h5>
+        <h5>XRP Payment Instructions</h5>
         <p>
           Please send exactly <strong>{{ xrpAmount }} XRP</strong> to the address below.<br />
           <strong>Wallet address:</strong>
@@ -48,31 +47,21 @@
         </p>
         <p><strong>Note:</strong> Destination tag is <em>not required</em> for this payment.</p>
 
-        <h6>How to pay using Exodus Wallet:</h6>
-        <ol>
-          <li>Open your Exodus wallet app.</li>
-          <li>Go to the <strong>Wallet</strong> tab and select <strong>XRP</strong>.</li>
-          <li>Click <strong>Send</strong>.</li>
-          <li>Paste the wallet address above into the recipient field.</li>
-          <li>Enter the amount of XRP to send: <strong>{{ xrpAmount }}</strong>.</li>
-          <li>Since destination tag is not required, leave that field blank.</li>
-          <li>Review the transaction and confirm the payment.</li>
-        </ol>
         <p class="text-muted">
           After sending, please keep the <strong>transaction ID (hash)</strong> as proof of payment.<br />
-          <em>An XRP transaction ID is a 64-character hexadecimal string (letters a-f and digits 0-9), for example:</em><br />
-          <code>4E9D7C8A1B2C3D4E5F67890ABCDEF1234567890ABCDEF1234567890ABCDEF1234</code>
+          <em>An XRP transaction ID is a 64-character hexadecimal string, for example:</em><br />
+          <code>4E9D7C8A1B2C3D4E5F67890......</code>
         </p>
       </div>
 
-      <!-- Transaction ID input and submit button -->
+      <!-- Transaction ID form -->
       <div class="card p-3 mt-4">
         <h5>Enter XRP Transaction ID</h5>
         <p>Please enter the 64-character XRP transaction ID (hash) as proof of payment.</p>
         <input
           type="text"
           [(ngModel)]="transactionId"
-          placeholder="e.g. 4E9D7C8A1B2C3D4E5F67890ABCDEF1234567890ABCDEF1234567890ABCDEF1234"
+          placeholder="e.g. 4E9D7C8A1B2C3D4E5....."
           class="form-control mb-2"
           maxlength="64"
           minlength="64"
@@ -80,11 +69,11 @@
           title="64 character hexadecimal string"
         />
         <div *ngIf="txIdError" class="text-danger mb-2">{{ txIdError }}</div>
-        <button class="btn btn-primary" (click)="submitTransactionId()">Submit Transaction ID</button>
+        <button class="btn btn-primary" (click)="submitTransactionId()">Submit</button>
       </div>
     </div>
 
-    <!-- QR Code Image -->
+    <!-- QR Code -->
     <div style="min-width: 200px;">
       <h6>Scan QR Code to Pay</h6>
       <img

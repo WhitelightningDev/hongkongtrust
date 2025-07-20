@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class CryptoPayment implements OnInit {
   xrpPriceUSD: number | null = null;
+  xrpPriceZAR: number | null = null;
   loading = true;
   error: string | null = null;
 
@@ -20,8 +21,7 @@ export class CryptoPayment implements OnInit {
   isMember: boolean = false;
   memberNumberValid: boolean = false;
 
-  priceZAR: number = 7500; // default to non-member
-  priceUSD: number = 0;
+  priceZAR: number = 7000; // Default non-member price
   xrpAmount: number = 0;
   paymentAddress = 'r3SUiiY7MsRviezVoHmuM5Y8doLj1UxeQb';
 
@@ -45,7 +45,7 @@ export class CryptoPayment implements OnInit {
       const memberNumber: string = this.trustData.memberNumber || '';
       this.memberNumberValid = /^BB\d{6}$/i.test(memberNumber);
 
-      this.priceZAR = this.isMember && this.memberNumberValid ? 5 : 7500;
+      this.priceZAR = this.isMember && this.memberNumberValid ? 5 : 7000;
     } else {
       this.error = 'No trust form data found. Please start your application first.';
       this.loading = false;
@@ -53,46 +53,40 @@ export class CryptoPayment implements OnInit {
   }
 
   fetchXRPPrice(): void {
-    this.http.get<any>('https://api.coingecko.com/api/v3/simple/price?ids=ripple&vs_currencies=usd')
-      .subscribe({
-        next: (response) => {
-          this.xrpPriceUSD = response?.ripple?.usd ?? null;
-          if (this.xrpPriceUSD) {
-            this.calculateXRPAmount();
-          }
-          this.loading = false;
-        },
-        error: (err) => {
-          this.error = 'Unable to fetch XRP price.';
-          this.loading = false;
-          console.error(err);
+    const apiUrl = 'https://api.coingecko.com/api/v3/simple/price?ids=ripple&vs_currencies=usd,zar';
+    this.http.get<any>(apiUrl).subscribe({
+      next: (response) => {
+        const priceData = response?.ripple;
+        if (priceData?.usd && priceData?.zar) {
+          this.xrpPriceUSD = priceData.usd;
+          this.xrpPriceZAR = priceData.zar;
+          this.xrpAmount = +(this.priceZAR / this.xrpPriceZAR!).toFixed(4);
+        } else {
+          this.error = 'Incomplete XRP price data received.';
         }
-      });
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error = 'Unable to fetch XRP price.';
+        this.loading = false;
+        console.error(err);
+      }
+    });
   }
 
-  calculateXRPAmount(): void {
-    const zarToUsdRate = 18.5; // Adjust or fetch live FX rate if needed
-    this.priceUSD = this.priceZAR / zarToUsdRate;
-    this.xrpAmount = +(this.priceUSD / this.xrpPriceUSD!).toFixed(4);
+  submitTransactionId(): void {
+    this.txIdError = null;
+
+    if (!this.transactionId || !/^[a-fA-F0-9]{64}$/.test(this.transactionId)) {
+      this.txIdError = 'Please enter a valid 64-character hexadecimal transaction ID.';
+      return;
+    }
+
+    const trustData = JSON.parse(sessionStorage.getItem('trustFormData') || '{}');
+    trustData.paymentTransactionId = this.transactionId;
+    trustData.has_paid = 'xrp';
+
+    sessionStorage.setItem('trustFormData', JSON.stringify(trustData));
+    this.router.navigate(['/success']);
   }
-
-  submitTransactionId() {
-  this.txIdError = null;
-
-  if (!this.transactionId || !/^[a-fA-F0-9]{64}$/.test(this.transactionId)) {
-    this.txIdError = 'Please enter a valid 64-character hexadecimal transaction ID.';
-    return;
-  }
-
-  // Save the transaction ID and payment method to sessionStorage
-  const trustData = JSON.parse(sessionStorage.getItem('trustFormData') || '{}');
-  trustData.paymentTransactionId = this.transactionId;
-  trustData.has_paid = 'xrp';  // Mark payment method as XRP
-
-  sessionStorage.setItem('trustFormData', JSON.stringify(trustData));
-
-  // Navigate to the success page or submit directly as needed
-  this.router.navigate(['/success']);
-}
-
 }

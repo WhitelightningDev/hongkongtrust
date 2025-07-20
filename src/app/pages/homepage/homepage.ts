@@ -2,13 +2,14 @@ import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angula
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 
 declare var bootstrap: any; // for Bootstrap modal support
 
 @Component({
   selector: 'app-homepage',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HttpClientModule],
+  imports: [CommonModule, ReactiveFormsModule, HttpClientModule, FormsModule],
   templateUrl: './homepage.html',
   styleUrls: ['./homepage.css']
 })
@@ -23,6 +24,9 @@ export class Homepage implements OnInit, AfterViewInit {
   showSuccessPopup = false;
 
   @ViewChild('trusteeConflictModal') trusteeConflictModal!: ElementRef;
+  @ViewChild('paymentMethodModal') paymentMethodModal!: ElementRef;
+
+  private paymentMethodModalInstance: any;
 
   constructor(private fb: FormBuilder, private http: HttpClient) {
     this.trustForm = this.fb.group({
@@ -48,7 +52,8 @@ export class Homepage implements OnInit, AfterViewInit {
       trustee1: this.createTrustee(false),
       trustee2: this.createTrustee(false),
       trustee3: this.createTrustee(false),
-      trustee4: this.createTrustee(false)
+      trustee4: this.createTrustee(false),
+      paymentMethod: [null, Validators.required]  // <-- Added here
     });
 
     this.trustForm.get('isBullionMember')!.valueChanges.subscribe((isMember: boolean) => {
@@ -89,6 +94,12 @@ export class Homepage implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    // Initialize Bootstrap modal instance for payment method modal
+    this.paymentMethodModalInstance = new bootstrap.Modal(this.paymentMethodModal.nativeElement, {
+      backdrop: 'static',
+      keyboard: false
+    });
+
     setTimeout(() => {
       const fullName = this.trustForm.get('fullName')?.value;
       const idNumber = this.trustForm.get('idNumber')?.value;
@@ -251,6 +262,28 @@ export class Homepage implements OnInit, AfterViewInit {
     if (isConflict) {
       const modal = new bootstrap.Modal(this.trusteeConflictModal.nativeElement);
       modal.show();
+    }
+  }
+
+  openPaymentMethodModal(): void {
+    this.trustForm.get('paymentMethod')?.reset(); // reset selection on open
+    this.paymentMethodModalInstance.show();
+  }
+
+  confirmPaymentMethod(): void {
+    if (!this.trustForm.get('paymentMethod')?.value) {
+      alert('Please select a payment method.');
+      return;
+    }
+    this.paymentMethodModalInstance.hide();
+
+    const selectedPaymentMethod = this.trustForm.get('paymentMethod')?.value;
+
+    if (selectedPaymentMethod === 'cardEFT') {
+      this.onSubmit();
+    } else if (selectedPaymentMethod === 'crypto') {
+      // Crypto payment not enabled yet
+      alert('Crypto payments coming soon.');
     }
   }
 

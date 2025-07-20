@@ -1,0 +1,23 @@
+<div class="modal fade" id="paymentMethodModal" tabindex="-1" aria-labelledby="paymentMethodLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border border-danger">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="paymentMethodLabel">💳 Choose Payment Method</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="paymentMethod" value="card" [(ngModel)]="selectedMethod" />
+          <label class="form-check-label">EFT / Card</label>
+        </div>
+        <div class="form-check mt-2">
+          <input class="form-check-input" type="radio" name="paymentMethod" value="crypto" disabled />
+          <label class="form-check-label text-muted">Crypto (Coming Soon)</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" (click)="onConfirm()">Proceed</button>
+      </div>
+    </div>
+  </div>
+</div>

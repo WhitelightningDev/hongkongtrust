@@ -224,40 +224,80 @@
         </div>
       </div>
 
+      <!-- Beneficiaries List Input -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold d-flex align-items-center gap-3">
+          List of Beneficiaries
+          <span class="badge rounded-pill bg-warning text-dark">MAY NOT BE A TRUSTEE</span>
+        </label>
+        <textarea formControlName="beneficiaries" class="form-control" rows="4" (blur)="onBeneficiariesBlur()"
+          placeholder="e.g. John Lee - 9001011234567"></textarea>
+      </div>
 
+      <!-- Modal: Conflict Warning -->
+      <div class="modal fade" id="trusteeConflictModal" #trusteeConflictModal tabindex="-1"
+        aria-labelledby="trusteeConflictModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content border-danger">
+            <div class="modal-header bg-danger text-white">
+              <h5 class="modal-title" id="trusteeConflictModalLabel">🚫 Invalid Entry</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              You cannot add a trustee as a beneficiary. Please revise your list.
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-     <!-- Beneficiaries List Input -->
-<div class="mb-4">
-  <label class="form-label fw-semibold d-flex align-items-center gap-3">
-    List of Beneficiaries
-    <span class="badge rounded-pill bg-warning text-dark">MAY NOT BE A TRUSTEE</span>
-  </label>
-  <textarea formControlName="beneficiaries" class="form-control" rows="4"
-            (blur)="onBeneficiariesBlur()" placeholder="e.g. John Lee - 9001011234567"></textarea>
-</div>
-
-<!-- Modal: Conflict Warning -->
-<div class="modal fade" id="trusteeConflictModal" #trusteeConflictModal tabindex="-1"
-     aria-labelledby="trusteeConflictModalLabel" aria-hidden="true">
+      <!-- Payment Method Selection Modal -->
+      <!-- Payment Method Selection Modal -->
+<div class="modal fade" id="paymentMethodModal" #paymentMethodModal tabindex="-1" aria-labelledby="paymentMethodModalLabel"
+  aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-danger">
       <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title" id="trusteeConflictModalLabel">🚫 Invalid Entry</h5>
+        <h5 class="modal-title" id="paymentMethodModalLabel">Choose Payment Method</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
-        You cannot add a trustee as a beneficiary. Please revise your list.
+      <div class="modal-body" [formGroup]="trustForm">
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="radio"
+            id="cardEFT"
+            formControlName="paymentMethod"
+            value="cardEFT"
+          />
+          <label class="form-check-label" for="cardEFT">
+            Card / EFT (available now)
+          </label>
+        </div>
+        <div class="form-check mt-2">
+          <input
+            class="form-check-input"
+            type="radio"
+            id="crypto"
+            formControlName="paymentMethod"
+            value="crypto"
+
+          />
+          <label class="form-check-label" for="crypto">
+            Crypto payments (coming soon)
+          </label>
+        </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" (click)="confirmPaymentMethod()">OK</button>
       </div>
     </div>
   </div>
 </div>
-
-
-
-
 
 
     </div>
@@ -279,10 +319,10 @@
     <div class="mt-3" *ngIf="trustForm.get('isBullionMember')?.value">
       <label for="memberNumber" class="form-label fw-semibold">Enter your Bullion Member Number *</label>
       <input type="text" id="memberNumber" class="form-control form-control-lg border-secondary-subtle"
-        formControlName="memberNumber" placeholder="e.g. CBXXXXX" />
+        formControlName="memberNumber" placeholder="e.g. BB000077" />
       <div class="text-danger mt-1 fst-italic"
         *ngIf="trustForm.get('memberNumber')?.invalid && trustForm.get('memberNumber')?.touched">
-        Please enter a valid member number (e.g. CBXXXXX).
+        Please enter a valid member number (e.g. BB000077).
       </div>
     </div>
 
@@ -298,7 +338,7 @@
     <div class="mt-3" *ngIf="trustForm.get('wasReferredByMember')?.value">
       <label for="referrerNumber" class="form-label fw-semibold">Enter the Referrer’s Member Number</label>
       <input type="text" id="referrerNumber" class="form-control form-control-lg border-secondary-subtle"
-        formControlName="referrerNumber" placeholder="e.g. CBXXXXX" />
+        formControlName="referrerNumber" placeholder="e.g. BB000077" />
       <div class="text-danger mt-1 fst-italic"
         *ngIf="trustForm.get('referrerNumber')?.invalid && trustForm.get('referrerNumber')?.touched">
         Please enter a valid referrer number (e.g. BB000077).
@@ -331,9 +371,8 @@
 
   <!-- Submit Button -->
   <div class="d-grid">
-    <button type="submit" class="btn btn-danger btn-lg">
+    <button type="button" class="btn btn-danger btn-lg" (click)="openPaymentMethodModal()">
       📤 Submit Trust Application
     </button>
-
   </div>
 </form>

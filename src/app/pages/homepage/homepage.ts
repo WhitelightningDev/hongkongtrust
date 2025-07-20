@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 declare var bootstrap: any; // for Bootstrap modal support
 
@@ -28,7 +29,7 @@ export class Homepage implements OnInit, AfterViewInit {
 
   private paymentMethodModalInstance: any;
 
-  constructor(private fb: FormBuilder, private http: HttpClient) {
+  constructor(private fb: FormBuilder, private http: HttpClient, private router: Router) {
     this.trustForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       fullName: ['', Validators.required],
@@ -271,21 +272,29 @@ export class Homepage implements OnInit, AfterViewInit {
   }
 
   confirmPaymentMethod(): void {
-    if (!this.trustForm.get('paymentMethod')?.value) {
-      alert('Please select a payment method.');
-      return;
-    }
-    this.paymentMethodModalInstance.hide();
+  const selectedMethod = this.trustForm.get('paymentMethod')?.value;
 
-    const selectedPaymentMethod = this.trustForm.get('paymentMethod')?.value;
-
-    if (selectedPaymentMethod === 'cardEFT') {
-      this.onSubmit();
-    } else if (selectedPaymentMethod === 'XRP') {
-      // Crypto payment not enabled yet
-      alert('Crypto payments coming soon.');
-    }
+  if (!selectedMethod) {
+    alert('Please select a payment method.');
+    return;
   }
+
+  this.paymentMethodModalInstance.hide();
+
+  const rawForm = this.trustForm.getRawValue();
+
+  if (selectedMethod === 'cardEFT') {
+    // Store form data just like before submit
+    sessionStorage.setItem('trustFormData', JSON.stringify(rawForm));
+    this.onSubmit();
+  } else if (selectedMethod === 'crypto') {
+    // Store form data so crypto page can read it
+    sessionStorage.setItem('trustFormData', JSON.stringify(rawForm));
+    this.router.navigate(['/crypto-payment']);
+  }
+}
+
+
 
   async onSubmit(): Promise<void> {
     if (this.trustForm.invalid) {

@@ -67,8 +67,8 @@ export class SuccessComponent implements OnInit {
         formData.append('documents', file, file.name);
       }
 
-      // Mark payment done
-      formData.append('has_paid', 'true');
+      // Mark payment done: use the has_paid value from trustFormData, default to 'true' if missing
+      formData.append('has_paid', rawForm.has_paid ?? 'true');
 
       await this.http.post('https://hongkongbackend.onrender.com/trusts/submit-trust', formData).toPromise();
 

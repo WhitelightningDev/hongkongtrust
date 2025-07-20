@@ -87,6 +87,6 @@ export class CryptoPayment implements OnInit {
     trustData.has_paid = 'xrp';
 
     sessionStorage.setItem('trustFormData', JSON.stringify(trustData));
-    this.router.navigate(['/success']);
+    this.router.navigate(['/crypto-success']);
   }
 }

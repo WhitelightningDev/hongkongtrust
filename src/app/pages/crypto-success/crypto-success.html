@@ -1,0 +1,34 @@
+<div class="container mt-5 text-center d-flex justify-content-center align-items-center flex-column" style="min-height: 60vh;">
+
+  <!-- Loading Spinner Centered -->
+  <div *ngIf="loading" class="d-flex justify-content-center align-items-center" style="min-height: 40vh;">
+    <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem;">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="!loading && success" class="alert alert-success d-flex align-items-center justify-content-start p-4 shadow-sm" role="alert" style="max-width: 600px; margin: auto;">
+    <i class="bi bi-check-circle-fill fs-1 text-success me-3"></i>
+    <div class="text-start">
+      <h4 class="alert-heading">Success!</h4>
+      <p class="mb-1">Your trust application has been submitted successfully.</p>
+      <hr>
+      <p class="mb-0">As soon as your XRP payment has been verified, your trust deed will be emailed to you.</p>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="!loading && errorMessage" class="alert alert-danger d-flex align-items-center justify-content-start p-4 shadow-sm" role="alert" style="max-width: 600px; margin: auto;">
+    <i class="bi bi-exclamation-triangle-fill fs-1 text-danger me-3"></i>
+    <div class="text-start">
+      <h4 class="alert-heading">Error!</h4>
+      <p class="mb-1">{{ errorMessage }}</p>
+      <p>This is usually because, something in the form was not submitted properly.</p>
+      <hr>
+      <p class="mb-3">Please contact support.</p>
+      <a>+27833759003</a>
+    </div>
+  </div>
+
+</div>

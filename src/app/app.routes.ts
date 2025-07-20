@@ -3,6 +3,7 @@ import { Homepage } from './pages/homepage/homepage';
 import { Welcomepage } from './pages/welcomepage/welcomepage';
 import { SuccessComponent } from './pages/success/success';
 import { CryptoPayment } from './pages/crypto-payment/crypto-payment';
+import { CryptoSuccess } from './pages/crypto-success/crypto-success';
 
 
 export const routes: Routes = [
@@ -23,5 +24,8 @@ export const routes: Routes = [
 
   {
     path: 'crypto-payment', component: CryptoPayment
+  },
+  {
+    path: 'crypto-success', component: CryptoSuccess
   }
 ];

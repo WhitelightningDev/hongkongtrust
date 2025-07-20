@@ -1,7 +1,9 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+
+declare var bootstrap: any; // for Bootstrap modal support
 
 @Component({
   selector: 'app-homepage',
@@ -20,6 +22,8 @@ export class Homepage implements OnInit, AfterViewInit {
   loading = false;
   showSuccessPopup = false;
 
+  @ViewChild('trusteeConflictModal') trusteeConflictModal!: ElementRef;
+
   constructor(private fb: FormBuilder, private http: HttpClient) {
     this.trustForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -37,12 +41,10 @@ export class Homepage implements OnInit, AfterViewInit {
       memberNumber: [''],
       wasReferredByMember: [false],
       referrerNumber: [''],
-
       settlor: this.fb.group({
         name: ['', Validators.required],
         id: ['', Validators.required]
       }),
-
       trustee1: this.createTrustee(false),
       trustee2: this.createTrustee(false),
       trustee3: this.createTrustee(false),
@@ -161,6 +163,34 @@ export class Homepage implements OnInit, AfterViewInit {
     }
   }
 
+  /** 🔔 Triggered on textarea blur */
+  checkBeneficiariesAgainstTrustees(): void {
+    const beneficiaries = this.trustForm.get('beneficiaries')?.value?.toLowerCase() || '';
+    const trusteeNames: string[] = [];
+
+    const names = [
+      this.firstTrustee.get('name')?.value,
+      this.secondTrustee.get('name')?.value,
+      this.thirdTrustee.get('name')?.value,
+      this.fourthTrustee.get('name')?.value,
+    ];
+
+    names.forEach(name => {
+      if (name?.trim()) {
+        trusteeNames.push(name.toLowerCase());
+      }
+    });
+
+    const conflict = trusteeNames.find(trustee => beneficiaries.includes(trustee));
+    if (conflict) {
+      const modalEl = document.getElementById('trusteeConflictModal');
+      if (modalEl) {
+        const modalInstance = new bootstrap.Modal(modalEl);
+        modalInstance.show();
+      }
+    }
+  }
+
   onSettlorCheckboxChange(event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
     this.trustForm.patchValue({ isSettlor: checked });
@@ -207,68 +237,77 @@ export class Homepage implements OnInit, AfterViewInit {
     }
   }
 
-async onSubmit(): Promise<void> {
-  if (this.trustForm.invalid) {
-    this.trustForm.markAllAsTouched();
-    return;
+  onBeneficiariesBlur(): void {
+    const trusteeNames = [
+      this.firstTrustee.get('name')?.value?.toLowerCase(),
+      this.secondTrustee.get('name')?.value?.toLowerCase(),
+      this.thirdTrustee.get('name')?.value?.toLowerCase(),
+      this.fourthTrustee.get('name')?.value?.toLowerCase()
+    ].filter(Boolean);
+
+    const beneficiaries = this.trustForm.get('beneficiaries')?.value?.toLowerCase() || '';
+
+    const isConflict = trusteeNames.some(name => beneficiaries.includes(name));
+    if (isConflict) {
+      const modal = new bootstrap.Modal(this.trusteeConflictModal.nativeElement);
+      modal.show();
+    }
   }
 
-  this.loading = true;
-
-  try {
-    const rawForm = this.trustForm.getRawValue();
-    const amount = rawForm.isBullionMember ? 5 : 7500;
-    const amountInCents = amount * 100;
-
-    // 1. Request Yoco payment session + trust ID from backend
-    const paymentInit = await this.http.post<any>(
-      'https://hongkongbackend.onrender.com/api/payment-session',
-      {
-        amount_cents: amountInCents,
-        trust_data: rawForm
-      }
-    ).toPromise();
-
-    if (
-      !paymentInit ||
-      !paymentInit.redirectUrl ||
-      !paymentInit.trust_id
-    ) {
-      throw new Error('Invalid response from backend');
+  async onSubmit(): Promise<void> {
+    if (this.trustForm.invalid) {
+      this.trustForm.markAllAsTouched();
+      return;
     }
 
-    const trustId = paymentInit.trust_id;
+    this.loading = true;
 
-    // 2. Save trust form + uploaded files to sessionStorage
-    sessionStorage.setItem('trustFormData', JSON.stringify(rawForm));
-    sessionStorage.setItem('trustId', trustId);
+    try {
+      const rawForm = this.trustForm.getRawValue();
+      const amount = rawForm.isBullionMember ? 5 : 7500;
+      const amountInCents = amount * 100;
 
-    const serializedFiles = await Promise.all(
-      Object.entries(this.fileMap).map(async ([role, file]) => {
-        const buffer = await file.arrayBuffer();
-        return {
-          role,
-          name: file.name,
-          type: file.type,
-          buffer: Array.from(new Uint8Array(buffer))
-        };
-      })
-    );
+      const paymentInit = await this.http.post<any>(
+        'https://hongkongbackend.onrender.com/api/payment-session',
+        {
+          amount_cents: amountInCents,
+          trust_data: rawForm
+        }
+      ).toPromise();
 
-    sessionStorage.setItem('trustFiles', JSON.stringify(serializedFiles));
+      if (!paymentInit || !paymentInit.redirectUrl || !paymentInit.trust_id) {
+        throw new Error('Invalid response from backend');
+      }
 
-    // 3. Optional: UX pause before redirect
-    await new Promise((res) => setTimeout(res, 500));
+      const trustId = paymentInit.trust_id;
 
-    this.loading = false;
+      sessionStorage.setItem('trustFormData', JSON.stringify(rawForm));
+      sessionStorage.setItem('trustId', trustId);
 
-    // 4. Redirect to Yoco-hosted payment page
-    window.location.href = paymentInit.redirectUrl;
+      const serializedFiles = await Promise.all(
+        Object.entries(this.fileMap).map(async ([role, file]) => {
+          const buffer = await file.arrayBuffer();
+          return {
+            role,
+            name: file.name,
+            type: file.type,
+            buffer: Array.from(new Uint8Array(buffer))
+          };
+        })
+      );
 
-  } catch (error: any) {
-    alert('Error: ' + (error.message || error));
-    console.error('🛑 Payment session error:', error);
-    this.loading = false;
+      sessionStorage.setItem('trustFiles', JSON.stringify(serializedFiles));
+
+      await new Promise((res) => setTimeout(res, 500));
+
+      this.loading = false;
+
+      window.location.href = paymentInit.redirectUrl;
+
+    } catch (error: any) {
+      alert('Error: ' + (error.message || error));
+      console.error('🛑 Payment session error:', error);
+      this.loading = false;
+    }
   }
-}
 }

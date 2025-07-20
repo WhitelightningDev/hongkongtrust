@@ -32,8 +32,7 @@ body {
 
 .notifications-container {
   width: 100%;
-  border: 3px solid rgb(253, 157, 157);
-  border-radius: 10px;
+
   height: auto;
   font-size: 0.875rem;
   line-height: 1.25rem;
@@ -113,7 +112,7 @@ body {
 }
 
 .card-icon .icon-cart-box {
-  background-color: #2196f3;
+
   width: 3em;
   height: 3em;
   border-radius: 50%;

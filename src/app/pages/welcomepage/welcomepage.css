@@ -30,6 +30,17 @@ body {
 }
 
 
+section {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  margin-bottom: 3rem;
+}
+
+section h2 {
+  margin-bottom: 1.5rem;
+}
+
+
 
 /* notice css styles  */
 

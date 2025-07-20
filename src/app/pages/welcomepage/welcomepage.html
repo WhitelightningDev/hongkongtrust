@@ -355,40 +355,51 @@
 </section>
 
 
-  <!-- PDF Download Section -->
-  <div class="row mb-4 mt-5">
-    <div class="col-12">
-      <h5 class="fw-bold mb-3">Download Important Documents</h5>
-      <div class="d-flex flex-wrap gap-5">
-        <div class="card shadow-lg rounded-4 border-0 p-3" style="min-width: 220px; max-width: 300px; flex: 1;">
-          <h6 class="text-primary">Features of HKFT</h6>
-          <p class="small text-secondary">Features of a Hong Kong Foreign Trust.</p>
-          <button class="btn btn-outline-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
-            (click)="downloadPdf('/HongKongForeignTrustFeatures.pdf', 'HongKongForeignTrustFeatures.pdf')">
-            <i class="bi bi-file-earmark-pdf" style="font-size: 1.2rem;"></i> Download PDF
-          </button>
-        </div>
+ <!-- PDF Download Section -->
+<div class="container my-5">
+  <h5 class="fw-bold text-center text-md-start mb-5">Download Important Documents</h5>
 
-        <div class="card shadow-lg rounded-4 border-0 p-3" style="min-width: 220px; max-width: 300px; flex: 1;">
-          <h6 class="text-primary">Trust Law</h6>
-          <p class="small text-secondary">Trust Law (Amendment) Ordinance 2013.</p>
-          <button class="btn btn-outline-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
-            (click)="downloadPdf('/HKGTrustOrdinance.pdf', 'HKGTrustOrdinance.pdf')">
-            <i class="bi bi-file-earmark-pdf" style="font-size: 1.2rem;"></i> Download PDF
-          </button>
-        </div>
+  <div class="row justify-content-center g-4">
 
-        <div class="card shadow-lg rounded-4 border-0 p-3" style="min-width: 220px; max-width: 300px; flex: 1;">
-          <h6 class="text-primary">Article by Munro</h6>
-          <p class="small text-secondary">Article by Munro.</p>
-          <button class="btn btn-outline-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
-            (click)="downloadPdf('/ArticlebyMunro.pdf', 'Article by Munro.pdf')">
-            <i class="bi bi-file-earmark-pdf" style="font-size: 1.2rem;"></i> Download PDF
-          </button>
-        </div>
+    <!-- Card 1 -->
+    <div class="col-12 col-sm-6 col-lg-4 d-flex justify-content-center">
+      <div class="card shadow-lg rounded-4 border-0 p-4 w-100" style="max-width: 300px;">
+        <h6 class="text-primary">Features of HKFT</h6>
+        <p class="small text-secondary">Features of a Hong Kong Foreign Trust.</p>
+        <button class="btn btn-outline-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
+          (click)="downloadPdf('/HongKongForeignTrustFeatures.pdf', 'HongKongForeignTrustFeatures.pdf')">
+          <i class="bi bi-file-earmark-pdf fs-5"></i> Download PDF
+        </button>
       </div>
     </div>
+
+    <!-- Card 2 -->
+    <div class="col-12 col-sm-6 col-lg-4 d-flex justify-content-center">
+      <div class="card shadow-lg rounded-4 border-0 p-4 w-100" style="max-width: 300px;">
+        <h6 class="text-primary">Trust Law</h6>
+        <p class="small text-secondary">Trust Law (Amendment) Ordinance 2013.</p>
+        <button class="btn btn-outline-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
+          (click)="downloadPdf('/HKGTrustOrdinance.pdf', 'HKGTrustOrdinance.pdf')">
+          <i class="bi bi-file-earmark-pdf fs-5"></i> Download PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="col-12 col-sm-6 col-lg-4 d-flex justify-content-center">
+      <div class="card shadow-lg rounded-4 border-0 p-4 w-100" style="max-width: 300px;">
+        <h6 class="text-primary">Article by Munro</h6>
+        <p class="small text-secondary">Article by Munro.</p>
+        <button class="btn btn-outline-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
+          (click)="downloadPdf('/ArticlebyMunro.pdf', 'Article by Munro.pdf')">
+          <i class="bi bi-file-earmark-pdf fs-5"></i> Download PDF
+        </button>
+      </div>
+    </div>
+
   </div>
+</div>
+
 
   <!-- Confirmation & Submit -->
   <div class="form-check mb-4">

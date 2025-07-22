@@ -331,10 +331,10 @@
     <div class="mt-3" *ngIf="trustForm.get('isBullionMember')?.value">
       <label for="memberNumber" class="form-label fw-semibold">Enter your Bullion Member Number *</label>
       <input type="text" id="memberNumber" class="form-control form-control-lg border-secondary-subtle"
-        formControlName="memberNumber" placeholder="e.g. CCXXX345" />
+        formControlName="memberNumber" placeholder="e.g. CB000077" />
       <div class="text-danger mt-1 fst-italic"
         *ngIf="trustForm.get('memberNumber')?.invalid && trustForm.get('memberNumber')?.touched">
-        Please enter a valid member number (e.g. CCXXX345).
+        Please enter a valid member number (e.g. CB000077).
       </div>
     </div>
 
@@ -350,10 +350,10 @@
     <div class="mt-3" *ngIf="trustForm.get('wasReferredByMember')?.value">
       <label for="referrerNumber" class="form-label fw-semibold">Enter the Referrer’s Member Number</label>
       <input type="text" id="referrerNumber" class="form-control form-control-lg border-secondary-subtle"
-        formControlName="referrerNumber" placeholder="e.g. CCXXX345" />
+        formControlName="referrerNumber" placeholder="e.g. CB000077" />
       <div class="text-danger mt-1 fst-italic"
         *ngIf="trustForm.get('referrerNumber')?.invalid && trustForm.get('referrerNumber')?.touched">
-        Please enter a valid referrer number (e.g. CCXXX345).
+        Please enter a valid referrer number (e.g. CB000077).
       </div>
     </div>
   </div>

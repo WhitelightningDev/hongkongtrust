@@ -320,7 +320,7 @@ export class Homepage implements OnInit, AfterViewInit {
 
     try {
       const rawForm = this.trustForm.getRawValue();
-      const amount = rawForm.isBullionMember ? 3500 : 7000;
+      const amount = rawForm.isBullionMember ? 10 : 7000;
       const amountInCents = amount * 100;
 
       const paymentInit = await this.http.post<any>(

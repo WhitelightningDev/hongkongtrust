@@ -331,10 +331,10 @@
     <div class="mt-3" *ngIf="trustForm.get('isBullionMember')?.value">
       <label for="memberNumber" class="form-label fw-semibold">Enter your Bullion Member Number *</label>
       <input type="text" id="memberNumber" class="form-control form-control-lg border-secondary-subtle"
-        formControlName="memberNumber" placeholder="e.g. BB000077" />
+        formControlName="memberNumber" placeholder="e.g. CCXXX345" />
       <div class="text-danger mt-1 fst-italic"
         *ngIf="trustForm.get('memberNumber')?.invalid && trustForm.get('memberNumber')?.touched">
-        Please enter a valid member number (e.g. BB000077).
+        Please enter a valid member number (e.g. CCXXX345).
       </div>
     </div>
 

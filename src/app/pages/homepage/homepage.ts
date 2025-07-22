@@ -45,7 +45,6 @@ export class Homepage implements OnInit, AfterViewInit {
   private paymentMethodModalInstance: any;
 
 
-
   constructor(private fb: FormBuilder, private http: HttpClient, private router: Router) {
     this.trustForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -102,10 +101,6 @@ export class Homepage implements OnInit, AfterViewInit {
       referrerControl.updateValueAndValidity();
     });
   }
-
-
-
-
 
   ngOnInit(): void {
     this.trustForm.get('email')?.valueChanges.subscribe(email => {
@@ -314,8 +309,6 @@ export class Homepage implements OnInit, AfterViewInit {
     this.router.navigate(['/crypto-payment']);
   }
 }
-
-
 
   async onSubmit(): Promise<void> {
     if (this.trustForm.invalid) {

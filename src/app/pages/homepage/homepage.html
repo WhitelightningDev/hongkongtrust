@@ -87,28 +87,34 @@
         </div>
       </div>
 
-      <!-- Trust Name -->
-      <div class="mb-4">
-        <label class="form-label">Name of Trust *</label>
-        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
-          <input formControlName="trustName" type="text" class="form-control w-100 w-md-auto"
-            style="max-width: 300px;" />
-          <div *ngIf="trustForm.get('trustName')?.value" class="mt-2">
-            <span class="badge rounded-pill bg-primary text-light fw-bold px-4 py-2">
-              The {{ trustForm.get('trustName')?.value }} Hong Kong Foreign Trust
-            </span>
-          </div>
-        </div>
-        <div class="text-danger mt-1 fst-italic"
-          *ngIf="trustForm.get('trustName')?.invalid && trustForm.get('trustName')?.touched">
-          Please enter a trust name.
-        </div>
-        <!-- Added validation message for forbidden words -->
-        <div class="text-danger mt-1 fst-italic"
-          *ngIf="trustForm.get('trustName')?.errors?.['forbiddenWords'] && trustForm.get('trustName')?.touched">
-          Do not include the words "The", "Trust", "Hong", "kong" and "Foreign" in the trust name — they are automatically added.
-        </div>
+     <!-- Trust Name -->
+<div class="mb-4">
+  <label class="form-label">Name of Trust *</label>
+  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
+    <input formControlName="trustName" type="text" class="form-control w-100 w-md-auto" style="max-width: 300px;" />
+
+    <div *ngIf="trustForm.get('trustName')?.value" class="mt-2">
+      <!-- Message shown after user enters trust name -->
+      <div class="mb-1 text-success bold">
+        This is your Hong Kong trust name..... fok:
       </div>
+
+      <span class="badge rounded-pill bg-primary text-light fw-bold px-4 py-2">
+        The {{ trustForm.get('trustName')?.value }} Hong Kong Foreign Trust
+      </span>
+    </div>
+  </div>
+
+  <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('trustName')?.invalid && trustForm.get('trustName')?.touched">
+    Please enter a trust name.
+  </div>
+
+  <!-- Validation message for forbidden words -->
+  <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('trustName')?.errors?.['forbiddenWords'] && trustForm.get('trustName')?.touched">
+    Do not include the words "The", "Trust", "Hong", "Kong" and "Foreign" in the trust name — they are automatically added.
+  </div>
+</div>
+
 
       <!-- Establishment Date -->
       <div class="mb-4">

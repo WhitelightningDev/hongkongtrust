@@ -88,21 +88,24 @@
       </div>
 
       <!-- Trust Name -->
-      <div class="mb-4">
-        <label class="form-label">Name of Trust *</label>
-        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
-          <input formControlName="trustName" type="text" class="form-control w-100 w-md-auto"
-            style="max-width: 300px;" />
-          <div *ngIf="trustForm.get('trustName')?.value" class="text-muted">
-            <em>The </em><span class="fw-normal">{{ trustForm.get('trustName')?.value }}</span><em> Hong Kong Foreign
-              Trust</em>
-          </div>
-        </div>
-        <div class="text-danger mt-1 fst-italic"
-          *ngIf="trustForm.get('trustName')?.invalid && trustForm.get('trustName')?.touched">
-          Please enter a trust name.
-        </div>
-      </div>
+<div class="mb-4">
+  <label class="form-label">Name of Trust *</label>
+  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
+    <input formControlName="trustName" type="text" class="form-control w-100 w-md-auto" style="max-width: 300px;" />
+    <div *ngIf="trustForm.get('trustName')?.value" class="mt-2">
+      <span class="badge rounded-pill bg-primary text-light fw-bold px-4 py-2">
+        The {{ trustForm.get('trustName')?.value }} Hong Kong Foreign Trust
+      </span>
+    </div>
+  </div>
+  <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('trustName')?.invalid && trustForm.get('trustName')?.touched">
+    Please enter a trust name.
+  </div>
+  <!-- Added validation message for forbidden words -->
+  <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('trustName')?.errors?.['forbiddenWords'] && trustForm.get('trustName')?.touched">
+    Do not include the words "The" or "Trust" in the trust name — they are automatically added.
+  </div>
+</div>
 
       <!-- Establishment Date -->
       <div class="mb-4">
@@ -255,49 +258,38 @@
       </div>
 
       <!-- Payment Method Selection Modal -->
-      <!-- Payment Method Selection Modal -->
-<div class="modal fade" id="paymentMethodModal" #paymentMethodModal tabindex="-1" aria-labelledby="paymentMethodModalLabel"
-  aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-danger">
-      <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title" id="paymentMethodModalLabel">Choose Payment Method</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body" [formGroup]="trustForm">
-        <div class="form-check">
-          <input
-            class="form-check-input"
-            type="radio"
-            id="cardEFT"
-            formControlName="paymentMethod"
-            value="cardEFT"
-          />
-          <label class="form-check-label" for="cardEFT">
-            Card / EFT (available now)
-          </label>
-        </div>
-        <div class="form-check mt-2">
-          <input
-            class="form-check-input"
-            type="radio"
-            id="crypto"
-            formControlName="paymentMethod"
-            value="crypto"
-
-          />
-          <label class="form-check-label" for="crypto">
-            XRP payments (coming soon)
-          </label>
+      <div class="modal fade" id="paymentMethodModal" #paymentMethodModal tabindex="-1"
+        aria-labelledby="paymentMethodModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content border-danger">
+            <div class="modal-header bg-danger text-white">
+              <h5 class="modal-title" id="paymentMethodModalLabel">Choose Payment Method</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                aria-label="Close"></button>
+            </div>
+            <div class="modal-body" [formGroup]="trustForm">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" id="cardEFT" formControlName="paymentMethod"
+                  value="cardEFT" />
+                <label class="form-check-label" for="cardEFT">
+                  Card / EFT (available now)
+                </label>
+              </div>
+              <div class="form-check mt-2">
+                <input class="form-check-input" type="radio" id="crypto" formControlName="paymentMethod"
+                  value="crypto" />
+                <label class="form-check-label" for="crypto">
+                  XRP payments (coming soon)
+                </label>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-danger" (click)="confirmPaymentMethod()">OK</button>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" (click)="confirmPaymentMethod()">OK</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 
     </div>
@@ -306,13 +298,24 @@
   <!-- Bullion Membership Section -->
   <div class="mb-4">
     <label class="form-label fw-semibold d-block">Are you a Bullion Member?</label>
+
     <div class="form-check form-check-inline">
       <input class="form-check-input" type="radio" id="bullionYes" [value]="true" formControlName="isBullionMember" />
       <label class="form-check-label" for="bullionYes">Yes</label>
     </div>
+
     <div class="form-check form-check-inline">
       <input class="form-check-input" type="radio" id="bullionNo" [value]="false" formControlName="isBullionMember" />
       <label class="form-check-label" for="bullionNo">No</label>
+    </div>
+
+    <!-- Show message if not a member -->
+    <div *ngIf="trustForm.get('isBullionMember')?.value === false" class="mt-3 alert alert-warning">
+      Not a member yet? Visit
+      <a href="https://www.bullionlimited.co.za" target="_blank" class="fw-semibold text-decoration-underline">
+        www.bullionlimited.co.za
+      </a>
+      to become a Bullion Member.
     </div>
 
     <!-- Member Number Input -->
@@ -345,6 +348,7 @@
       </div>
     </div>
   </div>
+
 
   <!-- Success popup modal -->
   <div *ngIf="showSuccessPopup"

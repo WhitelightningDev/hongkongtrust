@@ -4,8 +4,21 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 declare var bootstrap: any; // for Bootstrap modal support
+
+// Custom validator for trustName to forbid 'the' and 'trust'
+export function trustNameValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value?.toLowerCase() || '';
+    // Check if 'the' or 'trust' is included anywhere in the string
+    if (value.includes('the') || value.includes('trust')) {
+      return { forbiddenWords: true };
+    }
+    return null;
+  };
+}
 
 @Component({
   selector: 'app-homepage',
@@ -14,6 +27,8 @@ declare var bootstrap: any; // for Bootstrap modal support
   templateUrl: './homepage.html',
   styleUrls: ['./homepage.css']
 })
+
+
 export class Homepage implements OnInit, AfterViewInit {
   trustForm: FormGroup;
   minDate: string = new Date().toISOString().split('T')[0];
@@ -29,6 +44,8 @@ export class Homepage implements OnInit, AfterViewInit {
 
   private paymentMethodModalInstance: any;
 
+
+
   constructor(private fb: FormBuilder, private http: HttpClient, private router: Router) {
     this.trustForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -38,7 +55,7 @@ export class Homepage implements OnInit, AfterViewInit {
       isTrustee: [false],
       trustEmail: ['', [Validators.email]],
       phoneNumber: ['', Validators.required],
-      trustName: ['', Validators.required],
+      trustName: ['', [Validators.required, trustNameValidator()]],
       establishmentDate: ['', Validators.required],
       altSettlorName: [''],
       beneficiaries: [''],
@@ -85,6 +102,10 @@ export class Homepage implements OnInit, AfterViewInit {
       referrerControl.updateValueAndValidity();
     });
   }
+
+
+
+
 
   ngOnInit(): void {
     this.trustForm.get('email')?.valueChanges.subscribe(email => {

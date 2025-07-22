@@ -13,7 +13,7 @@ export function trustNameValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const value = control.value?.toLowerCase() || '';
     // Check if 'the' or 'trust' is included anywhere in the string
-    if (value.includes('the') || value.includes('trust') || value.includes('foreign') || value.includes('Hong') || value.includes('kong')) {
+    if (value.includes('the') || value.includes('trust') || value.includes('foreign') || value.includes('hong') || value.includes('kong')) {
       return { forbiddenWords: true };
     }
     return null;

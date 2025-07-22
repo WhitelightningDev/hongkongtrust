@@ -88,24 +88,27 @@
       </div>
 
       <!-- Trust Name -->
-<div class="mb-4">
-  <label class="form-label">Name of Trust *</label>
-  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
-    <input formControlName="trustName" type="text" class="form-control w-100 w-md-auto" style="max-width: 300px;" />
-    <div *ngIf="trustForm.get('trustName')?.value" class="mt-2">
-      <span class="badge rounded-pill bg-primary text-light fw-bold px-4 py-2">
-        The {{ trustForm.get('trustName')?.value }} Hong Kong Foreign Trust
-      </span>
-    </div>
-  </div>
-  <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('trustName')?.invalid && trustForm.get('trustName')?.touched">
-    Please enter a trust name.
-  </div>
-  <!-- Added validation message for forbidden words -->
-  <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('trustName')?.errors?.['forbiddenWords'] && trustForm.get('trustName')?.touched">
-    Do not include the words "The" or "Trust" in the trust name — they are automatically added.
-  </div>
-</div>
+      <div class="mb-4">
+        <label class="form-label">Name of Trust *</label>
+        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
+          <input formControlName="trustName" type="text" class="form-control w-100 w-md-auto"
+            style="max-width: 300px;" />
+          <div *ngIf="trustForm.get('trustName')?.value" class="mt-2">
+            <span class="badge rounded-pill bg-primary text-light fw-bold px-4 py-2">
+              The {{ trustForm.get('trustName')?.value }} Hong Kong Foreign Trust
+            </span>
+          </div>
+        </div>
+        <div class="text-danger mt-1 fst-italic"
+          *ngIf="trustForm.get('trustName')?.invalid && trustForm.get('trustName')?.touched">
+          Please enter a trust name.
+        </div>
+        <!-- Added validation message for forbidden words -->
+        <div class="text-danger mt-1 fst-italic"
+          *ngIf="trustForm.get('trustName')?.errors?.['forbiddenWords'] && trustForm.get('trustName')?.touched">
+          Do not include the words "The" or "Trust" in the trust name — they are automatically added.
+        </div>
+      </div>
 
       <!-- Establishment Date -->
       <div class="mb-4">
@@ -366,7 +369,7 @@
   <div class="mb-4 p-3 border rounded bg-light-subtle text-center fs-5 fw-semibold">
     <ng-container
       *ngIf="trustForm.get('isBullionMember')?.value && trustForm.get('memberNumber')?.valid; else nonMemberPrice">
-      Your member price is: <span class="text-success">R5</span>
+      Your member price is: <span class="text-success">R3,500</span>
     </ng-container>
     <ng-template #nonMemberPrice>
       Your price if not a member is: <span class="text-danger">R7,000</span>

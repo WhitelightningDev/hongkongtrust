@@ -8,15 +8,17 @@
   </div>
 
   <!-- Success Message -->
-  <div *ngIf="!loading && success" class="alert alert-success d-flex align-items-center justify-content-start p-4 shadow-sm" role="alert" style="max-width: 600px; margin: auto;">
-    <i class="bi bi-check-circle-fill fs-1 text-success me-3"></i>
-    <div class="text-start">
-      <h4 class="alert-heading">Success!</h4>
-      <p class="mb-1">Your trust application has been submitted successfully.</p>
-      <hr>
-      <p class="mb-0">As soon as your XRP payment has been verified, your trust deed will be emailed to you.</p>
-    </div>
+<div *ngIf="!loading && success" class="alert alert-success d-flex align-items-center justify-content-start p-4 shadow-sm" role="alert" style="max-width: 600px; margin: auto;">
+  <i class="bi bi-check-circle-fill fs-1 text-success me-3"></i>
+  <div class="text-start">
+    <h4 class="alert-heading">Success!</h4>
+    <p class="mb-1">Your trust application has been submitted successfully.</p>
+    <hr>
+    <p class="mb-0">As soon as your XRP payment has been verified, your trust deed will be emailed to you.</p>
   </div>
+  <a class="btn btn-primary ms-3" href="/" role="button">Back</a>
+</div>
+
 
   <!-- Error Message -->
   <div *ngIf="!loading && errorMessage" class="alert alert-danger d-flex align-items-center justify-content-start p-4 shadow-sm" role="alert" style="max-width: 600px; margin: auto;">

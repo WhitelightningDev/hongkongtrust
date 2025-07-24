@@ -52,7 +52,6 @@ export class Homepage implements OnInit, AfterViewInit {
 
   private paymentMethodModalInstance: any;
 
-
   constructor() {
     this.trustForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -75,7 +74,7 @@ export class Homepage implements OnInit, AfterViewInit {
       trustee2: this.createTrustee(false, true),  // Trustee 2 required
       trustee3: this.createTrustee(false),
       trustee4: this.createTrustee(false),
-      paymentMethod: [null, Validators.required]
+      paymentMethod: [null]  // No Validators.required here
     });
 
     // Update validators dynamically based on checkboxes
@@ -106,6 +105,9 @@ export class Homepage implements OnInit, AfterViewInit {
       }
       referrerControl.updateValueAndValidity();
     });
+
+    // Conditional required validator for trustEmail based on useUserEmailForTrustEmail
+    this.trustForm.get('trustEmail')!.disable();  // start disabled as useUserEmailForTrustEmail is false by default
   }
 
   ngOnInit(): void {
@@ -285,143 +287,110 @@ export class Homepage implements OnInit, AfterViewInit {
   }
 
   openPaymentMethodModal(): void {
-    this.trustForm.get('paymentMethod')?.reset(); // reset selection on open
+    this.trustForm.get('paymentMethod')?.reset(); // reset payment method selection each time modal opens
     this.paymentMethodModalInstance.show();
   }
 
   async confirmPaymentMethod(): Promise<void> {
-  const selectedMethod = this.trustForm.get('paymentMethod')?.value;
+    const selectedMethod = this.trustForm.get('paymentMethod')?.value;
 
-  if (!selectedMethod) {
-    alert('Please select a payment method.');
-    return;
-  }
-
-  this.paymentMethodModalInstance.hide();
-
-  const rawForm = this.trustForm.getRawValue();
-
-  if (selectedMethod === 'cardEFT') {
-    this.loading = true;
-
-    try {
-      const amount = rawForm.isBullionMember ? 1500 : 7000;
-      const amountInCents = amount * 100;
-
-      const paymentInit = await this.http.post<any>(
-        'https://hongkongbackend.onrender.com/api/payment-session',
-        {
-          amount_cents: amountInCents,
-          trust_data: rawForm
-        }
-      ).toPromise();
-
-      if (!paymentInit || !paymentInit.redirectUrl || !paymentInit.trust_id) {
-        throw new Error('Invalid response from backend');
-      }
-
-      const trustId = paymentInit.trust_id;
-
-      sessionStorage.setItem('trustFormData', JSON.stringify(rawForm));
-      sessionStorage.setItem('trustId', trustId);
-
-      const serializedFiles = await Promise.all(
-        Object.entries(this.fileMap).map(async ([role, file]) => {
-          const buffer = await file.arrayBuffer();
-          return {
-            role,
-            name: file.name,
-            type: file.type,
-            buffer: Array.from(new Uint8Array(buffer))
-          };
-        })
-      );
-
-      sessionStorage.setItem('trustFiles', JSON.stringify(serializedFiles));
-
-      await new Promise((res) => setTimeout(res, 500));
-
-      this.loading = false;
-
-      window.location.href = paymentInit.redirectUrl;
-
-    } catch (error: any) {
-      alert('Error: ' + (error.message || error));
-      console.error('🛑 Payment session error:', error);
-      this.loading = false;
+    if (!selectedMethod) {
+      alert('Please select a payment method.');
+      return;
     }
-  } else if (selectedMethod === 'crypto') {
-    // Store form data for crypto page to read
-    sessionStorage.setItem('trustFormData', JSON.stringify(rawForm));
-    this.router.navigate(['/crypto-payment']);
-  }
-}
 
+    this.paymentMethodModalInstance.hide();
+
+    const rawForm = this.trustForm.getRawValue();
+
+    if (selectedMethod === 'cardEFT') {
+      this.loading = true;
+
+      try {
+        const amount = rawForm.isBullionMember ? 1500 : 7000;
+        const amountInCents = amount * 100;
+
+        const paymentInit = await this.http.post<any>(
+          'https://hongkongbackend.onrender.com/api/payment-session',
+          {
+            amount_cents: amountInCents,
+            trust_data: rawForm
+          }
+        ).toPromise();
+
+        if (!paymentInit || !paymentInit.redirectUrl || !paymentInit.trust_id) {
+          throw new Error('Invalid response from backend');
+        }
+
+        const trustId = paymentInit.trust_id;
+
+        sessionStorage.setItem('trustFormData', JSON.stringify(rawForm));
+        sessionStorage.setItem('trustId', trustId);
+
+        const serializedFiles = await Promise.all(
+          Object.entries(this.fileMap).map(async ([role, file]) => {
+            const buffer = await file.arrayBuffer();
+            return {
+              role,
+              name: file.name,
+              type: file.type,
+              buffer: Array.from(new Uint8Array(buffer))
+            };
+          })
+        );
+
+        sessionStorage.setItem('trustFiles', JSON.stringify(serializedFiles));
+
+        await new Promise((res) => setTimeout(res, 500));
+
+        this.loading = false;
+
+        window.location.href = paymentInit.redirectUrl;
+
+      } catch (error: any) {
+        alert('Error: ' + (error.message || error));
+        console.error('🛑 Payment session error:', error);
+        this.loading = false;
+      }
+    } else if (selectedMethod === 'crypto') {
+      // Store form data for crypto payment page to read
+      sessionStorage.setItem('trustFormData', JSON.stringify(rawForm));
+      this.router.navigate(['/crypto-payment']);
+    }
+  }
 
   async onSubmit(): Promise<void> {
     if (this.trustForm.invalid) {
-    this.trustForm.markAllAsTouched();
-     // Show toast error
-    this.toastr.error('Please fill in all required fields correctly before submitting.', 'Validation Error', {
-      timeOut: 4000,
-      closeButton: true,
-      progressBar: true,
-      positionClass: 'toast-top-right'
-    });
-    return;
-  }
+      this.trustForm.markAllAsTouched();
 
+      // Log invalid controls and errors, including nested groups
+      console.log('Form valid?', this.trustForm.valid);
+      console.log('Form errors:', this.trustForm.errors);
+      Object.keys(this.trustForm.controls).forEach(key => {
+        const control = this.trustForm.get(key);
+        console.log(key, control?.valid, control?.errors);
 
-  this.openPaymentMethodModal();
-
-    this.loading = true;
-
-    try {
-      const rawForm = this.trustForm.getRawValue();
-      const amount = rawForm.isBullionMember ? 1500 : 7000;
-      const amountInCents = amount * 100;
-
-      const paymentInit = await this.http.post<any>(
-        'https://hongkongbackend.onrender.com/api/payment-session',
-        {
-          amount_cents: amountInCents,
-          trust_data: rawForm
+        // Log nested group controls errors for settlor/trustee groups
+        if (control instanceof FormGroup) {
+          Object.keys(control.controls).forEach(nestedKey => {
+            const nestedControl = control.get(nestedKey);
+            console.log(`  ${key}.${nestedKey}`, nestedControl?.valid, nestedControl?.errors);
+          });
         }
-      ).toPromise();
+      });
 
-      if (!paymentInit || !paymentInit.redirectUrl || !paymentInit.trust_id) {
-        throw new Error('Invalid response from backend');
-      }
+      // Show toast error
+      this.toastr.error('Please fill in all required fields correctly before submitting.', 'Validation Error', {
+        timeOut: 4000,
+        closeButton: true,
+        progressBar: true,
+        positionClass: 'toast-top-right'
+      });
 
-      const trustId = paymentInit.trust_id;
-
-      sessionStorage.setItem('trustFormData', JSON.stringify(rawForm));
-      sessionStorage.setItem('trustId', trustId);
-
-      const serializedFiles = await Promise.all(
-        Object.entries(this.fileMap).map(async ([role, file]) => {
-          const buffer = await file.arrayBuffer();
-          return {
-            role,
-            name: file.name,
-            type: file.type,
-            buffer: Array.from(new Uint8Array(buffer))
-          };
-        })
-      );
-
-      sessionStorage.setItem('trustFiles', JSON.stringify(serializedFiles));
-
-      await new Promise((res) => setTimeout(res, 500));
-
-      this.loading = false;
-
-      window.location.href = paymentInit.redirectUrl;
-
-    } catch (error: any) {
-      alert('Error: ' + (error.message || error));
-      console.error('🛑 Payment session error:', error);
-      this.loading = false;
+      return;
     }
+
+    // Form is valid, open payment method modal
+    this.openPaymentMethodModal();
   }
 }

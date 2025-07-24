@@ -206,3 +206,13 @@ section h2 {
   background-color: #e3f2fd;
   border: 1px solid #2196f3;
 }
+
+
+.limitedOffer{
+  color: #B91C1C;
+
+}
+
+.currentPrice{
+  text-decoration: line-through;
+}

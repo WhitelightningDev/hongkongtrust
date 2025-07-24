@@ -71,7 +71,7 @@ export class Homepage implements OnInit, AfterViewInit {
       wasReferredByMember: [false],
       referrerNumber: [''],
       settlor: this.createTrustee(false, true),   // Settlor group with required validators
-      trustee1: this.createTrustee(false),
+      trustee1: this.createTrustee(false, true),
       trustee2: this.createTrustee(false, true),  // Trustee 2 required
       trustee3: this.createTrustee(false),
       trustee4: this.createTrustee(false),

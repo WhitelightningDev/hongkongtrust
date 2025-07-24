@@ -87,34 +87,33 @@
         </div>
       </div>
 
-     <!-- Trust Name -->
-<div class="mb-4">
-  <label class="form-label">Name of Trust *</label>
-  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
-    <input formControlName="trustName" type="text" class="form-control w-100 w-md-auto" style="max-width: 300px;" />
+      <!-- Trust Name -->
+      <div class="mb-4">
+        <label class="form-label">Name of Trust *</label>
+        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
+          <input formControlName="trustName" type="text" class="form-control w-100 w-md-auto" style="max-width: 300px;" />
 
-    <div *ngIf="trustForm.get('trustName')?.value" class="mt-2">
-      <!-- Message shown after user enters trust name -->
-      <div class="mb-1 text-primary bold">
-        THIS IS YOUR TRUST FULL NAME
+          <div *ngIf="trustForm.get('trustName')?.value" class="mt-2">
+            <!-- Message shown after user enters trust name -->
+            <div class="mb-1 text-primary bold">
+              THIS IS YOUR TRUST FULL NAME
+            </div>
+
+            <span class="badge rounded-pill bg-primary text-light fw-bold px-4 py-2">
+              The {{ trustForm.get('trustName')?.value }} Hong Kong Foreign Trust
+            </span>
+          </div>
+        </div>
+
+        <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('trustName')?.invalid && trustForm.get('trustName')?.touched">
+          Please enter a trust name.
+        </div>
+
+        <!-- Validation message for forbidden words -->
+        <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('trustName')?.errors?.['forbiddenWords'] && trustForm.get('trustName')?.touched">
+          Do not include the words "The", "Trust", "Hong", "Kong" and "Foreign" in the trust name — they are automatically added.
+        </div>
       </div>
-
-      <span class="badge rounded-pill bg-primary text-light fw-bold px-4 py-2">
-        The {{ trustForm.get('trustName')?.value }} Hong Kong Foreign Trust
-      </span>
-    </div>
-  </div>
-
-  <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('trustName')?.invalid && trustForm.get('trustName')?.touched">
-    Please enter a trust name.
-  </div>
-
-  <!-- Validation message for forbidden words -->
-  <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('trustName')?.errors?.['forbiddenWords'] && trustForm.get('trustName')?.touched">
-    Do not include the words "The", "Trust", "Hong", "Kong" and "Foreign" in the trust name — they are automatically added.
-  </div>
-</div>
-
 
       <!-- Establishment Date -->
       <div class="mb-4">
@@ -164,78 +163,84 @@
       </div>
 
       <!-- Trustees in 2x2 grid -->
-<div class="row g-3">
+      <div class="row g-3">
 
-  <!-- Trustee 1 -->
-  <div class="col-12 col-md-6">
-    <div class="mb-4">
-      <label class="form-label fw-semibold d-flex align-items-center gap-3">
-        <span class="text-danger fs-5">Trustee 1</span>
-        <div class="form-check form-switch mb-0">
-          <input type="checkbox" id="isTrusteeCheckbox" class="form-check-input"
-            [checked]="trustForm.get('isTrustee')?.value" (change)="onTrusteeCheckboxChange($event)" />
-          <label for="isTrusteeCheckbox" class="form-check-label">I am Trustee 1</label>
+        <!-- Trustee 1 -->
+        <div class="col-12 col-md-6">
+          <div class="mb-4">
+            <label class="form-label fw-semibold d-flex align-items-center gap-3">
+              <span class="text-danger fs-5">Trustee 1</span>
+              <div class="form-check form-switch mb-0">
+                <input type="checkbox" id="isTrusteeCheckbox" class="form-check-input"
+                  [checked]="trustForm.get('isTrustee')?.value" (change)="onTrusteeCheckboxChange($event)" />
+                <label for="isTrusteeCheckbox" class="form-check-label">I am Trustee 1</label>
+              </div>
+            </label>
+
+            <div [formGroup]="firstTrustee" class="card border shadow bg-light-subtle p-3">
+              <label>Full Name *</label>
+              <input type="text" formControlName="name" [readonly]="trustForm.get('isTrustee')?.value" class="form-control" />
+              <div class="text-danger mt-1 fst-italic" *ngIf="firstTrustee.get('name')?.invalid && firstTrustee.get('name')?.touched">
+                Trustee 1 name is required.
+              </div>
+
+              <label>ID / Passport No *</label>
+              <input type="text" formControlName="id" [readonly]="trustForm.get('isTrustee')?.value" class="form-control mb-2" />
+              <div class="text-danger mt-1 fst-italic" *ngIf="firstTrustee.get('id')?.invalid && firstTrustee.get('id')?.touched">
+                Trustee 1 ID/Passport is required.
+              </div>
+
+            </div>
+          </div>
         </div>
-      </label>
 
-      <div [formGroup]="firstTrustee" class="card border shadow bg-light-subtle p-3">
-        <label>Full Name *</label>
-        <input type="text" formControlName="name" [readonly]="trustForm.get('isTrustee')?.value" class="form-control" />
-        <div class="text-danger mt-1 fst-italic" *ngIf="firstTrustee.get('name')?.invalid && firstTrustee.get('name')?.touched">
-          Trustee 1 name is required.
+        <!-- Trustee 2 -->
+        <div class="col-12 col-md-6" [formGroup]="secondTrustee">
+          <div class="mb-4">
+            <label class="form-label fw-semibold text-danger fs-5">Trustee 2 *</label>
+            <div class="card border shadow bg-light-subtle p-3">
+              <label>Full Name *</label>
+              <input type="text" formControlName="name" class="form-control" />
+              <div class="text-danger mt-1 fst-italic" *ngIf="secondTrustee.get('name')?.invalid && secondTrustee.get('name')?.touched">
+                Trustee 2 name is required.
+              </div>
+
+              <label>ID / Passport No *</label>
+              <input type="text" formControlName="id" class="form-control mb-2" />
+              <div class="text-danger mt-1 fst-italic" *ngIf="secondTrustee.get('id')?.invalid && secondTrustee.get('id')?.touched">
+                Trustee 2 ID is required.
+              </div>
+            </div>
+          </div>
         </div>
 
-        <label>ID / Passport No *</label>
-        <input type="text" formControlName="id" [readonly]="trustForm.get('isTrustee')?.value" class="form-control mb-2" />
-        <div class="text-danger mt-1 fst-italic" *ngIf="firstTrustee.get('id')?.invalid && firstTrustee.get('id')?.touched">
-          Trustee 1 ID/Passport is required.
+        <!-- Trustee 3 -->
+        <div class="col-12 col-md-6">
+          <div class="mb-4" [formGroup]="thirdTrustee">
+            <label class="form-label fw-semibold text-danger fs-5">Trustee 3 (Optional)</label>
+            <div class="card border shadow bg-light-subtle p-3">
+              <label>Full Name</label>
+              <input type="text" formControlName="name" class="form-control mb-2" placeholder="Full name" />
+              <label>ID / Passport No</label>
+              <input type="text" formControlName="id" class="form-control mb-2" placeholder="ID/Passport" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Trustee 4 -->
+        <div class="col-12 col-md-6">
+          <div class="mb-4" [formGroup]="fourthTrustee">
+            <label class="form-label fw-semibold text-danger fs-5">Trustee 4 (Optional)</label>
+            <div class="card border shadow bg-light-subtle p-3">
+              <label>Full Name</label>
+              <input type="text" formControlName="name" class="form-control mb-2" placeholder="Full name" />
+              <label>ID / Passport No</label>
+              <input type="text" formControlName="id" class="form-control mb-2" placeholder="ID/Passport" />
+            </div>
+          </div>
         </div>
 
       </div>
-    </div>
-  </div>
-
-  <!-- Trustee 2 -->
-  <div class="col-12 col-md-6">
-    <div class="mb-4">
-      <label class="form-label fw-semibold text-danger fs-5">Trustee 2 (Required)</label>
-      <div [formGroup]="secondTrustee" class="card border shadow bg-light-subtle p-3">
-        <label>Full Name *</label>
-        <input type="text" formControlName="name" class="form-control mb-2" placeholder="Full name" />
-        <label>ID / Passport No *</label>
-        <input type="text" formControlName="id" class="form-control mb-2" placeholder="ID/Passport" />
-      </div>
-    </div>
-  </div>
-
-  <!-- Trustee 3 -->
-  <div class="col-12 col-md-6">
-    <div class="mb-4" [formGroup]="thirdTrustee">
-      <label class="form-label fw-semibold text-danger fs-5">Trustee 3 (Optional)</label>
-      <div class="card border shadow bg-light-subtle p-3">
-        <label>Full Name</label>
-        <input type="text" formControlName="name" class="form-control mb-2" placeholder="Full name" />
-        <label>ID / Passport No</label>
-        <input type="text" formControlName="id" class="form-control mb-2" placeholder="ID/Passport" />
-      </div>
-    </div>
-  </div>
-
-  <!-- Trustee 4 -->
-  <div class="col-12 col-md-6">
-    <div class="mb-4" [formGroup]="fourthTrustee">
-      <label class="form-label fw-semibold text-danger fs-5">Trustee 4 (Optional)</label>
-      <div class="card border shadow bg-light-subtle p-3">
-        <label>Full Name</label>
-        <input type="text" formControlName="name" class="form-control mb-2" placeholder="Full name" />
-        <label>ID / Passport No</label>
-        <input type="text" formControlName="id" class="form-control mb-2" placeholder="ID/Passport" />
-      </div>
-    </div>
-  </div>
-
-</div>
-
 
       <!-- Beneficiaries List Input -->
       <div class="mb-4">
@@ -301,7 +306,6 @@
         </div>
       </div>
 
-
     </div>
   </div>
 
@@ -359,7 +363,6 @@
     </div>
   </div>
 
-
   <!-- Success popup modal -->
   <div *ngIf="showSuccessPopup"
     class="position-fixed top-50 start-50 translate-middle bg-white text-success border border-success rounded-4 shadow-lg px-5 py-4"
@@ -385,8 +388,8 @@
 
   <!-- Submit Button -->
   <div class="d-grid">
-    <button type="button" class="btn btn-danger btn-lg" (click)="openPaymentMethodModal()">
-      📤 Submit Trust Application
-    </button>
+    <button type="submit" class="btn btn-danger btn-lg">
+  📤 Submit Trust Application
+</button>
   </div>
 </form>

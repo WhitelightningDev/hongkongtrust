@@ -1,18 +1,18 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, inject } from '@angular/core';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { ToastrService, ToastrModule } from 'ngx-toastr';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-declare var bootstrap: any; // for Bootstrap modal support
+declare var bootstrap: any;
 
-// Custom validator for trustName to forbid 'the' and 'trust'
+// Custom validator for trustName
 export function trustNameValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const value = control.value?.toLowerCase() || '';
-    // Check if 'the' or 'trust' is included anywhere in the string
     if (value.includes('the') || value.includes('trust') || value.includes('foreign') || value.includes('hong') || value.includes('kong')) {
       return { forbiddenWords: true };
     }
@@ -23,19 +23,27 @@ export function trustNameValidator(): ValidatorFn {
 @Component({
   selector: 'app-homepage',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HttpClientModule, FormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    FormsModule,
+    ToastrModule
+  ],
   templateUrl: './homepage.html',
   styleUrls: ['./homepage.css']
 })
-
-
 export class Homepage implements OnInit, AfterViewInit {
+  private toastr = inject(ToastrService);
+  private fb = inject(FormBuilder);
+  private http = inject(HttpClient);
+  private router = inject(Router);
+
   trustForm: FormGroup;
-  minDate: string = new Date().toISOString().split('T')[0];
+  minDate = new Date().toISOString().split('T')[0];
   uploadedFiles: File[] = [];
   fileMap: { [key: string]: File } = {};
   useUserEmailForTrustEmail = false;
-
   loading = false;
   showSuccessPopup = false;
 
@@ -45,7 +53,7 @@ export class Homepage implements OnInit, AfterViewInit {
   private paymentMethodModalInstance: any;
 
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private router: Router) {
+  constructor() {
     this.trustForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       fullName: ['', Validators.required],
@@ -62,17 +70,15 @@ export class Homepage implements OnInit, AfterViewInit {
       memberNumber: [''],
       wasReferredByMember: [false],
       referrerNumber: [''],
-      settlor: this.fb.group({
-        name: ['', Validators.required],
-        id: ['', Validators.required]
-      }),
+      settlor: this.createTrustee(false, true),   // Settlor group with required validators
       trustee1: this.createTrustee(false),
-      trustee2: this.createTrustee(false),
+      trustee2: this.createTrustee(false, true),  // Trustee 2 required
       trustee3: this.createTrustee(false),
       trustee4: this.createTrustee(false),
-      paymentMethod: [null, Validators.required]  // <-- Added here
+      paymentMethod: [null, Validators.required]
     });
 
+    // Update validators dynamically based on checkboxes
     this.trustForm.get('isBullionMember')!.valueChanges.subscribe((isMember: boolean) => {
       const memberNumber = this.trustForm.get('memberNumber')!;
       if (isMember) {
@@ -100,7 +106,6 @@ export class Homepage implements OnInit, AfterViewInit {
       }
       referrerControl.updateValueAndValidity();
     });
-
   }
 
   ngOnInit(): void {
@@ -112,12 +117,12 @@ export class Homepage implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Initialize Bootstrap modal instance for payment method modal
     this.paymentMethodModalInstance = new bootstrap.Modal(this.paymentMethodModal.nativeElement, {
       backdrop: 'static',
       keyboard: false
     });
 
+    // Prefill settlor and first trustee from fullName and idNumber if empty
     setTimeout(() => {
       const fullName = this.trustForm.get('fullName')?.value;
       const idNumber = this.trustForm.get('idNumber')?.value;
@@ -143,30 +148,28 @@ export class Homepage implements OnInit, AfterViewInit {
     }, 100);
   }
 
+  // Accessors for nested FormGroups
   get settlor(): FormGroup {
     return this.trustForm.get('settlor') as FormGroup;
   }
-
   get firstTrustee(): FormGroup {
     return this.trustForm.get('trustee1') as FormGroup;
   }
-
   get secondTrustee(): FormGroup {
     return this.trustForm.get('trustee2') as FormGroup;
   }
-
   get thirdTrustee(): FormGroup {
     return this.trustForm.get('trustee3') as FormGroup;
   }
-
   get fourthTrustee(): FormGroup {
     return this.trustForm.get('trustee4') as FormGroup;
   }
 
-  createTrustee(isReadonly = false): FormGroup {
+  // Create trustee/settlors with dynamic required validation
+  createTrustee(isReadonly = false, required = false): FormGroup {
     return this.fb.group({
-      name: [{ value: '', disabled: isReadonly }],
-      id: [{ value: '', disabled: isReadonly }]
+      name: [{ value: '', disabled: isReadonly }, required ? Validators.required : []],
+      id: [{ value: '', disabled: isReadonly }, required ? Validators.required : []]
     });
   }
 
@@ -175,13 +178,11 @@ export class Homepage implements OnInit, AfterViewInit {
     const file = input.files?.[0];
     if (file) {
       this.fileMap[role] = file;
-      console.log(`Uploaded file for ${role}:`, file.name);
     }
   }
 
   toggleUseUserEmailForTrustEmail(event: Event): void {
     this.useUserEmailForTrustEmail = (event.target as HTMLInputElement).checked;
-
     const trustEmailControl = this.trustForm.get('trustEmail');
     if (this.useUserEmailForTrustEmail) {
       trustEmailControl?.setValue(this.trustForm.get('email')?.value || '');
@@ -288,7 +289,7 @@ export class Homepage implements OnInit, AfterViewInit {
     this.paymentMethodModalInstance.show();
   }
 
-  confirmPaymentMethod(): void {
+  async confirmPaymentMethod(): Promise<void> {
   const selectedMethod = this.trustForm.get('paymentMethod')?.value;
 
   if (!selectedMethod) {
@@ -301,21 +302,77 @@ export class Homepage implements OnInit, AfterViewInit {
   const rawForm = this.trustForm.getRawValue();
 
   if (selectedMethod === 'cardEFT') {
-    // Store form data just like before submit
-    sessionStorage.setItem('trustFormData', JSON.stringify(rawForm));
-    this.onSubmit();
+    this.loading = true;
+
+    try {
+      const amount = rawForm.isBullionMember ? 1500 : 7000;
+      const amountInCents = amount * 100;
+
+      const paymentInit = await this.http.post<any>(
+        'https://hongkongbackend.onrender.com/api/payment-session',
+        {
+          amount_cents: amountInCents,
+          trust_data: rawForm
+        }
+      ).toPromise();
+
+      if (!paymentInit || !paymentInit.redirectUrl || !paymentInit.trust_id) {
+        throw new Error('Invalid response from backend');
+      }
+
+      const trustId = paymentInit.trust_id;
+
+      sessionStorage.setItem('trustFormData', JSON.stringify(rawForm));
+      sessionStorage.setItem('trustId', trustId);
+
+      const serializedFiles = await Promise.all(
+        Object.entries(this.fileMap).map(async ([role, file]) => {
+          const buffer = await file.arrayBuffer();
+          return {
+            role,
+            name: file.name,
+            type: file.type,
+            buffer: Array.from(new Uint8Array(buffer))
+          };
+        })
+      );
+
+      sessionStorage.setItem('trustFiles', JSON.stringify(serializedFiles));
+
+      await new Promise((res) => setTimeout(res, 500));
+
+      this.loading = false;
+
+      window.location.href = paymentInit.redirectUrl;
+
+    } catch (error: any) {
+      alert('Error: ' + (error.message || error));
+      console.error('🛑 Payment session error:', error);
+      this.loading = false;
+    }
   } else if (selectedMethod === 'crypto') {
-    // Store form data so crypto page can read it
+    // Store form data for crypto page to read
     sessionStorage.setItem('trustFormData', JSON.stringify(rawForm));
     this.router.navigate(['/crypto-payment']);
   }
 }
 
+
   async onSubmit(): Promise<void> {
     if (this.trustForm.invalid) {
-      this.trustForm.markAllAsTouched();
-      return;
-    }
+    this.trustForm.markAllAsTouched();
+     // Show toast error
+    this.toastr.error('Please fill in all required fields correctly before submitting.', 'Validation Error', {
+      timeOut: 4000,
+      closeButton: true,
+      progressBar: true,
+      positionClass: 'toast-top-right'
+    });
+    return;
+  }
+
+
+  this.openPaymentMethodModal();
 
     this.loading = true;
 

@@ -1,3 +1,66 @@
 /* You can add global styles to this file, and also import other style files */
 @import 'ngx-toastr/toastr';
 
+.toast-error {
+  background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+  color: #fff !important;
+  font-weight: 500;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px 28px;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+  border-left: 6px solid #b02a1f;
+  min-width: 320px;
+  max-width: 420px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+}
+
+.toast-error::before {
+  content: '⚠';
+  font-size: 22px;
+  margin-right: 12px;
+  display: inline-block;
+  vertical-align: middle;
+  color: #ffe5e0;
+}
+
+.toast-error .toast-message {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1.4;
+  font-size: 15px;
+}
+
+.toast-error .toast-close-button {
+  color: white !important;
+  opacity: 0.8;
+  font-size: 18px;
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  text-shadow: none;
+  transition: opacity 0.2s ease;
+}
+
+.toast-error .toast-close-button:hover {
+  opacity: 1;
+}
+
+.toast-progress {
+  background: rgba(255, 255, 255, 0.4) !important;
+  height: 4px !important;
+  border-radius: 0 0 12px 12px !important;
+  animation: toastProgress 5s linear forwards;
+}
+
+@keyframes toastProgress {
+  0% {
+    width: 100%;
+  }
+  100% {
+    width: 0%;
+  }
+}

@@ -360,37 +360,59 @@ export class Homepage implements OnInit, AfterViewInit {
   }
 
   async onSubmit(): Promise<void> {
-    if (this.trustForm.invalid) {
-      this.trustForm.markAllAsTouched();
+  if (this.trustForm.invalid) {
+    this.trustForm.markAllAsTouched();
 
-      // Log invalid controls and errors, including nested groups
-      console.log('Form valid?', this.trustForm.valid);
-      console.log('Form errors:', this.trustForm.errors);
-      Object.keys(this.trustForm.controls).forEach(key => {
-        const control = this.trustForm.get(key);
-        console.log(key, control?.valid, control?.errors);
+    // Collect invalid fields' keys for top-level and nested controls
+    const invalidFields: string[] = [];
 
-        // Log nested group controls errors for settlor/trustee groups
+    Object.keys(this.trustForm.controls).forEach(key => {
+      const control = this.trustForm.get(key);
+
+      if (control?.invalid) {
         if (control instanceof FormGroup) {
+          // Nested group: check which child controls are invalid
           Object.keys(control.controls).forEach(nestedKey => {
             const nestedControl = control.get(nestedKey);
-            console.log(`  ${key}.${nestedKey}`, nestedControl?.valid, nestedControl?.errors);
+            if (nestedControl?.invalid) {
+              invalidFields.push(`${key}.${nestedKey}`);
+            }
           });
+        } else {
+          invalidFields.push(key);
         }
-      });
+      }
+    });
 
-      // Show toast error
-      this.toastr.error('Please fill in all required fields correctly before submitting.', 'Validation Error', {
-        timeOut: 4000,
-        closeButton: true,
-        progressBar: true,
-        positionClass: 'toast-top-right'
-      });
+    // Format the invalid fields nicely for the toast message
+    const formattedFields = invalidFields.length
+      ? invalidFields.map(f => f.replace(/([A-Z])/g, ' $1').toLowerCase()).join(', ')
+      : 'some required fields';
 
-      return;
-    }
-
-    // Form is valid, open payment method modal
-    this.openPaymentMethodModal();
+    // Show toast error with the list of invalid fields
+    this.toastr.error(
+  `Please fill in or correct the following fields: ${formattedFields}`,
+  'Validation Error',
+  {
+    timeOut: 6000,
+    closeButton: true,
+    progressBar: true,
+    positionClass: 'toast-top-right',
+    tapToDismiss: false,
+    toastClass: 'ngx-toastr toast-error custom-toast' // your own custom class to hook CSS
   }
+);
+
+
+    // Also log for debugging
+    console.log('Form valid?', this.trustForm.valid);
+    console.log('Invalid fields:', invalidFields);
+
+    return;
+  }
+
+  // If valid, open payment modal as before
+  this.openPaymentMethodModal();
+}
+
 }

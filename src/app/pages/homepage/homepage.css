@@ -19,3 +19,52 @@ form[formGroup] {
   pointer-events: none;
   user-select: none;
 }
+
+/* styles.css or styles.scss */
+
+.toast-top-right {
+  top: 20px;
+  right: 20px;
+}
+
+.custom-toast {
+  background-color: #ff4c4c !important;
+  color: white !important;
+  font-weight: 700;
+  font-size: 14px;
+  border-radius: 10px !important;
+  box-shadow: 0 5px 15px rgba(255, 76, 76, 0.6);
+}
+
+
+.toast-error {
+  background: #d9534f !important; /* Bootstrap's red */
+  color: white !important;
+  font-weight: 600;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 16px 24px;
+  min-width: 320px;
+  max-width: 400px;
+  border-left: 6px solid #c9302c; /* darker red accent */
+}
+
+.toast-error .toast-close-button {
+  color: white !important;
+  opacity: 0.7;
+  font-size: 18px;
+  right: 12px;
+  top: 12px;
+}
+
+.toast-error .toast-close-button:hover {
+  opacity: 1;
+}
+
+.toast-progress {
+  background: rgba(255, 255, 255, 0.5) !important;
+  height: 4px !important;
+  border-radius: 0 0 8px 8px !important;
+}
+

@@ -24,6 +24,7 @@ export class SuccessComponent implements OnInit {
       const trustId = sessionStorage.getItem('trustId') || '';
       const paymentMethod = sessionStorage.getItem('paymentMethod') || 'card';
       const paymentAmount = sessionStorage.getItem('paymentAmount') || '700000'; // fallback
+      const paymentMethodFromSession = sessionStorage.getItem('paymentMethod') || 'card';
 
       const formData = new FormData();
 
@@ -68,8 +69,9 @@ export class SuccessComponent implements OnInit {
 
       // Payment info
       formData.append('has_paid', rawForm.has_paid ?? 'true');
-      formData.append('payment_method', paymentMethod);
+      formData.append('payment_method', paymentMethodFromSession);
       formData.append('payment_amount_cents', paymentAmount);
+      console.log(`💳 Submitting trust with ${paymentMethodFromSession} payment of ${paymentAmount} cents`);
 
       // Submit
       await this.http.post('https://hongkongbackend.onrender.com/trusts/submit-trust', formData).toPromise();

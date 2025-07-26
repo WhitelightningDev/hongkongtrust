@@ -22,8 +22,13 @@ export class CryptoSuccess implements OnInit {
       const rawForm = JSON.parse(sessionStorage.getItem('trustFormData') || '{}');
       const serializedFiles = JSON.parse(sessionStorage.getItem('trustFiles') || '[]');
       const trustId = sessionStorage.getItem('trustId') || '';
+      let paymentAmount = '700000'; // default fallback
+      const storedAmount = sessionStorage.getItem('paymentAmount');
       const paymentMethod = sessionStorage.getItem('paymentMethod') || 'card';
-      const paymentAmount = sessionStorage.getItem('paymentAmount') || '700000'; // fallback
+
+      if (storedAmount) {
+        paymentAmount = storedAmount;
+      }
 
       const formData = new FormData();
 
@@ -70,6 +75,7 @@ export class CryptoSuccess implements OnInit {
       formData.append('has_paid', rawForm.has_paid ?? 'true');
       formData.append('payment_method', paymentMethod);
       formData.append('payment_amount_cents', paymentAmount);
+      console.log(`💰 Sending payment of ${paymentAmount} cents via ${paymentMethod}`);
 
       // Submit
       await this.http.post('https://hongkongbackend.onrender.com/trusts/submit-trust', formData).toPromise();

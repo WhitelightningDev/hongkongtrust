@@ -54,10 +54,10 @@ export class CryptoSuccess implements OnInit {
       // Trustees with proper typing
       const trusteesArray: { name: string; id: string }[] = [];
       [rawForm.trustee1, rawForm.trustee2, rawForm.trustee3, rawForm.trustee4].forEach((trustee) => {
-        if (trustee?.name || trustee?.id) {
+        if (trustee?.name && trustee?.id) {
           trusteesArray.push({
-            name: trustee.name || '',
-            id: trustee.id || ''
+            name: trustee.name,
+            id: trustee.id
           });
         }
       });
@@ -75,6 +75,7 @@ export class CryptoSuccess implements OnInit {
       formData.append('has_paid', rawForm.has_paid ?? 'true');
       formData.append('payment_method', paymentMethod);
       formData.append('payment_amount_cents', paymentAmount); // interpreted by backend as XRP * 100
+      formData.append('payment_amount_xrp', (parseFloat(paymentAmount) / 100).toFixed(4));
       console.log(`💰 Sending payment of ${paymentAmount} cents via ${paymentMethod}`);
 
       // Submit

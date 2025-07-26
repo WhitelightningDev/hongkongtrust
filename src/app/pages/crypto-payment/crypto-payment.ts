@@ -86,6 +86,7 @@ export class CryptoPayment implements OnInit {
     trustData.paymentTransactionId = this.transactionId;
     trustData.has_paid = 'xrp';
     trustData.paymentAmount = Math.round(this.xrpAmount * 100); // XRP to cents
+    trustData.payment_amount_cents = trustData.paymentAmount;
 
     sessionStorage.setItem('paymentAmount', trustData.paymentAmount.toString());
     sessionStorage.setItem('paymentMethod', 'xrp');

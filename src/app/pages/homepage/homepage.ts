@@ -307,7 +307,7 @@ export class Homepage implements OnInit, AfterViewInit {
       this.loading = true;
 
       try {
-        const amount = rawForm.isBullionMember ? 5 : 7000;
+        const amount = rawForm.isBullionMember ? 1500 : 7000;
         const amountInCents = amount * 100;
 
         // Store payment method and amount in sessionStorage

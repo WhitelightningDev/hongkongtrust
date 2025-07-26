@@ -74,9 +74,10 @@ export class CryptoSuccess implements OnInit {
       // Payment info
       formData.append('has_paid', rawForm.has_paid ?? 'true');
       formData.append('payment_method', paymentMethod);
-      formData.append('payment_amount_cents', paymentAmount); // interpreted by backend as XRP * 100
+      const paymentAmountCents = rawForm.priceZAR ? (parseFloat(rawForm.priceZAR) * 100).toString() : paymentAmount;
+      formData.append('payment_amount_cents', paymentAmountCents);
       formData.append('payment_amount_xrp', (parseFloat(paymentAmount) / 100).toFixed(4));
-      console.log(`💰 Sending payment of ${paymentAmount} cents via ${paymentMethod}`);
+      console.log(`💰 Sending payment of ${paymentAmountCents} cents via ${paymentMethod}`);
 
       // Submit
       await this.http.post('https://hongkongbackend.onrender.com/trusts/submit-trust', formData).toPromise();

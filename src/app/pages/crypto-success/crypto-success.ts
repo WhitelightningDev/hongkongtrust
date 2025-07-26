@@ -24,7 +24,7 @@ export class CryptoSuccess implements OnInit {
       const trustId = sessionStorage.getItem('trustId') || '';
       let paymentAmount = '700000'; // default fallback
       const storedAmount = sessionStorage.getItem('paymentAmount');
-      const paymentMethod = sessionStorage.getItem('paymentMethod') || 'card';
+      const paymentMethod = 'xrp';
 
       if (storedAmount) {
         paymentAmount = storedAmount;
@@ -74,7 +74,7 @@ export class CryptoSuccess implements OnInit {
       // Payment info
       formData.append('has_paid', rawForm.has_paid ?? 'true');
       formData.append('payment_method', paymentMethod);
-      formData.append('payment_amount_cents', paymentAmount);
+      formData.append('payment_amount_cents', paymentAmount); // interpreted by backend as XRP * 100
       console.log(`💰 Sending payment of ${paymentAmount} cents via ${paymentMethod}`);
 
       // Submit

@@ -310,6 +310,10 @@ export class Homepage implements OnInit, AfterViewInit {
         const amount = rawForm.isBullionMember ? 5 : 7000;
         const amountInCents = amount * 100;
 
+        // Store payment method and amount in sessionStorage
+        sessionStorage.setItem('paymentMethod', 'card');
+        sessionStorage.setItem('paymentAmount', amountInCents.toString());
+
         const paymentInit = await this.http.post<any>(
           'https://hongkongbackend.onrender.com/api/payment-session',
           {

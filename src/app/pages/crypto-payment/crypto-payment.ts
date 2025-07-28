@@ -75,22 +75,22 @@ export class CryptoPayment implements OnInit {
   }
 
   submitTransactionId(): void {
-    this.txIdError = null;
+  this.txIdError = null;
 
-    if (!this.transactionId || !/^[a-fA-F0-9]{64}$/.test(this.transactionId)) {
-      this.txIdError = 'Please enter a valid 64-character hexadecimal transaction ID.';
-      return;
-    }
-
-    const trustData = JSON.parse(sessionStorage.getItem('trustFormData') || '{}');
-    trustData.paymentTransactionId = this.transactionId;
-    trustData.has_paid = 'xrp';
-    trustData.paymentAmount = Math.round(this.xrpAmount * 100); // XRP to cents
-    trustData.payment_amount_cents = this.priceZAR * 100;
-
-    sessionStorage.setItem('paymentAmount', trustData.paymentAmount.toString());
-    sessionStorage.setItem('paymentMethod', 'xrp');
-    sessionStorage.setItem('trustFormData', JSON.stringify(trustData));
-    this.router.navigate(['/crypto-success']);
+  if (!this.transactionId || !/^[a-fA-F0-9]{64}$/.test(this.transactionId)) {
+    this.txIdError = 'Please enter a valid 64-character hexadecimal transaction ID.';
+    return;
   }
+
+  const trustData = JSON.parse(sessionStorage.getItem('trustFormData') || '{}');
+  trustData.paymentTransactionId = this.transactionId;
+  trustData.has_paid = 'xrp';
+  trustData.payment_amount_xrp = parseFloat(this.xrpAmount.toFixed(4));
+  trustData.payment_amount_cents = Math.round(this.priceZAR * 100);
+
+  sessionStorage.setItem('paymentAmount', trustData.payment_amount_cents.toString());
+  sessionStorage.setItem('paymentMethod', 'xrp');
+  sessionStorage.setItem('trustFormData', JSON.stringify(trustData));
+  this.router.navigate(['/crypto-success']);
+}
 }

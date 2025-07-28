@@ -278,31 +278,50 @@
   </div>
 
   <!-- Important Note Section -->
-  <div class="row mb-5 justify-content-start">
+<section class="important-note-section mb-5">
+  <div class="row justify-content-start">
     <div class="col-md-10 col-lg-8">
-      <div class="notifications-container">
-        <div class="error-alert bg-light border-start border-4 border-danger p-3 rounded-4 shadow-sm">
-          <ul class="text-danger small fst-italic mb-0 ps-3">
-            <li>We do not provide tax advice or legal opinions.</li>
-            <li>Please consult your auditor or legal advisor to ensure compliance.</li>
-            <li>A qualified legal expert has drafted the trust deed to ensure the settlor retains optimal control over
-              the trust, while also aiming to minimise potential tax exposure for the trust itself, its trustees, and its
-              beneficiaries.</li>
-          </ul>
+      <div class="bg-white border-start border-5 border-danger p-4 rounded-4 shadow-sm">
+        <div class="d-flex align-items-center mb-3">
+          <i class="bi bi-exclamation-triangle-fill text-danger me-2 fs-4"></i>
+          <h4 class="m-0 text-danger">Important Notice</h4>
         </div>
+        <p class="text-muted mb-3 small">
+          Please read the following terms carefully before proceeding. Acceptance of the trust deed is subject to strict legal and intellectual property conditions.
+        </p>
+        <ul class="text-dark small ps-3 mb-0">
+          <li class="mb-1">
+            You acknowledge that all rights, title, and interest in and to the trust deed—including any templates, clauses, or customisations—remain the sole property of Hong Kong Foreign Trust Services.
+          </li>
+          <li class="mb-1">
+            You agree that the trust deed may not be copied, reproduced, distributed, adapted, or used for any purpose other than for the express personal use of the individual or entity for whom it was created.
+          </li>
+          <li class="mb-1">
+            In particular, the trust deed may not be used as a template or example for setting up other trusts, nor may it be used to generate income or charged for by any party other than Hong Kong Foreign Trust Services.
+          </li>
+          <li class="mb-1">
+            Any unauthorised use, duplication, or commercial exploitation of the trust deed constitutes a violation of intellectual property rights and may result in legal action.
+          </li>
+          <li class="mb-1">We do not provide tax advice or legal opinions.</li>
+          <li class="mb-1">Please consult your auditor or legal advisor to ensure compliance.</li>
+          <li class="mb-1">
+            A qualified legal expert has drafted the trust deed to ensure the settlor retains optimal control over the trust, while also aiming to minimise potential tax exposure for the trust itself, its trustees, and its beneficiaries.
+          </li>
+        </ul>
       </div>
     </div>
   </div>
+</section>
 
-  <!-- Confirmation & Submit -->
-  <div class="form-check mb-4">
-    <input class="form-check-input" type="checkbox" id="confirmCheck" [(ngModel)]="isConfirmed" />
-    <label class="form-check-label fs-6 text-muted" for="confirmCheck">
-      I confirm I have read and understood the above terms.
-    </label>
-  </div>
+<!-- Confirmation & Submit -->
+<div class="form-check mb-4">
+  <input class="form-check-input" type="checkbox" id="confirmCheck" [(ngModel)]="isConfirmed" />
+  <label class="form-check-label fs-6 text-muted" for="confirmCheck">
+    I confirm I have read and understood the above terms.
+  </label>
+</div>
 
-  <button class="btn btn-primary btn-lg w-100 fw-semibold mb-4 shadow" (click)="continue()" [disabled]="!isConfirmed">
-    Continue
-  </button>
+<button class="btn btn-primary btn-lg w-100 fw-semibold mb-4 shadow" (click)="continue()" [disabled]="!isConfirmed">
+  Continue
+</button>
 </div>

@@ -63,13 +63,6 @@ export class CryptoSuccess implements OnInit {
       });
       formData.append('trustees', JSON.stringify(trusteesArray));
 
-      // Files
-      for (const f of serializedFiles) {
-        const byteArray = new Uint8Array(f.buffer);
-        const blob = new Blob([byteArray], { type: f.type });
-        const file = new File([blob], f.name, { type: f.type });
-        formData.append('documents', file, file.name);
-      }
 
       // Payment info
       formData.append('has_paid', rawForm.has_paid ?? 'true');

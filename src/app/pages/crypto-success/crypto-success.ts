@@ -51,17 +51,20 @@ export class CryptoSuccess implements OnInit {
       formData.append('settlor_name', rawForm.settlor?.name || '');
       formData.append('settlor_id', rawForm.settlor?.id || '');
 
-      // Trustees with proper typing
-      const trusteesArray: { name: string; id: string }[] = [];
-      [rawForm.trustee1, rawForm.trustee2, rawForm.trustee3, rawForm.trustee4].forEach((trustee) => {
-        if (trustee?.name && trustee?.id) {
-          trusteesArray.push({
-            name: trustee.name,
-            id: trustee.id
-          });
-        }
-      });
-      formData.append('trustees', JSON.stringify(trusteesArray));
+      // Individual trustees fields
+      formData.append('trustee1_name', rawForm.trustee1?.name || '');
+      formData.append('trustee1_id', rawForm.trustee1?.id || '');
+      formData.append('trustee2_name', rawForm.trustee2?.name || '');
+      formData.append('trustee2_id', rawForm.trustee2?.id || '');
+      formData.append('trustee3_name', rawForm.trustee3?.name || '');
+      formData.append('trustee3_id', rawForm.trustee3?.id || '');
+      formData.append('trustee4_name', rawForm.trustee4?.name || '');
+      formData.append('trustee4_id', rawForm.trustee4?.id || '');
+
+      // Additional fields for MSSQL TrustApplication table
+      formData.append('establishment_date_1', rawForm.establishmentDate || '');
+      formData.append('establishment_date_2', rawForm.establishmentDate || '');
+      formData.append('payment_reference', rawForm.payment_reference || '');
 
       // Files
       for (const f of serializedFiles) {

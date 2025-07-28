@@ -74,7 +74,7 @@ export class CryptoPayment implements OnInit {
     });
   }
 
-  submitTransactionId(): void {
+ submitTransactionId(): void {
   this.txIdError = null;
 
   if (!this.transactionId || !/^[a-fA-F0-9]{64}$/.test(this.transactionId)) {
@@ -89,7 +89,7 @@ export class CryptoPayment implements OnInit {
   trustData.payment_amount = this.priceZAR;
   trustData.payment_currency = 'ZAR';
   trustData.payment_method = 'xrp';
-  trustData.has_paid = 'xrp';
+  trustData.has_paid = 'true'; // ✅ Corrected value for backend
 
   sessionStorage.setItem('trustFormData', JSON.stringify(trustData));
   this.router.navigate(['/crypto-success']);

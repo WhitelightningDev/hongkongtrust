@@ -76,7 +76,8 @@ export class CryptoSuccess implements OnInit {
       formData.append('payment_method', paymentMethod);
       const paymentAmountCents = rawForm.priceZAR ? (parseFloat(rawForm.priceZAR) * 100).toString() : paymentAmount;
       formData.append('payment_amount_cents', paymentAmountCents);
-      formData.append('payment_amount_xrp', (parseFloat(paymentAmount) / 100).toFixed(4));
+      formData.append('payment_amount_xrp', rawForm.payment_xrp_qty || '');
+      formData.append('payment_xrp_trans_id', rawForm.payment_xrp_trans_id || '');
       console.log(`💰 Sending payment of ${paymentAmountCents} cents via ${paymentMethod}`);
 
       // Submit

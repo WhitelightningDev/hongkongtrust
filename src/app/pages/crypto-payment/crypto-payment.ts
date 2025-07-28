@@ -85,7 +85,8 @@ export class CryptoPayment implements OnInit {
   const trustData = JSON.parse(sessionStorage.getItem('trustFormData') || '{}');
   trustData.payment_xrp_trans_id = this.transactionId;
   trustData.has_paid = 'xrp';
-  trustData.payment_amount_xrp = parseFloat(this.xrpAmount.toFixed(4));
+  trustData.payment_xrp_qty = parseFloat(this.xrpAmount.toFixed(4));
+  trustData.payment_amount = this.priceZAR;
   trustData.payment_amount_cents = Math.round(this.priceZAR * 100);
 
   sessionStorage.setItem('paymentAmount', trustData.payment_amount_cents.toString());

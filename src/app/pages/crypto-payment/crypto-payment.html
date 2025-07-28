@@ -33,7 +33,7 @@
         </p>
         <p>
           You need to send:
-          <strong class="text-danger">{{ xrpAmount }} XRP</strong>
+          <strong class="text-danger">{{ xrpAmount }} XRP</strong><br />ZAR Amount Submitted: <strong class="text-success">R{{ priceZAR }}</strong>
         </p>
       </div>
 
@@ -46,6 +46,9 @@
           <code class="d-block my-2 p-2 bg-light user-select-all">{{ paymentAddress }}</code>
         </p>
         <p><strong>Note:</strong> Destination tag is <em>not required</em> for this payment.</p>
+        <p class="text-muted">
+          Rand value of <strong>R{{ priceZAR }}</strong> will be recorded as your payment_amount.
+        </p>
 
         <p class="text-muted">
           After sending, please keep the <strong>transaction ID (hash)</strong> as proof of payment.<br />
@@ -57,7 +60,7 @@
       <!-- Transaction ID form -->
       <div class="card p-3 mt-4">
         <h5>Enter XRP Transaction ID</h5>
-        <p>Please enter the 64-character XRP transaction ID (hash) as proof of payment.</p>
+        <p>Please enter the 64-character XRP transaction ID (hash) as proof of payment. This will be submitted as your payment_xrp_trans_id.</p>
         <input
           type="text"
           [(ngModel)]="transactionId"

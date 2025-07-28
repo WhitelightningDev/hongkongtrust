@@ -97,7 +97,7 @@ export class CryptoSuccess implements OnInit {
       );
       formData.append('payment_currency', 'ZAR');
       formData.append('payment_method', 'xrp');
-      formData.append('has_paid', 'xrp');
+      formData.append('has_paid', 'true');
 
       // Submit
       await this.http

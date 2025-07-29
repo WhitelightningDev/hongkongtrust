@@ -18,12 +18,20 @@ export class CryptoSuccess implements OnInit {
 
   async ngOnInit() {
     try {
-      const rawForm = JSON.parse(sessionStorage.getItem('trustFormData') || '{}');
-      const serializedFiles = JSON.parse(sessionStorage.getItem('trustFiles') || '[]');
+      const rawForm = JSON.parse(
+        sessionStorage.getItem('trustFormData') || '{}'
+      );
+      const serializedFiles = JSON.parse(
+        sessionStorage.getItem('trustFiles') || '[]'
+      );
       const trustId = sessionStorage.getItem('trustId') || '';
+      let paymentAmount = '700000'; // default fallback
       const storedAmount = sessionStorage.getItem('paymentAmount');
-      const paymentAmount = storedAmount || rawForm.payment_amount?.toString() || '7000'; // fallback
       const paymentMethod = 'xrp';
+
+      if (storedAmount) {
+        paymentAmount = storedAmount;
+      }
 
       const formData = new FormData();
 
@@ -37,20 +45,34 @@ export class CryptoSuccess implements OnInit {
       formData.append('trust_name', rawForm.trustName || '');
       formData.append('establishment_date', rawForm.establishmentDate || '');
       formData.append('beneficiaries', rawForm.beneficiaries || '');
-      formData.append('is_bullion_member', rawForm.isBullionMember ? 'true' : 'false');
+      formData.append(
+        'is_bullion_member',
+        rawForm.isBullionMember ? 'true' : 'false'
+      );
       formData.append('member_number', rawForm.memberNumber || '');
-      formData.append('was_referred_by_member', rawForm.wasReferredByMember ? 'true' : 'false');
+      formData.append(
+        'was_referred_by_member',
+        rawForm.wasReferredByMember ? 'true' : 'false'
+      );
       formData.append('referrer_number', rawForm.referrerNumber || '');
 
       // Settlor
       formData.append('settlor_name', rawForm.settlor?.name || '');
       formData.append('settlor_id', rawForm.settlor?.id || '');
 
-      // Trustees
+      // Trustees with proper typing
       const trusteesArray: { name: string; id: string }[] = [];
-      [rawForm.trustee1, rawForm.trustee2, rawForm.trustee3, rawForm.trustee4].forEach((trustee) => {
+      [
+        rawForm.trustee1,
+        rawForm.trustee2,
+        rawForm.trustee3,
+        rawForm.trustee4,
+      ].forEach((trustee) => {
         if (trustee?.name && trustee?.id) {
-          trusteesArray.push({ name: trustee.name, id: trustee.id });
+          trusteesArray.push({
+            name: trustee.name,
+            id: trustee.id,
+          });
         }
       });
       formData.append('trustees', JSON.stringify(trusteesArray));
@@ -63,22 +85,29 @@ export class CryptoSuccess implements OnInit {
         formData.append('documents', file, file.name);
       }
 
-      // ✅ Payment Info
-      formData.append('payment_amount', paymentAmount);
+      // Payment info
+      formData.append(
+        'payment_amount',
+        (rawForm.priceZAR?.toString() || '')
+      );
       formData.append('payment_xrp_qty', rawForm.payment_xrp_qty?.toString() || '');
-      formData.append('payment_xrp_trans_id', rawForm.payment_xrp_trans_id || '');
+      formData.append(
+        'payment_xrp_trans_id',
+        rawForm.payment_xrp_trans_id || ''
+      );
       formData.append('payment_currency', 'ZAR');
-      formData.append('payment_method', paymentMethod);
-      formData.append('has_paid', 'true');
-
-      // Debug logs (optional)
-      console.log('✅ Submitting payment_amount:', paymentAmount);
-      console.log('✅ Submitting payment_xrp_qty:', rawForm.payment_xrp_qty);
+      formData.append('payment_method', 'xrp');
+      formData.append('has_paid', 'true'); // ✅ Set explicitly to satisfy backend validation
 
       // Submit
-      await this.http.post('https://hongkongbackend.onrender.com/trusts/submit-trust', formData).toPromise();
+      await this.http
+        .post(
+          'https://hongkongbackend.onrender.com/trusts/submit-trust',
+          formData
+        )
+        .toPromise();
 
-      // Cleanup
+      // Clear session
       sessionStorage.removeItem('trustFormData');
       sessionStorage.removeItem('trustFiles');
       sessionStorage.removeItem('trustId');
@@ -87,7 +116,8 @@ export class CryptoSuccess implements OnInit {
 
       this.success = true;
     } catch (err: any) {
-      this.errorMessage = err.message || 'Failed to submit trust after payment.';
+      this.errorMessage =
+        err.message || 'Failed to submit trust after payment.';
       console.error('❌ Failed to submit trust after payment:', err);
     } finally {
       this.loading = false;

@@ -85,8 +85,8 @@ export class CryptoPayment implements OnInit {
   const trustData = JSON.parse(sessionStorage.getItem('trustFormData') || '{}');
 
   trustData.payment_xrp_trans_id = this.transactionId;
-  trustData.payment_xrp_qty = parseFloat(this.xrpAmount.toFixed(4));
   trustData.payment_amount = this.priceZAR;
+  trustData.payment_xrp_qty = this.xrpAmount;
   trustData.payment_currency = 'ZAR';
   trustData.payment_method = 'xrp';
   trustData.has_paid = 'true'; // ✅ Corrected value for backend

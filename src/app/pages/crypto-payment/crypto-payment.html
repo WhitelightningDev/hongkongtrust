@@ -60,7 +60,12 @@
       <!-- Transaction ID form -->
       <div class="card p-3 mt-4">
         <h5>Enter XRP Transaction ID</h5>
-        <p>Please enter the 64-character XRP transaction ID (hash) as proof of payment. This will be submitted as your payment_xrp_trans_id.</p>
+        <p>
+          Please enter the 64-character XRP transaction ID (hash) as proof of payment.
+          This will be submitted as <code>payment_xrp_trans_id</code>.
+          The Rand value (R{{ priceZAR }}) will be submitted as <code>payment_amount</code>,
+          and the XRP quantity ({{ xrpAmount }} XRP) will be submitted as <code>payment_xrp_qty</code>.
+        </p>
         <input
           type="text"
           [(ngModel)]="transactionId"

@@ -88,7 +88,7 @@ export class CryptoSuccess implements OnInit {
       // Payment info
       formData.append(
         'payment_amount',
-        (rawForm.priceZAR?.toString() || '')
+        rawForm.payment_amount?.toString() || ''
       );
       formData.append('payment_xrp_qty', rawForm.payment_xrp_qty?.toString() || '');
       formData.append(

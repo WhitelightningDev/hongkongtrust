@@ -4,6 +4,7 @@ import { Welcomepage } from './pages/welcomepage/welcomepage';
 import { SuccessComponent } from './pages/success/success';
 import { CryptoPayment } from './pages/crypto-payment/crypto-payment';
 import { CryptoSuccess } from './pages/crypto-success/crypto-success';
+import { Pricing } from './pages/pricing/pricing';
 
 
 export const routes: Routes = [
@@ -27,5 +28,8 @@ export const routes: Routes = [
   },
   {
     path: 'crypto-success', component: CryptoSuccess
+  },
+  {
+    path: 'HKFT-Pricing', component: Pricing
   }
 ];

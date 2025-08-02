@@ -1,0 +1,40 @@
+<!-- Terms & Conditions Modal -->
+<div class="modal-overlay">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-4 rounded-4 shadow modal-body-wrapper">
+      <div class="modal-header border-0 d-flex justify-content-between align-items-center">
+        <h4 class="modal-title text-danger fw-bold mb-0">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i> Important Notice
+        </h4>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+      </div>
+
+      <div class="modal-body">
+        <p class="fst-italic text-muted mb-3">
+          Please read the following terms carefully before proceeding. Acceptance of the trust deed is subject to strict legal and intellectual property conditions.
+        </p>
+        <ul class="small text-dark ps-3">
+          <li>All rights, title, and interest in and to the trust deed remain the sole property of Hong Kong Foreign Trust Services.</li>
+          <li>May not be copied, distributed, adapted, or used for any purpose except personal use.</li>
+          <li>Not reusable as a template or billable by third parties.</li>
+          <li>Unauthorized use may result in legal action.</li>
+          <li>No tax or legal advice is provided—consult your advisor.</li>
+          <li>Drafted to protect settlor control and minimize tax exposure.</li>
+        </ul>
+
+        <div class="form-check mt-3">
+          <input class="form-check-input" type="checkbox" id="acceptCheck" [(ngModel)]="termsAccepted" />
+          <label class="form-check-label fw-bold" for="acceptCheck">
+            I have read and agree to the above terms.
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-footer border-0 justify-content-end">
+        <button class="btn btn-dark rounded-pill px-4" [disabled]="!termsAccepted" (click)="acceptTerms()">
+          Continue <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -2,18 +2,18 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Notice } from '../../components/notice/notice'; // Adjust path if needed
 
 @Component({
   selector: 'app-welcomepage',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Notice],
   templateUrl: './welcomepage.html',
   styleUrls: ['./welcomepage.css']
 })
 export class Welcomepage implements OnInit {
-  isConfirmed = false;
+  showModal = false;
 
-  // Typewriter splash state
   fullText = 'Welcome to the future of investments';
   displayText = '';
   showSplash = true;
@@ -22,37 +22,33 @@ export class Welcomepage implements OnInit {
   constructor(private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
-    // Handle payment status query params routing
     this.route.queryParams.subscribe(params => {
-      const paymentStatus = params['payment'];
-      if (paymentStatus === 'success') {
-        this.router.navigate(['/success'], { replaceUrl: true });
-      } else if (paymentStatus === 'cancel') {
-        this.router.navigate(['/cancel'], { replaceUrl: true });
-      } else if (paymentStatus === 'failure') {
-        this.router.navigate(['/failure'], { replaceUrl: true });
-      }
+      const status = params['payment'];
+      if (status === 'success') this.router.navigate(['/success'], { replaceUrl: true });
+      else if (status === 'cancel') this.router.navigate(['/cancel'], { replaceUrl: true });
+      else if (status === 'failure') this.router.navigate(['/failure'], { replaceUrl: true });
     });
 
-    // Start the typewriter effect for splash
     this.typeWriterEffect();
   }
 
   typeWriterEffect() {
     if (this.index < this.fullText.length) {
-      this.displayText += this.fullText.charAt(this.index);
-      this.index++;
-      setTimeout(() => this.typeWriterEffect(), 100); // typing speed in ms
+      this.displayText += this.fullText.charAt(this.index++);
+      setTimeout(() => this.typeWriterEffect(), 100);
     } else {
-      // After typing, keep splash visible for 1s then hide
       setTimeout(() => (this.showSplash = false), 1000);
     }
   }
 
-  continue(): void {
-    if (this.isConfirmed) {
-      this.router.navigate(['/homepage']);
-    }
+  openTermsPopup(event: Event): void {
+    event.preventDefault(); // stop href="#"
+    this.showModal = true;  // triggers *ngIf
+  }
+
+  acceptTerms(): void {
+    this.showModal = false;
+    this.router.navigate(['/homepage']);
   }
 
   downloadPdf(url: string, filename: string): void {

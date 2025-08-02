@@ -70,3 +70,21 @@
   text-align: right;
   align-items: flex-end;
 }
+
+@media (max-width: 767.98px) {
+  .pricing-page .row > .col-12 {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.25rem;
+  }
+
+  .pricing-page .row > .col-12 > div {
+    text-align: left !important;
+    width: 100%;
+  }
+
+  .pricing-page .row button {
+    width: 100%;
+    justify-content: center;
+  }
+}

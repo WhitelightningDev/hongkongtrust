@@ -319,7 +319,7 @@
 
   <!-- Bullion Membership Section -->
   <div class="mb-4">
-    <label class="form-label fw-semibold d-block">Are you a Bullion Member?</label>
+    <label class="form-label fw-semibold d-block">Are you a member qualifying for a discount price?</label>
 
     <div class="form-check form-check-inline">
       <input class="form-check-input" type="radio" id="bullionYes" [value]="true" formControlName="isBullionMember" />
@@ -332,17 +332,17 @@
     </div>
 
     <!-- Show message if not a member -->
-    <div *ngIf="trustForm.get('isBullionMember')?.value === false" class="mt-3 alert alert-warning">
+    <!-- <div *ngIf="trustForm.get('isBullionMember')?.value === false" class="mt-3 alert alert-warning">
       Not a member yet? Visit
       <a href="https://www.bullionlimited.co.za" target="_blank" class="fw-semibold text-decoration-underline">
         www.bullionlimited.co.za
       </a>
       to become a Bullion Member.
-    </div>
+    </div> -->
 
     <!-- Member Number Input -->
     <div class="mt-3" *ngIf="trustForm.get('isBullionMember')?.value">
-      <label for="memberNumber" class="form-label fw-semibold">Enter your Bullion Member Number *</label>
+      <label for="memberNumber" class="form-label fw-semibold">Enter your Member Number *</label>
       <input type="text" id="memberNumber" class="form-control form-control-lg border-secondary-subtle"
         formControlName="memberNumber" placeholder="e.g. CB000077" />
       <div class="text-danger mt-1 fst-italic"
@@ -355,7 +355,7 @@
     <div class="form-check mt-4">
       <input type="checkbox" id="wasReferred" class="form-check-input" formControlName="wasReferredByMember" />
       <label class="form-check-label" for="wasReferred">
-        Were you referred by a Bullion Member?
+        Were you referred by  another Member?
       </label>
     </div>
 

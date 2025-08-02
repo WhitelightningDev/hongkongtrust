@@ -387,7 +387,7 @@
   <div class="mb-4 p-3 border rounded bg-light-subtle text-center fs-5 fw-semibold">
     <ng-container
       *ngIf="trustForm.get('isBullionMember')?.value && trustForm.get('memberNumber')?.valid; else nonMemberPrice">
-      Your member price is: <span class="text-success">R1,500</span>
+      Your member price is: <span class="text-success">R5</span>
     </ng-container>
     <ng-template #nonMemberPrice>
       Your price if not a member is: <span class="text-danger">R7,000</span>

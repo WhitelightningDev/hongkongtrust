@@ -6,7 +6,7 @@
         <img src="hongkonglogo.png" alt="Hong Kong Logo" class="img-fluid rounded-3" style="max-width: 100px;">
       </div>
       <div class="col-6 col-md-8 col-lg-9 text-end">
-        <div class="d-flex justify-content-center justify-content-md-end flex-wrap gap-2">
+        <div class="d-flex justify-content-end flex-wrap gap-2">
           <a href="#contact" class="btn btn-outline-dark rounded-pill d-flex align-items-center gap-2 px-3">
             <i class="bi bi-envelope-fill"></i> Contact
           </a>
@@ -20,24 +20,7 @@
 
   <!-- Main Content Panels -->
   <div class="container py-5">
-
-    <!-- Step Indicators -->
-    <div class="mb-4">
-      <div class="d-flex flex-column flex-lg-row align-items-center justify-content-between gap-3">
-        <div class="d-flex align-items-center gap-3">
-          <h1 class="btn btn-primary btn-sm border rounded-pill d-inline-flex align-items-center gap-2 mb-0">
-            Step 1
-          </h1>
-        </div>
-        <div class="d-flex align-items-center gap-3">
-          <h1 class="btn btn-primary btn-sm border rounded-pill d-inline-flex align-items-center gap-2 mb-0">
-            Step 2
-          </h1>
-          <span class="badge bg-warning text-dark rounded-pill">Coming Soon</span>
-        </div>
-      </div>
-    </div>
-
+    <h1 class="btn btn-primary btn-sm border rounded-pill d-inline-flex align-items-center gap-2">Step 1</h1>
     <div class="row gy-4 align-items-start">
       <!-- Left Panel -->
       <div class="col-12 col-lg-6">
@@ -69,26 +52,28 @@
       </div>
 
       <!-- Right Panel -->
-      <div class="col-12 col-lg-6">
-        <h2 class="fw-bold mb-3">Generate your cede and sale agreement</h2>
-        <p class="small text-muted mb-3">
-          Easily transfer ownership or rights to selected property or assets into your Hong Kong Foreign Trust
-          (HKFT)—for just HK$100.
-        </p>
-        <ul class="small mb-4 text-muted ps-3">
-          <li class="mb-2"><strong>Secure future value today</strong> – Sell assets with uncertain future payouts to
-            your trust now, ensuring they’re protected before their value emerges.</li>
-          <li><strong>Enhance asset protection</strong> – Internationalise your ownership and potentially benefit from
-            China–South Africa bilateral treaty protections, reducing risks of expropriation or hostile state action.
-          </li>
-        </ul>
-        <button class="btn btn-secondary rounded-pill d-flex align-items-center gap-2 px-3" disabled>
-          <i class="bi bi-tools"></i> Coming Soon
-        </button>
-      </div>
+
+      <!-- Right Panel -->
+<div class="col-12 col-lg-6">
+  <div class="d-flex align-items-center gap-3 mb-2">
+    <h1 class="btn btn-primary btn-sm border rounded-pill d-inline-flex align-items-center gap-2 mb-0">
+      Step 2
+    </h1>
+    <span class="badge bg-warning text-dark rounded-pill">Coming Soon</span>
+  </div>
+  <h2 class="fw-bold mb-3">Generate your cede and sale agreement</h2>
+  <p class="small text-muted mb-3">
+    Easily transfer ownership or rights to selected property or assets into your Hong Kong Foreign Trust (HKFT)—for just HK$100.
+  </p>
+  <ul class="small mb-4 text-muted ps-3">
+    <li class="mb-2"><strong>Secure future value today</strong> – Sell assets with uncertain future payouts to your trust now, ensuring they’re protected before their value emerges.</li>
+    <li><strong>Enhance asset protection</strong> – Internationalise your ownership and potentially benefit from China–South Africa bilateral treaty protections, reducing risks of expropriation or hostile state action.</li>
+  </ul>
+  <button class="btn btn-secondary rounded-pill d-flex align-items-center gap-2 px-3" disabled>
+    <i class="bi bi-tools"></i> Coming Soon
+  </button>
+</div>
     </div>
   </div>
 </div>
-
-<!-- Terms Modal -->
 <app-notice *ngIf="showModal" (onAccept)="acceptTerms()" (onClose)="showModal = false"></app-notice>

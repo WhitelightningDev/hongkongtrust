@@ -88,3 +88,20 @@
     justify-content: center;
   }
 }
+
+.back-button {
+  background-color: #000;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+  background-color: #333;
+}

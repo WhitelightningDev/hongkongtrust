@@ -67,7 +67,7 @@ export class SuccessComponent implements OnInit {
       }
 
       // Payment info
-      formData.append('has_paid', String(rawForm.has_paid ?? 'true'));
+      formData.append('has_paid', paymentMethod); // ensures consistency
       formData.append('payment_method', paymentMethod);
       formData.append('payment_amount_cents', paymentAmount);
 

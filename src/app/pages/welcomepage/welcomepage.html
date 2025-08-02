@@ -20,7 +20,22 @@
 
   <!-- Main Content Panels -->
   <div class="container py-5">
-    <h1 class="btn btn-primary btn-sm border rounded-pill d-inline-flex align-items-center gap-2">Step 1</h1>
+
+    <!-- Step Indicators -->
+    <div class="row mb-4">
+      <div class="col-12 col-lg-6 d-flex align-items-center">
+        <h1 class="btn btn-primary btn-sm border rounded-pill d-inline-flex align-items-center gap-2 mb-0">
+          Step 1
+        </h1>
+      </div>
+      <div class="col-12 col-lg-6 d-flex align-items-center gap-3">
+        <h1 class="btn btn-primary btn-sm border rounded-pill d-inline-flex align-items-center gap-2 mb-0">
+          Step 2
+        </h1>
+        <span class="badge bg-warning text-dark rounded-pill">Coming Soon</span>
+      </div>
+    </div>
+
     <div class="row gy-4 align-items-start">
       <!-- Left Panel -->
       <div class="col-12 col-lg-6">
@@ -52,7 +67,6 @@
       </div>
 
       <!-- Right Panel -->
-
       <div class="col-12 col-lg-6">
         <h2 class="fw-bold mb-3">Generate your cede and sale agreement</h2>
         <p class="small text-muted mb-3">
@@ -66,11 +80,13 @@
             China–South Africa bilateral treaty protections, reducing risks of expropriation or hostile state action.
           </li>
         </ul>
-        <a class="btn btn-dark rounded-pill d-flex align-items-center gap-2 px-3" href="#generate">
-          <i class="bi bi-arrow-up-right-circle"></i> Generate
-        </a>
+        <button class="btn btn-secondary rounded-pill d-flex align-items-center gap-2 px-3" disabled>
+          <i class="bi bi-tools"></i> Coming Soon
+        </button>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Terms Modal -->
 <app-notice *ngIf="showModal" (onAccept)="acceptTerms()" (onClose)="showModal = false"></app-notice>

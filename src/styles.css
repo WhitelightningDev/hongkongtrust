@@ -64,3 +64,14 @@
     width: 0%;
   }
 }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #f2ecdf;
+}
+
+.downloads-container {
+  min-height: 100vh;
+}

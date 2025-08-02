@@ -1,0 +1,48 @@
+<div class="downloads-container">
+  <!-- Back Button and Heading -->
+  <div class="d-flex align-items-center mb-4">
+    <button class="back-button" (click)="goBackToHome()">
+      <i class="bi bi-arrow-left"></i>
+    </button>
+    <h2 class="downloads-heading ms-3 mb-0">Downloads</h2>
+  </div>
+
+  <!-- Cards -->
+  <div class="row g-4 mt-5">
+    <!-- Card 1 -->
+    <div class="col-md-4">
+      <div class="download-card">
+        <h5 class="card-title">Features of HKFT</h5>
+        <p class="card-text">Features of a Hong Kong Foreign Trust.</p>
+        <button class="download-btn"
+          (click)="downloadPdf('/HongKongForeignTrustFeatures.pdf', 'HongKongForeignTrustFeatures.pdf')">
+          <i class="bi bi-file-earmark-pdf"></i> Download PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="col-md-4">
+      <div class="download-card">
+        <h5 class="card-title">Trust Law</h5>
+        <p class="card-text">Trust Law (Amendment) Ordinance 2013.</p>
+        <button class="download-btn"
+          (click)="downloadPdf('/HKGTrustOrdinance.pdf', 'HKGTrustOrdinance.pdf')">
+          <i class="bi bi-file-earmark-pdf"></i> Download PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="col-md-4">
+      <div class="download-card">
+        <h5 class="card-title">Article by Munro</h5>
+        <p class="card-text">Article by Munro.</p>
+        <button class="download-btn"
+          (click)="downloadPdf('/ArticlebyMunro.pdf', 'ArticlebyMunro.pdf')">
+          <i class="bi bi-file-earmark-pdf"></i> Download PDF
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

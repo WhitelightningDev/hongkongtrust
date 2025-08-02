@@ -65,3 +65,25 @@
 .card-text{
     text-align: center;
 }
+
+/* Back Button */
+.back-button {
+  background-color: #000;
+  color: #fff;
+  border: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s;
+}
+
+/* Heading */
+.downloads-heading {
+  font-size: 1.75rem;
+  margin-top: 5px;
+  font-weight: bold;
+}

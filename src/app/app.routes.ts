@@ -6,6 +6,7 @@ import { CryptoPayment } from './pages/crypto-payment/crypto-payment';
 import { CryptoSuccess } from './pages/crypto-success/crypto-success';
 import { Pricing } from './pages/pricing/pricing';
 import { Learnmore } from './pages/learnmore/learnmore';
+import { Downloads } from './pages/downloads/downloads';
 
 
 export const routes: Routes = [
@@ -35,5 +36,8 @@ export const routes: Routes = [
   },
   {
     path: 'Learnmore', component: Learnmore
+  },
+  {
+    path: 'Downloads', component: Downloads
   }
 ];

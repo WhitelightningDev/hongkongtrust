@@ -124,6 +124,8 @@ export class Homepage implements OnInit, AfterViewInit {
       keyboard: false
     });
 
+    
+
     // Prefill settlor and first trustee from fullName and idNumber if empty
     setTimeout(() => {
       const fullName = this.trustForm.get('fullName')?.value;
@@ -148,6 +150,10 @@ export class Homepage implements OnInit, AfterViewInit {
         }
       }
     }, 100);
+  }
+
+   goBackToHome(): void {
+    this.router.navigate(['/']);
   }
 
   // Accessors for nested FormGroups

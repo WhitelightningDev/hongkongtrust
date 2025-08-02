@@ -1,0 +1,67 @@
+
+.learn-more-container {
+  background-color: #f5f0e8;
+  padding: 2rem;
+  text-align: center;
+  border-radius: 10px;
+  position: relative;
+}
+
+.learnSection{
+     background-color: #f5f0e8;
+  padding: 2rem;
+  border-radius: 10px;
+  position: relative;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  font-weight: bold;
+  font-size: 1.2rem;
+  position: absolute;
+  top: 1.5rem;
+  left: 2rem;
+  padding: 0;
+}
+
+.section-title {
+  font-weight: bold;
+  text-align: center;
+  background-color: #fff;
+  padding: 0.5rem 1rem;
+  margin: 2rem 0 1rem;
+  display: inline-block;
+  border-radius: 10px;
+}
+
+.card{
+    margin: 8px;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.card-custom {
+  background-color: #fff;
+  border-left: 5px solid #d00;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 5px;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.card-titles{
+    text-align: center;
+    color: #d00;
+}
+
+.card-text{
+    text-align: center;
+}

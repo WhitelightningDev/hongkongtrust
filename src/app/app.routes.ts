@@ -5,6 +5,7 @@ import { SuccessComponent } from './pages/success/success';
 import { CryptoPayment } from './pages/crypto-payment/crypto-payment';
 import { CryptoSuccess } from './pages/crypto-success/crypto-success';
 import { Pricing } from './pages/pricing/pricing';
+import { Learnmore } from './pages/learnmore/learnmore';
 
 
 export const routes: Routes = [
@@ -31,5 +32,8 @@ export const routes: Routes = [
   },
   {
     path: 'HKFT-Pricing', component: Pricing
+  },
+  {
+    path: 'Learnmore', component: Learnmore
   }
 ];

@@ -23,7 +23,14 @@ export class SuccessComponent implements OnInit {
       const serializedFiles = JSON.parse(sessionStorage.getItem('trustFiles') || '[]');
       const trustId = sessionStorage.getItem('trustId') || '';
       const paymentMethod = sessionStorage.getItem('paymentMethod') || 'card';
-      const paymentAmount = sessionStorage.getItem('paymentAmount') || '700000'; // fallback
+      let paymentAmount = '700000'; // fallback in cents
+
+      const storedAmount = sessionStorage.getItem('paymentAmount');
+      if (storedAmount) {
+        paymentAmount = storedAmount;
+      }
+
+      const paymentAmountZAR = (parseInt(paymentAmount, 10) / 100).toFixed(2);
 
       const formData = new FormData();
 
@@ -50,10 +57,7 @@ export class SuccessComponent implements OnInit {
       const trusteesArray: { name: string; id: string }[] = [];
       [rawForm.trustee1, rawForm.trustee2, rawForm.trustee3, rawForm.trustee4].forEach((trustee) => {
         if (trustee?.name && trustee?.id) {
-          trusteesArray.push({
-            name: trustee.name,
-            id: trustee.id
-          });
+          trusteesArray.push({ name: trustee.name, id: trustee.id });
         }
       });
       formData.append('trustees', JSON.stringify(trusteesArray));
@@ -67,9 +71,10 @@ export class SuccessComponent implements OnInit {
       }
 
       // Payment info
-      formData.append('has_paid', paymentMethod); // ensures consistency
+      formData.append('payment_amount', paymentAmountZAR); // send as ZAR
+      formData.append('payment_currency', 'ZAR');
       formData.append('payment_method', paymentMethod);
-      formData.append('payment_amount_cents', paymentAmount);
+      formData.append('has_paid', paymentMethod); // "card" or "eft"
 
       // Submit
       await this.http.post('https://hongkongbackend.onrender.com/trusts/submit-trust', formData).toPromise();

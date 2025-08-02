@@ -1,4 +1,4 @@
-<div class="hero-section" style="background-color: #f5f0e9;">
+<div class="hero-section bg-light">
   <!-- Responsive Header Row -->
   <div class="container py-3">
     <div class="row align-items-center">
@@ -20,13 +20,14 @@
 
   <!-- Main Content Panels -->
   <div class="container py-5">
-    <h1 class="btn btn-primary btn-sm border rounded-pill d-inline-flex align-items-center gap-2">Step 1</h1>
-    <div class="row gy-4 align-items-start">
+    <div class="row gy-4">
       <!-- Left Panel -->
       <div class="col-12 col-lg-6">
+        <h1 class="btn btn-primary btn-sm border rounded-pill d-inline-flex align-items-center gap-2 mb-3">
+          Step 1
+        </h1>
         <h2 class="fw-bold mb-3">Set Up Your Hong Kong Foreign Trust</h2>
-        <img src="/HK-Banner-main.webp" class="img-fluid rounded-3 shadow-sm mb-3" alt="Trust Banner"
-          style="max-height: 190px; object-fit: cover; width: 100%;">
+        <img src="/HK-Banner-main.webp" class="img-fluid rounded-3 shadow-sm mb-3" alt="Trust Banner">
         <p class="small text-muted">
           Hong Kong trusts, governed by the Trustee Ordinance and common law, offer a robust and flexible framework for
           wealth management, particularly for high-net-worth individuals. They provide asset protection, tax efficiency,
@@ -35,8 +36,7 @@
           international estate planning.
         </p>
         <div class="d-flex flex-wrap gap-2 mt-2">
-          <a class="btn btn-dark rounded-pill d-flex align-items-center gap-2 px-3" href="#"
-            (click)="openTermsPopup($event)">
+          <a class="btn btn-dark rounded-pill d-flex align-items-center gap-2 px-3" href="#" (click)="openTermsPopup($event)">
             <i class="bi bi-arrow-up-right-circle"></i> Get Started
           </a>
           <a class="btn btn-outline-dark rounded-pill d-flex align-items-center gap-2 px-3" href="/Learnmore">
@@ -52,28 +52,28 @@
       </div>
 
       <!-- Right Panel -->
-
-      <!-- Right Panel -->
-<div class="col-12 col-lg-6">
-  <div class="d-flex align-items-center gap-3 mb-2">
-    <h1 class="btn btn-primary btn-sm border rounded-pill d-inline-flex align-items-center gap-2 mb-0">
-      Step 2
-    </h1>
-    <span class="badge bg-warning text-dark rounded-pill">Coming Soon</span>
-  </div>
-  <h2 class="fw-bold mb-3">Generate your cede and sale agreement</h2>
-  <p class="small text-muted mb-3">
-    Easily transfer ownership or rights to selected property or assets into your Hong Kong Foreign Trust (HKFT)—for just HK$100.
-  </p>
-  <ul class="small mb-4 text-muted ps-3">
-    <li class="mb-2"><strong>Secure future value today</strong> – Sell assets with uncertain future payouts to your trust now, ensuring they’re protected before their value emerges.</li>
-    <li><strong>Enhance asset protection</strong> – Internationalise your ownership and potentially benefit from China–South Africa bilateral treaty protections, reducing risks of expropriation or hostile state action.</li>
-  </ul>
-  <button class="btn btn-secondary rounded-pill d-flex align-items-center gap-2 px-3" disabled>
-    <i class="bi bi-tools"></i> Coming Soon
-  </button>
-</div>
+      <div class="col-12 col-lg-6">
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <h1 class="btn btn-primary btn-sm border rounded-pill d-inline-flex align-items-center gap-2 mb-0">
+            Step 2
+          </h1>
+          <span class="badge bg-warning text-dark rounded-pill">Coming Soon</span>
+        </div>
+        <h2 class="fw-bold mb-3">Generate your cede and sale agreement</h2>
+        <p class="small text-muted mb-3">
+          Easily transfer ownership or rights to selected property or assets into your Hong Kong Foreign Trust (HKFT)—for just HK$100.
+        </p>
+        <ul class="small mb-4 text-muted ps-3">
+          <li class="mb-2"><strong>Secure future value today</strong> – Sell assets with uncertain future payouts to your trust now, ensuring they’re protected before their value emerges.</li>
+          <li><strong>Enhance asset protection</strong> – Internationalise your ownership and potentially benefit from China–South Africa bilateral treaty protections, reducing risks of expropriation or hostile state action.</li>
+        </ul>
+        <button class="btn btn-secondary rounded-pill d-flex align-items-center gap-2 px-3" disabled>
+          <i class="bi bi-tools"></i> Coming Soon
+        </button>
+      </div>
     </div>
   </div>
 </div>
+
+<!-- Terms Modal -->
 <app-notice *ngIf="showModal" (onAccept)="acceptTerms()" (onClose)="showModal = false"></app-notice>

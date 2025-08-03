@@ -7,6 +7,7 @@ import { CryptoSuccess } from './pages/crypto-success/crypto-success';
 import { Pricing } from './pages/pricing/pricing';
 import { Learnmore } from './pages/learnmore/learnmore';
 import { Downloads } from './pages/downloads/downloads';
+import { Contact } from './pages/contact/contact';
 
 
 export const routes: Routes = [
@@ -39,5 +40,8 @@ export const routes: Routes = [
   },
   {
     path: 'Downloads', component: Downloads
+  },
+  {
+    path: 'contact', component: Contact
   }
 ];

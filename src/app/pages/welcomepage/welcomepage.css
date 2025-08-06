@@ -4,7 +4,7 @@
   margin: 0;
   border-radius: 20px;
   height: 100vh;
-  overflow: hidden;
+  overflow-y: auto;
   box-sizing: border-box;
 }
 

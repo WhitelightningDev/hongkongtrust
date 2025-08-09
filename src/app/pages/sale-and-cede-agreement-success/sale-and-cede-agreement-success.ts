@@ -119,6 +119,22 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       merged.settlor_id = trustData.settlor_id || trustData.settlorId || '';
     }
 
+    // Ensure client_email is present so backend can email the client
+    // Prefer any email already in the cede context, else derive from trustData
+    const derivedEmail = (
+      merged.client_email ||
+      trustData.email ||
+      trustData.trustEmail ||
+      trustData.applicant_email ||
+      trustData.settlor_email ||
+      (trustData.applicant && trustData.applicant.email) ||
+      (trustData.settlor && trustData.settlor.email) ||
+      ''
+    );
+    merged.client_email = derivedEmail;
+
+    console.log('[Success] Using client_email for Sale & Cede:', derivedEmail);
+
     return merged;
   }
 }

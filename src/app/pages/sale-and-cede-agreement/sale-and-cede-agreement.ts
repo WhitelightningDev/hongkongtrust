@@ -255,6 +255,7 @@ export class SaleAndCedeAgreement implements OnInit {
       date_sign: nowISO, // signing date (today) for this agreement
       created_at: new Date().toISOString(), // include for completeness; server may override
       settlor_id: v.settlorId,
+      client_email: (this.lookupRecord?.email || ''),
     };
 
     console.log('Sale & Cede Agreement Payload:', payload);

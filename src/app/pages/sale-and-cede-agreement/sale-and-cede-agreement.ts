@@ -280,7 +280,7 @@ export class SaleAndCedeAgreement implements OnInit {
   /**
    * Use the same payment API as other flows. Amount is fixed at R500.
    * On success, we redirect to the returned URL. We also stash the agreement payload
-   * in sessionStorage so the post-payment handler can generate & email the docs.
+   * in localStorage so the post-payment handler can generate & email the docs.
    */
   async confirmPaymentForSaleCede(agreementPayload: any): Promise<void> {
     this.generating = true;
@@ -296,11 +296,11 @@ export class SaleAndCedeAgreement implements OnInit {
 
       const amountInCents = 500 * 100; // R500
 
-      // Store payment context in session for the post-payment step
-      sessionStorage.setItem('paymentMethod', 'card');
-      sessionStorage.setItem('paymentAmount', amountInCents.toString());
-      sessionStorage.setItem('saleCedeAgreementPayload', JSON.stringify(agreementPayload));
-      sessionStorage.setItem('saleCedeFlow', 'true');
+      // Store payment context for the post-payment success page (use localStorage to survive redirects)
+      localStorage.setItem('paymentMethod', 'card');
+      localStorage.setItem('paymentAmount', amountInCents.toString());
+      localStorage.setItem('saleCedeAgreementPayload', JSON.stringify(agreementPayload));
+      localStorage.setItem('saleCedeFlow', 'true');
 
       const paymentInit = await this.http.post<any>(
         'https://hongkongbackend.onrender.com/api/cede/payment-session',

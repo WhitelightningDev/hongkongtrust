@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-sale-and-cede-agreement-success',
-  imports: [FormsModule, CommonModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './sale-and-cede-agreement-success.html',
   styleUrls: ['./sale-and-cede-agreement-success.css'],
 })
@@ -17,18 +18,49 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   async ngOnInit() {
-    const payloadJson = sessionStorage.getItem('saleCedeAgreementPayload');
-    if (!payloadJson) {
+    this.state = 'init';
+
+    // Prefer fetching by session id from backend; fallback to localStorage
+    const qs = new URLSearchParams(window.location.search);
+    const sid = qs.get('sid') || undefined;
+
+    let payload: any | null = null;
+
+    // 1) Try server session fetch first (most reliable across redirects)
+    if (sid) {
+      try {
+        const API_BASE = 'https://hongkongbackend.onrender.com';
+        const session: any = await this.http.get(`${API_BASE}/api/cede/session/${sid}`).toPromise();
+        const ctx = session?.context || {};
+        const cedeCtx = ctx?.sale_cede_context || null;
+        if (cedeCtx) {
+          payload = { ...cedeCtx };
+        }
+      } catch (err) {
+        console.warn('Could not fetch session by sid; will try localStorage fallback.', err);
+      }
+    }
+
+    // 2) Fallback to localStorage (we store this on the payment-start page)
+    if (!payload) {
+      const lsJson = localStorage.getItem('saleCedeAgreementPayload');
+      if (lsJson) {
+        try {
+          payload = JSON.parse(lsJson);
+        } catch (_) {
+          payload = null;
+        }
+      }
+    }
+
+    if (!payload) {
       this.state = 'error';
       this.message = 'No agreement data found. Please start again.';
       return;
     }
 
-    // If Yoco adds tx id params to the URL, you can capture them here:
-    const qs = new URLSearchParams(window.location.search);
+    // Optional: attach gateway transaction id from query params
     const txId = qs.get('txId') || qs.get('transactionId') || qs.get('id') || undefined;
-
-    const payload = JSON.parse(payloadJson);
     if (txId) {
       payload.payment_tx_id = txId;
       payload.payment_gateway = 'yoco';
@@ -42,9 +74,9 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
         payload
       ).toPromise();
 
-      // Cleanup local session flags
-      sessionStorage.removeItem('saleCedeFlow');
-      sessionStorage.removeItem('saleCedeAgreementPayload');
+      // Cleanup local flags
+      localStorage.removeItem('saleCedeFlow');
+      localStorage.removeItem('saleCedeAgreementPayload');
 
       this.state = 'done';
       this.message = 'Agreement generated and emailed successfully.';

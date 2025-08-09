@@ -472,6 +472,61 @@ export class Homepage implements OnInit, AfterViewInit {
   }
 
 
+  /**
+   * Normalize various incoming date formats to ISO 'yyyy-MM-dd' for binding to &lt;input type="date"&gt; and DatePipe.
+   * Supports:
+   *  - 'YYYY-MM-DD'
+   *  - 'DD/MM/YYYY' or 'DD-MM-YYYY'
+   *  - '1st day of August 2025'
+   *  - '1 August 2025' or '01 August 2025'
+   */
+  private normalizeToISODate(input: any): string | null {
+    if (!input) return null;
+    if (input instanceof Date && !isNaN(input.getTime())) {
+      return input.toISOString().slice(0, 10);
+    }
+    const raw = String(input).trim();
+    // Already ISO-like yyyy-MM-dd
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+    // DD/MM/YYYY or DD-MM-YYYY
+    let m = raw.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+    if (m) {
+      const d = m[1].padStart(2,'0');
+      const mo = m[2].padStart(2,'0');
+      return `${m[3]}-${mo}-${d}`;
+    }
+    // '1st day of August 2025'
+    m = raw.match(/^(\d{1,2})(st|nd|rd|th)\s+day of\s+([A-Za-z]+)\s+(\d{4})$/i);
+    if (m) {
+      const day = m[1].padStart(2,'0');
+      const monthName = m[3].toLowerCase();
+      const months = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+      const mi = months.indexOf(monthName);
+      if (mi >= 0) {
+        const month = String(mi+1).padStart(2,'0');
+        return `${m[4]}-${month}-${day}`;
+      }
+    }
+    // '1 August 2025' or '01 August 2025'
+    m = raw.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/);
+    if (m) {
+      const day = m[1].padStart(2,'0');
+      const monthName = m[2].toLowerCase();
+      const months = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+      const mi = months.indexOf(monthName);
+      if (mi >= 0) {
+        const month = String(mi+1).padStart(2,'0');
+        return `${m[3]}-${month}-${day}`;
+      }
+    }
+    // Fallback: try Date.parse
+    const t = Date.parse(raw);
+    if (!isNaN(t)) {
+      const d = new Date(t);
+      return d.toISOString().slice(0, 10);
+    }
+    return null;
+  }
   // =========================
   // EDIT EXISTING TRUST FLOW
   // =========================
@@ -549,7 +604,7 @@ export class Homepage implements OnInit, AfterViewInit {
       phoneNumber: rec.phone_number || '',
       trustEmail: rec.trust_email || '',
       // trustName is immutable; leave as-is in the UI (disable it if bound)
-      establishmentDate: rec.establishment_date || '',
+      establishmentDate: this.normalizeToISODate(rec.establishment_date) || '',
       beneficiaries: rec.beneficiaries || '',
       memberNumber: rec.member_number || '',
       referrerNumber: rec.referrer_number || ''

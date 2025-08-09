@@ -258,6 +258,23 @@ export class SaleAndCedeAgreement implements OnInit {
       client_email: (this.lookupRecord?.email || ''),
     };
 
+    // Preflight validation to avoid 422 on backend
+    const missing: string[] = [];
+    if (!payload.trust_number) missing.push('Trust Number');
+    if (!payload.owner_name) missing.push('Owner');
+    if (!payload.owner_id) missing.push('Owner ID');
+    if (!payload.signer_name) missing.push('Signer');
+    if (!payload.signer_id) missing.push('Signer ID');
+    if (!payload.list_of_property) missing.push('List of Property');
+    if (!payload.witness_name) missing.push('Witness Name');
+    if (!payload.witness_id) missing.push('Witness ID');
+    if (!payload.place_of_signature) missing.push('Place of Signature');
+
+    if (missing.length) {
+      alert('Please complete the following before paying: ' + missing.join(', '));
+      return;
+    }
+
     console.log('Sale & Cede Agreement Payload:', payload);
 
     this.confirmPaymentForSaleCede(payload);

@@ -71,6 +71,16 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       payload.payment_gateway = 'yoco';
     }
 
+    // Guard against missing required fields
+    const required = ['trust_number','trust_name','owner_name','owner_id','signer_name','signer_id','list_of_property','witness_name','witness_id','place_of_signature','date_sign'];
+    const missing = required.filter(k => !payload[k] || (typeof payload[k] === 'string' && payload[k].trim() === ''));
+    if (missing.length) {
+      this.state = 'error';
+      this.message = 'Missing required fields: ' + missing.join(', ');
+      console.error('Sale & Cede missing fields:', missing, 'Payload:', payload);
+      return;
+    }
+
     this.state = 'working';
     try {
       this.result = await firstValueFrom(
@@ -92,37 +102,62 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
   }
 
   /**
-   * Merge the cede context with any missing fields from server `trust_data` if available.
-   * Ensures required merge fields exist and adds defensive defaults.
+   * Build EXACT payload expected by backend/DB:
+   *  trust_number, trust_name, trust_date, owner_name, owner_id, signer_name,
+   *  signer_id, list_of_property, witness_name, witness_id, place_of_signature,
+   *  date_sign, created_at, and settlor_id (for merge). Also ensure client_email.
    */
   private buildPayloadFromContext(cedeCtx: any, fullCtx: any | null): any {
     const trustData = fullCtx?.trust_data || {};
 
-    const merged: any = {
-      ...cedeCtx,
-    };
+    const now = new Date();
+    const nowISO = now.toISOString();
+    const today = nowISO.slice(0, 10);
 
-    // Fill in trust_name/number if missing using trust_data
-    if (!merged.trust_number) merged.trust_number = trustData.trust_number || trustData.trustNumber || '';
-    if (!merged.trust_name) merged.trust_name = trustData.trust_name || trustData.trustName || '';
+    // Trust basics
+    const trust_number = cedeCtx.trust_number || trustData.trust_number || trustData.trustNumber || '';
+    const trust_name   = cedeCtx.trust_name   || trustData.trust_name   || trustData.trustName   || '';
 
-    // date_sign default (yyyy-mm-dd)
-    if (!merged.date_sign) merged.date_sign = new Date().toISOString().slice(0, 10);
-
-    // Ensure required witness/signature fields exist (empty strings if not provided)
-    merged.witness_name = merged.witness_name ?? '';
-    merged.witness_id = merged.witness_id ?? '';
-    merged.place_of_signature = merged.place_of_signature ?? '';
-
-    // settlor id fallback from trust_data if available
-    if (!merged.settlor_id) {
-      merged.settlor_id = trustData.settlor_id || trustData.settlorId || '';
+    // Derive owner (seller): prefer explicit cedeCtx; else from trustData.settlor
+    let owner_name = cedeCtx.owner_name || trustData.owner_name || '';
+    let owner_id   = cedeCtx.owner_id   || trustData.owner_id   || '';
+    if ((!owner_name || !owner_id) && trustData.settlor) {
+      owner_name = owner_name || trustData.settlor.name || trustData.settlor.full_name || '';
+      owner_id   = owner_id   || trustData.settlor.id   || trustData.settlor.passport || trustData.settlor.id_or_passport || '';
     }
 
-    // Ensure client_email is present so backend can email the client
-    // Prefer any email already in the cede context, else derive from trustData
-    const derivedEmail = (
-      merged.client_email ||
+    // Derive signer (on behalf of trust): prefer explicit cedeCtx; else first trustee
+    let signer_name = cedeCtx.signer_name || trustData.signer_name || '';
+    let signer_id   = cedeCtx.signer_id   || trustData.signer_id   || '';
+    if ((!signer_name || !signer_id) && Array.isArray(trustData.trustees) && trustData.trustees.length) {
+      const t0 = trustData.trustees[0];
+      signer_name = signer_name || t0?.name || t0?.full_name || '';
+      signer_id   = signer_id   || t0?.id   || t0?.passport   || t0?.id_or_passport || '';
+    }
+
+    // Property/rights list
+    const list_of_property = cedeCtx.list_of_property || cedeCtx.claim_details || '';
+
+    // Witness and signature details
+    const witness_name = (cedeCtx.witness_name ?? '').toString();
+    const witness_id   = (cedeCtx.witness_id   ?? '').toString();
+    const place_of_signature = (cedeCtx.place_of_signature ?? '').toString();
+
+    // Dates
+    const trust_date = (
+      cedeCtx.trust_date ||
+      trustData.establishment_date_2 ||
+      trustData.establishment_date_1 ||
+      trustData.trust_date ||
+      today
+    );
+    const date_sign  = cedeCtx.date_sign || today;
+    const created_at = cedeCtx.created_at || nowISO;
+
+    // Settlor and email
+    const settlor_id = cedeCtx.settlor_id || trustData.settlor_id || trustData.settlorId || '';
+    const client_email = (
+      cedeCtx.client_email ||
       trustData.email ||
       trustData.trustEmail ||
       trustData.applicant_email ||
@@ -131,10 +166,27 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       (trustData.settlor && trustData.settlor.email) ||
       ''
     );
-    merged.client_email = derivedEmail;
 
-    console.log('[Success] Using client_email for Sale & Cede:', derivedEmail);
+    const payload = {
+      trust_number,
+      trust_name,
+      trust_date,
+      owner_name,
+      owner_id,
+      signer_name,
+      signer_id,
+      list_of_property,
+      witness_name,
+      witness_id,
+      place_of_signature,
+      date_sign,
+      created_at,
+      // extra for DOCX merge only
+      settlor_id,
+      client_email,
+    };
 
-    return merged;
+    console.log('[Success] Built payload for /agreements/sale-cede/generate:', payload);
+    return payload;
   }
 }

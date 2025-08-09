@@ -50,6 +50,6 @@ export const routes: Routes = [
     path: 'sale-and-cede-agreement', component: SaleAndCedeAgreement
   },
   {
-    path: 'sale-cede/success', component: SaleAndCedeAgreement
+    path: 'sale-cede/success', component: SaleAndCedeAgreementSuccessComponent
   }
 ];

@@ -23,7 +23,7 @@ export class CryptoPayment implements OnInit {
 
   priceZAR: number = 7000; // Default non-member price
   xrpAmount: number = 0;
-  paymentAddress = 'r3SUiiY7MsRviezVoHmuM5Y8doLj1UxeQb';
+  paymentAddress = 'rMuStHBy5N17ysmiQjUj4QQv5DTk8ovWDS';
 
   transactionId: string = '';
   txIdError: string | null = null;

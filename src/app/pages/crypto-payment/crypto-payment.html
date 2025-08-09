@@ -1,96 +1,149 @@
-<div class="container mt-5">
-  <h2 class="text-danger mb-4">💰 Crypto Payment via XRP</h2>
-
-  <div *ngIf="loading" class="text-muted">
-    <i class="bi bi-hourglass-split"></i> Loading XRP price...
+<div class="container py-5">
+  <!-- Hero / Header -->
+  <div class="card border-0 shadow-sm mb-4 overflow-hidden">
+    <div class="p-4 p-md-5 bg-light position-relative" style="background: radial-gradient(1200px 500px at 20% -10%, rgba(13,110,253,.15), transparent), radial-gradient(900px 400px at 120% 20%, rgba(32,201,151,.15), transparent);">
+      <div class="d-flex align-items-center gap-3">
+        <div class="display-6 lh-1">💰</div>
+        <div>
+          <h2 class="h3 mb-1">Crypto Payment via XRP</h2>
+          <p class="text-muted mb-0">Quickly complete your trust registration using XRP.</p>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div *ngIf="error" class="alert alert-danger">
-    {{ error }}
+  <!-- States -->
+  <div *ngIf="loading" class="alert alert-secondary d-flex align-items-center" role="alert">
+    <i class="bi bi-hourglass-split me-2"></i>
+    <div>Loading live XRP price…</div>
   </div>
 
-  <div *ngIf="!loading && !error" class="d-flex flex-wrap align-items-start gap-4">
+  <div *ngIf="error" class="alert alert-danger d-flex align-items-center" role="alert">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    <div>{{ error }}</div>
+  </div>
 
-    <div class="flex-grow-1" style="min-width: 300px;">
-      <div class="alert alert-info">
-        <p>
-          You are
-          <strong>
-            {{ isMember
-              ? (memberNumberValid
-                ? 'a valid Bullion member'
-                : 'a Bullion member with an invalid number')
-              : 'not a Bullion member' }}
-          </strong>.
-        </p>
-        <p>
-          Your trust registration price:
-          <strong class="text-success">R{{ priceZAR }}</strong>
-        </p>
-        <p>
-          Current XRP price:
-          <strong>USD ${{ xrpPriceUSD }} / ZAR R{{ xrpPriceZAR }}</strong>
-        </p>
-        <p>
-          You need to send:
-          <strong class="text-danger">{{ xrpAmount }} XRP</strong><br />ZAR Amount Submitted: <strong class="text-success">R{{ priceZAR }}</strong>
-        </p>
+  <div *ngIf="!loading && !error" class="row g-4">
+    <!-- Main column -->
+    <div class="col-lg-7">
+
+      <!-- Summary / Price card -->
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+            <div>
+              <div class="text-muted small">Membership status</div>
+              <div class="fw-semibold">
+                {{ isMember
+                  ? (memberNumberValid
+                    ? 'Valid Bullion member'
+                    : 'Bullion member – invalid number')
+                  : 'Not a Bullion member' }}
+              </div>
+            </div>
+            <span class="badge rounded-pill"
+              [ngClass]="{
+                'bg-success': isMember && memberNumberValid,
+                'bg-warning text-dark': isMember && !memberNumberValid,
+                'bg-secondary': !isMember
+              }">
+              {{ isMember ? 'Member' : 'Guest' }}
+            </span>
+          </div>
+
+          <div class="row g-3 text-center text-md-start">
+            <div class="col-12 col-md-4">
+              <div class="text-muted small">Price</div>
+              <div class="fs-4 fw-bold text-success">R{{ priceZAR }}</div>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="text-muted small">XRP price</div>
+              <div class="fw-semibold">USD ${{ xrpPriceUSD }}</div>
+              <div class="text-muted small">ZAR R{{ xrpPriceZAR }}</div>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="text-muted small">You need to send</div>
+              <div class="fs-4 fw-bold text-danger">{{ xrpAmount }} XRP</div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Payment instructions -->
-      <div class="card p-3">
-        <h5>XRP Payment Instructions</h5>
-        <p>
-          Please send exactly <strong>{{ xrpAmount }} XRP</strong> to the address below.<br />
-          <strong>Wallet address:</strong>
-          <code class="d-block my-2 p-2 bg-light user-select-all">{{ paymentAddress }}</code>
-        </p>
-        <p><strong>Note:</strong> Destination tag is <em>not required</em> for this payment.</p>
-        <p class="text-muted">
-          Rand value of <strong>R{{ priceZAR }}</strong> will be recorded as your payment_amount.
-        </p>
-
-        <p class="text-muted">
-          After sending, please keep the <strong>transaction ID (hash)</strong> as proof of payment.<br />
-          <em>An XRP transaction ID is a 64-character hexadecimal string, for example:</em><br />
-          <code>4E9D7C8A1B2C3D4E5F67890......</code>
-        </p>
+      <!-- Payment Instructions -->
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+          <h5 class="card-title mb-3">XRP Payment Instructions</h5>
+          <ol class="list-group list-group-numbered mb-3">
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+                <div class="fw-semibold">Send exactly {{ xrpAmount }} XRP</div>
+                The Rand value of <strong>R{{ priceZAR }}</strong> will be recorded as your payment amount.
+              </div>
+              <span class="badge bg-primary rounded-pill">Step 1</span>
+            </li>
+            <li class="list-group-item">
+              <div class="fw-semibold mb-2">Wallet address</div>
+              <code class="d-block p-2 bg-light rounded user-select-all">{{ paymentAddress }}</code>
+              <div class="form-text">Destination tag is <strong>not required</strong> for this payment.</div>
+            </li>
+            <li class="list-group-item">
+              Keep the <strong>transaction ID (hash)</strong> as proof of payment.
+              <div class="text-muted small mt-2">
+                An XRP transaction ID is a 64‑character hexadecimal string, for example:
+                <code>4E9D7C8A1B2C3D4E5F67890......</code>
+              </div>
+            </li>
+          </ol>
+        </div>
       </div>
 
       <!-- Transaction ID form -->
-      <div class="card p-3 mt-4">
-        <h5>Enter XRP Transaction ID</h5>
-        <p>
-          Please enter the 64-character XRP transaction ID (hash) as proof of payment.
-          This will be submitted as <code>payment_xrp_trans_id</code>.
-          The Rand value (R{{ priceZAR }}) will be submitted as <code>payment_amount</code>,
-          and the XRP quantity ({{ xrpAmount }} XRP) will be submitted as <code>payment_xrp_qty</code>.
-        </p>
-        <input
-          type="text"
-          [(ngModel)]="transactionId"
-          placeholder="e.g. 4E9D7C8A1B2C3D4E5....."
-          class="form-control mb-2"
-          maxlength="64"
-          minlength="64"
-          pattern="[a-fA-F0-9]{64}"
-          title="64 character hexadecimal string"
-        />
-        <div *ngIf="txIdError" class="text-danger mb-2">{{ txIdError }}</div>
-        <button class="btn btn-primary" (click)="submitTransactionId()">Submit</button>
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title">Enter XRP Transaction ID</h5>
+          <p class="text-muted">This will be submitted as an XRP payment. We also store the Rand (ZAR) equivalent value </p>
+          <div class="input-group mb-2">
+            <input
+              type="text"
+              [(ngModel)]="transactionId"
+              placeholder="e.g. 4E9D7C8A1B2C3D4E5....."
+              class="form-control"
+              maxlength="64"
+              minlength="64"
+              pattern="[a-fA-F0-9]{64}"
+              title="64 character hexadecimal string"
+            />
+            <button class="btn btn-primary" (click)="submitTransactionId()">
+              Submit
+            </button>
+          </div>
+          <div *ngIf="txIdError" class="text-danger small">{{ txIdError }}</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sidebar column -->
+    <div class="col-lg-5">
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+          <h6 class="card-title mb-3">Scan QR Code to Pay</h6>
+          <div class="text-center">
+            <img src="xrpqrcode.jpeg" alt="XRP Payment QR Code" class="img-fluid border rounded" style="max-width: 220px;" />
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h6 class="card-title mb-3">Tips</h6>
+          <ul class="list-unstyled mb-0 small text-muted">
+            <li class="mb-2"><i class="bi bi-shield-check me-2"></i>Send from a wallet you control; exchanges may take longer.</li>
+            <li class="mb-2"><i class="bi bi-clipboard-check me-2"></i>Double‑check the wallet address before sending.</li>
+            <li class="mb-2"><i class="bi bi-clock-history me-2"></i>Network confirmations can take a moment; thanks for your patience.</li>
+          </ul>
+        </div>
       </div>
     </div>
-
-    <!-- QR Code -->
-    <div style="min-width: 200px;">
-      <h6>Scan QR Code to Pay</h6>
-      <img
-        src="XRPqr.jpeg"
-        alt="XRP Payment QR Code"
-        class="img-fluid border"
-        style="max-width: 200px;"
-      />
-    </div>
-
   </div>
 </div>

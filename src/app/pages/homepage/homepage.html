@@ -21,7 +21,7 @@
   </h2>
   <!-- Edit Existing Trust action -->
   <div class="d-flex justify-content-end mb-3">
-    <button type="button" class="btn btn-outline-dark btn-sm d-flex align-items-center gap-2" (click)="openEditModal()">
+    <button type="button" class="btn btn-primary rounded-pill d-flex align-items-center gap-2 px-3" (click)="openEditModal()">
       <i class="bi bi-pencil-square"></i>
       EDIT EXISTING TRUST
     </button>
@@ -130,7 +130,7 @@
             </div>
 
             <span class="badge rounded-pill bg-primary text-light fw-bold px-4 py-2">
-              The {{ trustForm.get('trustName')?.value }} Hong Kong Foreign Trust
+              {{ trustForm.get('trustName')?.value }} 
             </span>
           </div>
         </div>

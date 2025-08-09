@@ -221,6 +221,24 @@ export class SaleAndCedeAgreement implements OnInit {
   get owner() { return this.cessionForm.get('owner')?.value as Party | null; }
   get signer() { return this.cessionForm.get('signer')?.value as Party | null; }
 
+  /** Return a clean snapshot of what the user has entered/selected in the form */
+  private getFormSnapshot() {
+    const v = this.cessionForm.value as any;
+    const owner = v.owner as Party | null;
+    const signer = v.signer as Party | null;
+
+    return {
+      trustNumber: v.trustNumber || '',
+      settlorId: v.settlorId || '',
+      owner: owner ? { name: owner.name, id: owner.id, role: owner.role } : null,
+      signer: signer ? { name: signer.name, id: signer.id, role: signer.role } : null,
+      propertyList: v.propertyList || '',
+      signaturePlace: v.signaturePlace || '',
+      witnessName: v.witnessName || '',
+      witnessId: v.witnessId || '',
+    };
+  }
+
   submitForm(): void {
     if (this.cessionForm.invalid) {
       this.cessionForm.markAllAsTouched();
@@ -239,6 +257,9 @@ export class SaleAndCedeAgreement implements OnInit {
     };
 
     const nowISO = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
+
+    const formSnapshot = this.getFormSnapshot();
+    console.log('[Sale & Cede] Form snapshot:', formSnapshot);
 
     const payload = {
       trust_number: v.trustNumber,
@@ -274,6 +295,9 @@ export class SaleAndCedeAgreement implements OnInit {
       alert('Please complete the following before paying: ' + missing.join(', '));
       return;
     }
+
+    localStorage.setItem('saleCedeAgreementForm', JSON.stringify(formSnapshot));
+    localStorage.setItem('saleCedeAgreementPayload', JSON.stringify(payload));
 
     console.log('Sale & Cede Agreement Payload:', payload);
 
@@ -317,7 +341,6 @@ export class SaleAndCedeAgreement implements OnInit {
       // Store payment context for the post-payment success page (use localStorage to survive redirects)
       localStorage.setItem('paymentMethod', 'card');
       localStorage.setItem('paymentAmount', amountInCents.toString());
-      localStorage.setItem('saleCedeAgreementPayload', JSON.stringify(agreementPayload));
       localStorage.setItem('saleCedeFlow', 'true');
 
       const paymentInit = await this.http.post<any>(

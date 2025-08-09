@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-sale-and-cede-agreement-success',
@@ -14,6 +15,8 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
   state: 'init' | 'working' | 'done' | 'error' = 'init';
   message = '';
   result: any;
+
+  private readonly API_BASE = 'https://hongkongbackend.onrender.com';
 
   constructor(private http: HttpClient) {}
 
@@ -29,12 +32,13 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
     // 1) Try server session fetch first (most reliable across redirects)
     if (sid) {
       try {
-        const API_BASE = 'https://hongkongbackend.onrender.com';
-        const session: any = await this.http.get(`${API_BASE}/api/cede/session/${sid}`).toPromise();
+        const session: any = await firstValueFrom(
+          this.http.get(`${this.API_BASE}/api/cede/session/${sid}`)
+        );
         const ctx = session?.context || {};
         const cedeCtx = ctx?.sale_cede_context || null;
         if (cedeCtx) {
-          payload = { ...cedeCtx };
+          payload = this.buildPayloadFromContext(cedeCtx, ctx);
         }
       } catch (err) {
         console.warn('Could not fetch session by sid; will try localStorage fallback.', err);
@@ -46,7 +50,8 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       const lsJson = localStorage.getItem('saleCedeAgreementPayload');
       if (lsJson) {
         try {
-          payload = JSON.parse(lsJson);
+          const lsPayload = JSON.parse(lsJson);
+          payload = this.buildPayloadFromContext(lsPayload, null);
         } catch (_) {
           payload = null;
         }
@@ -68,11 +73,9 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
 
     this.state = 'working';
     try {
-      const API_BASE = 'https://hongkongbackend.onrender.com';
-      this.result = await this.http.post(
-        `${API_BASE}/agreements/sale-cede/generate`,
-        payload
-      ).toPromise();
+      this.result = await firstValueFrom(
+        this.http.post(`${this.API_BASE}/api/agreements/sale-cede/generate`, payload)
+      );
 
       // Cleanup local flags
       localStorage.removeItem('saleCedeFlow');
@@ -86,5 +89,36 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       this.state = 'error';
       this.message = e?.error?.detail || e?.message || 'Failed to generate the agreement.';
     }
+  }
+
+  /**
+   * Merge the cede context with any missing fields from server `trust_data` if available.
+   * Ensures required merge fields exist and adds defensive defaults.
+   */
+  private buildPayloadFromContext(cedeCtx: any, fullCtx: any | null): any {
+    const trustData = fullCtx?.trust_data || {};
+
+    const merged: any = {
+      ...cedeCtx,
+    };
+
+    // Fill in trust_name/number if missing using trust_data
+    if (!merged.trust_number) merged.trust_number = trustData.trust_number || trustData.trustNumber || '';
+    if (!merged.trust_name) merged.trust_name = trustData.trust_name || trustData.trustName || '';
+
+    // date_sign default (yyyy-mm-dd)
+    if (!merged.date_sign) merged.date_sign = new Date().toISOString().slice(0, 10);
+
+    // Ensure required witness/signature fields exist (empty strings if not provided)
+    merged.witness_name = merged.witness_name ?? '';
+    merged.witness_id = merged.witness_id ?? '';
+    merged.place_of_signature = merged.place_of_signature ?? '';
+
+    // settlor id fallback from trust_data if available
+    if (!merged.settlor_id) {
+      merged.settlor_id = trustData.settlor_id || trustData.settlorId || '';
+    }
+
+    return merged;
   }
 }

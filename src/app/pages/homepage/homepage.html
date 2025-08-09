@@ -10,6 +10,13 @@
 
 <form [formGroup]="trustForm" (ngSubmit)="onSubmit()" enctype="multipart/form-data"
   class="p-4 p-md-5 m-3 m-md-4 shadow-lg rounded-4 bg-light border border-2 border-danger-subtle">
+  <!-- Edit Existing Trust action -->
+  <div class="d-flex justify-content-end mb-3">
+    <button type="button" class="btn btn-primary rounded-pill d-flex align-items-center gap-2 px-3" (click)="openEditModal()">
+      <i class="bi bi-pencil-square"></i>
+      EDIT EXISTING TRUST
+    </button>
+  </div>
   <!-- Back Button -->
   <div class="mb-4">
     <button type="button" class="btn btn-dark rounded-circle" (click)="goBackToHome()">
@@ -19,13 +26,7 @@
   <h2 class="mb-4 text-danger border-bottom pb-2 text-center text-md-start">
     🇭🇰 Application for <span class="fw-bold">Hong Kong Foreign Trust</span>
   </h2>
-  <!-- Edit Existing Trust action -->
-  <div class="d-flex justify-content-end mb-3">
-    <button type="button" class="btn btn-primary rounded-pill d-flex align-items-center gap-2 px-3" (click)="openEditModal()">
-      <i class="bi bi-pencil-square"></i>
-      EDIT EXISTING TRUST
-    </button>
-  </div>
+  
 
   <!-- Edit mode banner -->
   <div *ngIf="isEditMode" class="alert alert-info d-flex align-items-center gap-3 rounded-4 shadow-sm">

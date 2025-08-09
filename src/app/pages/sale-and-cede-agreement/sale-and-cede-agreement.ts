@@ -148,6 +148,12 @@ export class SaleAndCedeAgreement implements OnInit {
 
       this.lookupRecord = record;
 
+      // Normalize trust number from lookup and patch into the form
+      const lookedUpTrustNumber = record?.trust_number || record?.trustNumber || null;
+      if (lookedUpTrustNumber) {
+        this.cessionForm.patchValue({ trustNumber: lookedUpTrustNumber }, { emitEvent: false });
+      }
+
       // Defensive: promote common email field to top-level for payment-session schema, if present nested
       if (!this.lookupRecord.email) {
         this.lookupRecord.email = record?.email || record?.contact_email || record?.applicant?.email || record?.settlor?.email || null;
@@ -261,8 +267,12 @@ export class SaleAndCedeAgreement implements OnInit {
     const formSnapshot = this.getFormSnapshot();
     console.log('[Sale & Cede] Form snapshot:', formSnapshot);
 
+    // Resolve trust number from form or from lookup record
+    const resolvedTrustNumber = (v.trustNumber && v.trustNumber.toString().trim()) || (this.lookupRecord?.trust_number || this.lookupRecord?.trustNumber) || '';
+    console.log('[Sale & Cede] Resolved trust number:', resolvedTrustNumber);
+
     const payload = {
-      trust_number: v.trustNumber,
+      trust_number: resolvedTrustNumber,
       trust_name: this.trustNameLoaded ?? '',
       trust_date: this.trustDateLoaded ?? nowISO, // prefer server lookup value; fallback to today
       owner_name: v.owner?.name ?? '',
@@ -281,7 +291,7 @@ export class SaleAndCedeAgreement implements OnInit {
 
     // Preflight validation to avoid 422 on backend
     const missing: string[] = [];
-    if (!payload.trust_number) missing.push('Trust Number');
+    if (!resolvedTrustNumber) missing.push('Trust Number');
     if (!payload.owner_name) missing.push('Owner');
     if (!payload.owner_id) missing.push('Owner ID');
     if (!payload.signer_name) missing.push('Signer');

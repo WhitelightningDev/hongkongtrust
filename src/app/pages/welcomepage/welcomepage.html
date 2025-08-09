@@ -24,9 +24,14 @@
     <div class="row gy-4">
       <!-- Left Panel -->
       <div class="col-12 col-lg-6">
-        <h1 class="btn btn-primary btn-sm border rounded-pill d-inline-flex align-items-center gap-2 mb-2">
-          Step 1
-        </h1>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h1 class="btn btn-primary btn-sm border rounded-pill d-inline-flex align-items-center gap-2 mb-0">
+            Step 1
+          </h1>
+          <a class="btn btn-outline-primary rounded-pill d-flex align-items-center gap-2 px-3" href="#" (click)="openTermsPopup($event)">
+            <i class="bi bi-pencil-square"></i> Edit Current Trust Deed
+          </a>
+        </div>
         <h2 class="fw-bold mb-3">Set Up Your Hong Kong Foreign Trust</h2>
         <img src="/HK-Banner-main.webp" class="img-fluid rounded-3 shadow-sm mb-2" alt="Trust Banner">
         <p class="small text-muted">
@@ -40,6 +45,7 @@
           <a class="btn btn-dark rounded-pill d-flex align-items-center gap-2 px-3" href="#" (click)="openTermsPopup($event)">
             <i class="bi bi-arrow-up-right-circle"></i> Get Started
           </a>
+         
           <a class="btn btn-outline-dark rounded-pill d-flex align-items-center gap-2 px-3" href="/Learnmore">
             <i class="bi bi-arrow-right-circle"></i> Learn More
           </a>

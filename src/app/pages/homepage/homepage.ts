@@ -271,6 +271,7 @@ export class Homepage implements OnInit, AfterViewInit {
   }
 
   onSettlorCheckboxChange(event: Event): void {
+    if (this.isEditMode) { return; }
     const checked = (event.target as HTMLInputElement).checked;
     this.trustForm.patchValue({ isSettlor: checked });
 
@@ -294,6 +295,7 @@ export class Homepage implements OnInit, AfterViewInit {
   }
 
   onTrusteeCheckboxChange(event: Event): void {
+    if (this.isEditMode) { return; }
     const checked = (event.target as HTMLInputElement).checked;
     this.trustForm.patchValue({ isTrustee: checked });
 
@@ -572,6 +574,11 @@ export class Homepage implements OnInit, AfterViewInit {
 
       // Switch to edit mode and close the lookup modal
       this.isEditMode = true;
+      // Ensure trustName control is disabled in edit mode
+      const tn = this.trustForm.get('trustName');
+      if (tn && !tn.disabled) {
+        tn.disable({ emitEvent: false });
+      }
       if (this.editTrustModalInstance) {
         this.editTrustModalInstance.hide();
       }
@@ -603,7 +610,7 @@ export class Homepage implements OnInit, AfterViewInit {
       email: rec.email || '',
       phoneNumber: rec.phone_number || '',
       trustEmail: rec.trust_email || '',
-      // trustName is immutable; leave as-is in the UI (disable it if bound)
+      trustName: rec.trust_name || '', // visible but immutable in edit mode
       establishmentDate: this.normalizeToISODate(rec.establishment_date) || '',
       beneficiaries: rec.beneficiaries || '',
       memberNumber: rec.member_number || '',

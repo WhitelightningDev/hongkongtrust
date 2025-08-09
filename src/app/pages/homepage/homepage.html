@@ -121,7 +121,7 @@
       <div class="mb-4">
         <label class="form-label">Name of Trust *</label>
         <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
-          <input formControlName="trustName" type="text" class="form-control w-100 w-md-auto" style="max-width: 300px;" />
+          <input formControlName="trustName" type="text" class="form-control w-100 w-md-auto" style="max-width: 300px;" [readonly]="isEditMode" />
 
           <div *ngIf="trustForm.get('trustName')?.value" class="mt-2">
             <!-- Message shown after user enters trust name -->
@@ -167,7 +167,7 @@
           <span class="text-danger fs-5">Settlor</span>
           <div class="form-check form-switch mb-0">
             <input type="checkbox" id="isSettlorCheckbox" class="form-check-input"
-              [checked]="trustForm.get('isSettlor')?.value" (change)="onSettlorCheckboxChange($event)" />
+              [checked]="trustForm.get('isSettlor')?.value" (change)="onSettlorCheckboxChange($event)" [disabled]="isEditMode" />
             <label for="isSettlorCheckbox" class="form-check-label">I am the Settlor</label>
           </div>
         </label>
@@ -202,7 +202,7 @@
               <span class="text-danger fs-5">Trustee 1</span>
               <div class="form-check form-switch mb-0">
                 <input type="checkbox" id="isTrusteeCheckbox" class="form-check-input"
-                  [checked]="trustForm.get('isTrustee')?.value" (change)="onTrusteeCheckboxChange($event)" />
+                  [checked]="trustForm.get('isTrustee')?.value" (change)="onTrusteeCheckboxChange($event)" [disabled]="isEditMode" />
                 <label for="isTrusteeCheckbox" class="form-check-label">I am Trustee 1</label>
               </div>
             </label>
@@ -448,7 +448,7 @@
   </div>
 
   <!-- Display Price Based on Membership & Valid Member Number -->
-  <div class="mb-4 p-3 border rounded bg-light-subtle text-center fs-5 fw-semibold">
+  <div *ngIf="!isEditMode" class="mb-4 p-3 border rounded bg-light-subtle text-center fs-5 fw-semibold">
     <ng-container
       *ngIf="trustForm.get('isBullionMember')?.value && trustForm.get('memberNumber')?.valid; else nonMemberPrice">
       Your member price is: <span class="text-success">R1,500</span>

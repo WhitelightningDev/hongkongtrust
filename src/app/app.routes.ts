@@ -9,6 +9,7 @@ import { Learnmore } from './pages/learnmore/learnmore';
 import { Downloads } from './pages/downloads/downloads';
 import { Contact } from './pages/contact/contact';
 import { SaleAndCedeAgreement } from './pages/sale-and-cede-agreement/sale-and-cede-agreement';
+import { SaleAndCedeAgreementSuccessComponent } from './pages/sale-and-cede-agreement-success/sale-and-cede-agreement-success';
 
 
 export const routes: Routes = [
@@ -47,5 +48,8 @@ export const routes: Routes = [
   },
   {
     path: 'sale-and-cede-agreement', component: SaleAndCedeAgreement
+  },
+  {
+    path: 'sale-cede/success', component: SaleAndCedeAgreement
   }
 ];

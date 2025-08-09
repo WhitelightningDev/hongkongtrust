@@ -32,9 +32,15 @@ export class SaleAndCedeAgreement implements OnInit {
 
   lookupLoading = false;
   trustNameLoaded: string | null = null;
+  trustDateLoaded: string | null = null;
   generating = false;
 
-  constructor(private fb: FormBuilder, private http: HttpClient) {
+  lookupRecord: any = null;
+
+  constructor(
+    private fb: FormBuilder,
+    private http: HttpClient,
+  ) {
     this.cessionForm = this.fb.group({
       trustNumber: ['', Validators.required],
       settlorId: ['', Validators.required],
@@ -61,15 +67,17 @@ export class SaleAndCedeAgreement implements OnInit {
       label: `Settlor : ${this.settlorName}`,
     });
 
-    this.trustees.forEach((t, idx) => {
-      list.push({
-        key: `trustee${idx + 1}`,
-        role: 'Trustee',
-        name: t.name,
-        id: t.id,
-        label: `Trustee ${idx + 1} : ${t.name}`,
+    if (Array.isArray(this.trustees)) {
+      this.trustees.forEach((t, idx) => {
+        list.push({
+          key: `trustee${idx + 1}`,
+          role: 'Trustee',
+          name: t.name,
+          id: t.id,
+          label: `Trustee ${idx + 1} : ${t.name}`,
+        });
       });
-    });
+    }
 
     // De-duplicate if Settlor and Trustee 1 are the same person (same ID)
     const deduped = list.filter((p, i, arr) => arr.findIndex(q => q.role === p.role && q.id === p.id && q.name === p.name) === i);
@@ -136,6 +144,15 @@ export class SaleAndCedeAgreement implements OnInit {
     try {
       const record: any = await this.http.post(url, { trust_number, id_or_passport }).toPromise();
 
+      console.log('Trust lookup raw record:', record);
+
+      this.lookupRecord = record;
+
+      // Defensive: promote common email field to top-level for payment-session schema, if present nested
+      if (!this.lookupRecord.email) {
+        this.lookupRecord.email = record?.email || record?.contact_email || record?.applicant?.email || record?.settlor?.email || null;
+      }
+
       // Example record mapping (defensive):
       // {
       //   trust_number, trust_name,
@@ -144,6 +161,7 @@ export class SaleAndCedeAgreement implements OnInit {
       // }
 
       this.trustNameLoaded = record?.trust_name ?? null;
+      this.trustDateLoaded = record?.trust_date || record?.trustDate || record?.trust_created_at || null;
 
       // Update Settlor inputs and local model
       this.settlorName = record?.settlor?.name ?? this.settlorName;
@@ -225,6 +243,7 @@ export class SaleAndCedeAgreement implements OnInit {
     const payload = {
       trust_number: v.trustNumber,
       trust_name: this.trustNameLoaded ?? '',
+      trust_date: this.trustDateLoaded ?? nowISO, // prefer server lookup value; fallback to today
       owner_name: v.owner?.name ?? '',
       owner_id: v.owner?.id ?? '',
       signer_name: v.signer?.name ?? '',
@@ -233,12 +252,16 @@ export class SaleAndCedeAgreement implements OnInit {
       witness_name: v.witnessName,
       witness_id: v.witnessId,
       place_of_signature: v.signaturePlace,
-      date_sign: nowISO,
+      date_sign: nowISO, // signing date (today) for this agreement
+      created_at: new Date().toISOString(), // include for completeness; server may override
       settlor_id: v.settlorId,
     };
 
+    console.log('Sale & Cede Agreement Payload:', payload);
+
     this.confirmPaymentForSaleCede(payload);
   }
+
 
   private getNormalizedTrustees(): Array<{ key: string; name: string; id: string }> {
     // Remove duplicates where Settlor and Trustee 1 are the same person
@@ -261,7 +284,16 @@ export class SaleAndCedeAgreement implements OnInit {
    */
   async confirmPaymentForSaleCede(agreementPayload: any): Promise<void> {
     this.generating = true;
+
+    console.log('Confirm Payment for Sale & Cede called with payload:', agreementPayload);
+
     try {
+      if (!this.lookupRecord) {
+        alert('Please look up your trust first before paying.');
+        this.generating = false;
+        return;
+      }
+
       const amountInCents = 500 * 100; // R500
 
       // Store payment context in session for the post-payment step
@@ -271,11 +303,30 @@ export class SaleAndCedeAgreement implements OnInit {
       sessionStorage.setItem('saleCedeFlow', 'true');
 
       const paymentInit = await this.http.post<any>(
-        'https://hongkongbackend.onrender.com/api/payment-session',
+        'https://hongkongbackend.onrender.com/api/cede/payment-session',
         {
           amount_cents: amountInCents,
-          // Send context similarly to your other flow so backend can link things up if needed
-          sale_cede_data: agreementPayload,
+          trust_data: {
+            // Include the original trust application/record so backend schema requirements are satisfied
+            ...(this.lookupRecord || {}),
+            // Annotate the flow so backend can branch
+            flow: 'sale_cede',
+            // Provide a nested context specific to this agreement
+            sale_cede_context: {
+              ...agreementPayload,
+            },
+            // Also include some top-level mirrors commonly read by older code paths
+            trust_number: agreementPayload.trust_number,
+            trust_name: agreementPayload.trust_name,
+            trust_date: agreementPayload.trust_date,
+            owner_name: agreementPayload.owner_name,
+            owner_id: agreementPayload.owner_id,
+            signer_name: agreementPayload.signer_name,
+            signer_id: agreementPayload.signer_id,
+            place_of_signature: agreementPayload.place_of_signature,
+            date_sign: agreementPayload.date_sign,
+            created_at: agreementPayload.created_at,
+          }
         }
       ).toPromise();
 
@@ -287,7 +338,8 @@ export class SaleAndCedeAgreement implements OnInit {
       window.location.href = paymentInit.redirectUrl;
     } catch (error: any) {
       console.error('🛑 Payment session error (Sale & Cede):', error);
-      alert('Payment error: ' + (error?.message || 'Failed to start payment'));
+      const backendDetail = error?.error?.detail ? JSON.stringify(error.error.detail) : '';
+      alert('Payment error: ' + (error?.message || 'Failed to start payment') + (backendDetail ? '\n' + backendDetail : ''));
       this.generating = false;
     }
   }

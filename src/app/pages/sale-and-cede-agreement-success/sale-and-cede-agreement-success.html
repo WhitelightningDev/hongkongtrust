@@ -1,0 +1,26 @@
+<div class="container my-5">
+  <h2>Payment Success</h2>
+
+  <div *ngIf="state === 'init'">
+    <p>Preparing your agreement...</p>
+  </div>
+
+  <div *ngIf="state === 'working'">
+    <div class="d-flex align-items-center">
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      <span class="ms-2">Generating your agreement…</span>
+    </div>
+  </div>
+
+  <div *ngIf="state === 'done'" class="alert alert-success mt-3">
+    {{ message }}
+    <div *ngIf="result?.docx_path || result?.pdf_path" class="mt-2">
+      <div *ngIf="result?.docx_path"><strong>DOCX:</strong> {{ result.docx_path }}</div>
+      <div *ngIf="result?.pdf_path"><strong>PDF:</strong> {{ result.pdf_path }}</div>
+    </div>
+  </div>
+
+  <div *ngIf="state === 'error'" class="alert alert-danger mt-3">
+    {{ message }}
+  </div>
+</div>

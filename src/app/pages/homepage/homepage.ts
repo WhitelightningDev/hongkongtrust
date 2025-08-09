@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, inject } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ValidatorFn, FormControl } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -47,10 +47,27 @@ export class Homepage implements OnInit, AfterViewInit {
   loading = false;
   showSuccessPopup = false;
 
+  // ---- Edit Existing Trust state ----
+  isEditMode = false;                // when true, submit flow will call PUT instead of payment
+  editTrustNumber: string | null = null;  // immutable, returned from lookup
+  editTrustName: string | null = null;    // immutable, returned from lookup
+
+  // Small lookup form (inside modal): trust number + ID/Passport
+  editLookupForm: FormGroup = this.fb.group({
+    trust_number: ['', Validators.required],
+    id_or_passport: ['', Validators.required]
+  });
+
+  // Loading flags specific to edit flow
+  lookupLoading = false;
+  editSaving = false;
+
   @ViewChild('trusteeConflictModal') trusteeConflictModal!: ElementRef;
   @ViewChild('paymentMethodModal') paymentMethodModal!: ElementRef;
+  @ViewChild('editTrustModal') editTrustModal!: ElementRef; // modal for Edit Existing Trust lookup
 
   private paymentMethodModalInstance: any;
+  private editTrustModalInstance: any;
 
   constructor() {
     this.trustForm = this.fb.group({
@@ -142,6 +159,13 @@ export class Homepage implements OnInit, AfterViewInit {
       keyboard: false
     });
 
+    // Modal for "EDIT EXISTING TRUST"
+    if (this.editTrustModal?.nativeElement) {
+      this.editTrustModalInstance = new bootstrap.Modal(this.editTrustModal.nativeElement, {
+        backdrop: 'static',
+        keyboard: false
+      });
+    }
     
 
     // Prefill settlor and first trustee from fullName and idNumber if empty
@@ -387,59 +411,261 @@ export class Homepage implements OnInit, AfterViewInit {
   }
 
   async onSubmit(): Promise<void> {
-  if (this.trustForm.invalid) {
-    this.trustForm.markAllAsTouched();
+    if (this.trustForm.invalid) {
+      this.trustForm.markAllAsTouched();
 
-    // Collect invalid fields' keys for top-level and nested controls
-    const invalidFields: string[] = [];
+      // Collect invalid fields' keys for top-level and nested controls
+      const invalidFields: string[] = [];
 
-    Object.keys(this.trustForm.controls).forEach(key => {
-      const control = this.trustForm.get(key);
+      Object.keys(this.trustForm.controls).forEach(key => {
+        const control = this.trustForm.get(key);
 
-      if (control?.invalid) {
-        if (control instanceof FormGroup) {
-          // Nested group: check which child controls are invalid
-          Object.keys(control.controls).forEach(nestedKey => {
-            const nestedControl = control.get(nestedKey);
-            if (nestedControl?.invalid) {
-              invalidFields.push(`${key}.${nestedKey}`);
-            }
-          });
-        } else {
-          invalidFields.push(key);
+        if (control?.invalid) {
+          if (control instanceof FormGroup) {
+            // Nested group: check which child controls are invalid
+            Object.keys(control.controls).forEach(nestedKey => {
+              const nestedControl = control.get(nestedKey);
+              if (nestedControl?.invalid) {
+                invalidFields.push(`${key}.${nestedKey}`);
+              }
+            });
+          } else {
+            invalidFields.push(key);
+          }
         }
+      });
+
+      // Format the invalid fields nicely for the toast message
+      const formattedFields = invalidFields.length
+        ? invalidFields.map(f => f.replace(/([A-Z])/g, ' $1').toLowerCase()).join(', ')
+        : 'some required fields';
+
+      // Show toast error with the list of invalid fields
+      this.toastr.error(
+        `Please fill in or correct the following fields: ${formattedFields}`,
+        'Validation Error',
+        {
+          timeOut: 6000,
+          closeButton: true,
+          progressBar: true,
+          positionClass: 'toast-top-right',
+          tapToDismiss: false,
+          toastClass: 'ngx-toastr toast-error custom-toast' // your own custom class to hook CSS
+        }
+      );
+
+      // Also log for debugging
+      console.log('Form valid?', this.trustForm.valid);
+      console.log('Invalid fields:', invalidFields);
+
+      return;
+    }
+
+    // If we're editing an existing trust, save edits instead of opening payment
+    if (this.isEditMode) {
+      this.submitEdits();
+      return;
+    }
+
+    // If valid and not in edit mode, open payment modal as before
+    this.openPaymentMethodModal();
+  }
+
+
+  // =========================
+  // EDIT EXISTING TRUST FLOW
+  // =========================
+
+  /**
+   * Open the Edit Existing Trust modal (asks for trust number + ID/passport)
+   */
+  openEditModal(): void {
+    this.editLookupForm.reset();
+    this.lookupLoading = false;
+    this.isEditMode = false;
+    this.editTrustNumber = null;
+    this.editTrustName = null;
+    if (this.editTrustModalInstance) {
+      this.editTrustModalInstance.show();
+    }
+  }
+
+  /**
+   * Perform lookup to authenticate settlor/applicant and pull existing trust data.
+   * Expects backend route: POST {API_BASE}/trusts/edit-trust/lookup
+   */
+  async performEditLookup(): Promise<void> {
+    if (this.editLookupForm.invalid) {
+      this.editLookupForm.markAllAsTouched();
+      return;
+    }
+    const { trust_number, id_or_passport } = this.editLookupForm.value;
+
+    const API_BASE = 'https://hongkongbackend.onrender.com';
+    const url = `${API_BASE}/trusts/edit-trust/lookup`;
+
+    this.lookupLoading = true;
+    try {
+      const record: any = await this.http.post(url, { trust_number, id_or_passport }).toPromise();
+
+      // Store immutable display values
+      this.editTrustNumber = record.trust_number;
+      this.editTrustName = record.trust_name;
+
+      // Prefill the main form with editable data
+      this.prefillFormFromLookup(record);
+
+      // Switch to edit mode and close the lookup modal
+      this.isEditMode = true;
+      if (this.editTrustModalInstance) {
+        this.editTrustModalInstance.hide();
       }
-    });
 
-    // Format the invalid fields nicely for the toast message
-    const formattedFields = invalidFields.length
-      ? invalidFields.map(f => f.replace(/([A-Z])/g, ' $1').toLowerCase()).join(', ')
-      : 'some required fields';
-
-    // Show toast error with the list of invalid fields
-    this.toastr.error(
-  `Please fill in or correct the following fields: ${formattedFields}`,
-  'Validation Error',
-  {
-    timeOut: 6000,
-    closeButton: true,
-    progressBar: true,
-    positionClass: 'toast-top-right',
-    tapToDismiss: false,
-    toastClass: 'ngx-toastr toast-error custom-toast' // your own custom class to hook CSS
-  }
-);
-
-
-    // Also log for debugging
-    console.log('Form valid?', this.trustForm.valid);
-    console.log('Invalid fields:', invalidFields);
-
-    return;
+      this.toastr.success('Trust loaded. You can now edit and save changes.', 'Edit mode enabled', {
+        timeOut: 4000, closeButton: true, progressBar: true
+      });
+    } catch (err: any) {
+      const msg = err?.error?.detail || err?.message || 'Lookup failed';
+      this.toastr.error(msg, 'Lookup Error', { timeOut: 6000, closeButton: true, progressBar: true });
+    } finally {
+      this.lookupLoading = false;
+    }
   }
 
-  // If valid, open payment modal as before
-  this.openPaymentMethodModal();
-}
+  /**
+   * Patch the main form from a lookup record.
+   * Trust name/number remain immutable (not written to editable controls).
+   */
+  private prefillFormFromLookup(rec: any): void {
+    // Toggle member flags first so validators attach before patching values
+    this.trustForm.get('isBullionMember')?.setValue(!!rec.is_bullion_member, { emitEvent: true });
+    this.trustForm.get('wasReferredByMember')?.setValue(!!rec.referrer_number, { emitEvent: true });
+
+    // Basic fields
+    this.trustForm.patchValue({
+      fullName: rec.full_name || '',
+      idNumber: rec.id_number || '',
+      email: rec.email || '',
+      phoneNumber: rec.phone_number || '',
+      trustEmail: rec.trust_email || '',
+      // trustName is immutable; leave as-is in the UI (disable it if bound)
+      establishmentDate: rec.establishment_date || '',
+      beneficiaries: rec.beneficiaries || '',
+      memberNumber: rec.member_number || '',
+      referrerNumber: rec.referrer_number || ''
+    }, { emitEvent: false });
+
+    // Settlor block
+    this.settlor.get('name')?.enable();
+    this.settlor.get('id')?.enable();
+    this.settlor.patchValue({
+      name: rec.settlor_name || '',
+      id: rec.settlor_id || ''
+    }, { emitEvent: false });
+
+    // Trustees (array in response)
+    const trustees: any[] = Array.isArray(rec.trustees) ? rec.trustees : [];
+    const [t1, t2, t3, t4] = [
+      trustees[0] || { name: '', id: '' },
+      trustees[1] || { name: '', id: '' },
+      trustees[2] || { name: '', id: '' },
+      trustees[3] || { name: '', id: '' },
+    ];
+    this.firstTrustee.enable();
+    this.secondTrustee.enable();
+    this.thirdTrustee.enable();
+    this.fourthTrustee.enable();
+
+    this.firstTrustee.patchValue({ name: t1.name || '', id: t1.id || '' }, { emitEvent: false });
+    this.secondTrustee.patchValue({ name: t2.name || '', id: t2.id || '' }, { emitEvent: false });
+    this.thirdTrustee.patchValue({ name: t3.name || '', id: t3.id || '' }, { emitEvent: false });
+    this.fourthTrustee.patchValue({ name: t4.name || '', id: t4.id || '' }, { emitEvent: false });
+
+    // Ensure trustName input (if present) is disabled in edit mode
+    const trustNameControl = this.trustForm.get('trustName');
+    if (trustNameControl && !trustNameControl.disabled) {
+      trustNameControl.disable({ emitEvent: false });
+    }
+  }
+
+  /**
+   * Build payload for PUT /trusts/edit-trust/{trust_number}
+   */
+  private buildEditPayload(): any {
+    // Collect trustees in order, omit empty rows at the end
+    const trustees = [
+      this.firstTrustee.value,
+      this.secondTrustee.value,
+      this.thirdTrustee.value,
+      this.fourthTrustee.value
+    ].filter(t => (t?.name && String(t.name).trim()) || (t?.id && String(t.id).trim()));
+
+    return {
+      id_number: this.trustForm.get('idNumber')?.value,
+      email: this.trustForm.get('email')?.value,
+      phone_number: this.trustForm.get('phoneNumber')?.value,
+      trust_email: this.trustForm.get('trustEmail')?.value,
+      establishment_date: this.trustForm.get('establishmentDate')?.value,
+      beneficiaries: this.trustForm.get('beneficiaries')?.value,
+      is_bullion_member: !!this.trustForm.get('isBullionMember')?.value,
+      member_number: this.trustForm.get('memberNumber')?.value || null,
+      referrer_number: this.trustForm.get('referrerNumber')?.value || null,
+      settlor_name: this.settlor.get('name')?.value,
+      settlor_id: this.settlor.get('id')?.value,
+      trustees
+    };
+  }
+
+  /**
+   * Save edits (PUT). On success, backend regenerates deed and emails PDF.
+   */
+  async submitEdits(): Promise<void> {
+    if (!this.isEditMode || !this.editTrustNumber) {
+      return;
+    }
+
+    // Validate minimum trustees (first two required in form definition)
+    if (this.firstTrustee.invalid || this.secondTrustee.invalid) {
+      this.firstTrustee.markAllAsTouched();
+      this.secondTrustee.markAllAsTouched();
+      this.toastr.error('Trust requires at least two trustees with name and ID.', 'Validation', {
+        timeOut: 5000, closeButton: true, progressBar: true
+      });
+      return;
+    }
+
+    const API_BASE = 'https://hongkongbackend.onrender.com';
+    const url = `${API_BASE}/trusts/edit-trust/${encodeURIComponent(this.editTrustNumber)}`;
+    const payload = this.buildEditPayload();
+
+    this.editSaving = true;
+    try {
+      await this.http.put(url, payload).toPromise();
+      this.toastr.success('Amended deed generated and emailed. Check your inbox.', 'Trust updated', {
+        timeOut: 6000, closeButton: true, progressBar: true
+      });
+
+      // Leave the page in edit mode but scroll to top / provide visual confirmation if needed
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err: any) {
+      const msg = err?.error?.detail || err?.message || 'Failed to save edits';
+      this.toastr.error(msg, 'Save Error', { timeOut: 7000, closeButton: true, progressBar: true });
+    } finally {
+      this.editSaving = false;
+    }
+  }
+
+  /**
+   * Exit edit mode and re-enable original submission flow.
+   */
+  exitEditMode(): void {
+    this.isEditMode = false;
+    this.editTrustNumber = null;
+    this.editTrustName = null;
+    const trustNameControl = this.trustForm.get('trustName');
+    if (trustNameControl) {
+      trustNameControl.enable({ emitEvent: false });
+    }
+  }
 
 }

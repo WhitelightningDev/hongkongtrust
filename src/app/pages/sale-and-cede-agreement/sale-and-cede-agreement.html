@@ -1,0 +1,93 @@
+<div class="container my-4 m-5">
+  <h2 class="fw-bold">Agreement of Sale and Cession of Claims and Rights</h2>
+  <p class="text-muted">
+    Transfer ownership or rights to your Hong Kong Foreign Trust (HKFT) for only HK$100.
+  </p>
+
+  <form [formGroup]="cessionForm" (ngSubmit)="submitForm()" novalidate>
+
+    <!-- Trust Details -->
+    <div class="mb-3">
+      <label class="form-label">Number of your trust?</label>
+      <input type="text" class="form-control" formControlName="trustNumber" [readonly]="lookupLoading || trustNameLoaded">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Settlor ID or Passport No?</label>
+      <div class="input-group">
+        <input type="text" class="form-control" formControlName="settlorId" [readonly]="lookupLoading || trustNameLoaded">
+        <button class="btn btn-outline-secondary" type="button"
+                (click)="performTrustLookup()"
+                [disabled]="lookupLoading || !cessionForm.get('trustNumber')?.value || !cessionForm.get('settlorId')?.value">
+          <span *ngIf="!lookupLoading">Lookup trust</span>
+          <span *ngIf="lookupLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          <span *ngIf="lookupLoading" class="ms-1">Looking up...</span>
+        </button>
+      </div>
+      <div *ngIf="trustNameLoaded" class="form-text mt-1">
+        Loaded trust: <span class="badge bg-success">{{ trustNameLoaded }}</span>
+        <button type="button" class="btn btn-link btn-sm p-0 ms-2"
+                (click)="cessionForm.get('trustNumber')?.enable(); cessionForm.get('settlorId')?.enable(); trustNameLoaded = null;">
+          Change
+        </button>
+      </div>
+    </div>
+
+    <!-- Owner & Signer Selection (Dropdowns) -->
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Who is the current owner of the property?</label>
+        <select class="form-select" formControlName="owner">
+          <option [ngValue]="null" disabled>Select owner</option>
+          <option *ngFor="let p of ownerOptions" [ngValue]="p">{{ p.label }}</option>
+        </select>
+        <small class="text-muted d-block mt-1" *ngIf="owner">Owner ID: {{ owner.id }}</small>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Who will sign on behalf of the trust?</label>
+        <select class="form-select" formControlName="signer">
+          <option [ngValue]="null" disabled>Select trustee signer</option>
+          <option *ngFor="let p of signerOptions" [ngValue]="p">{{ p.label }}</option>
+        </select>
+        <small class="text-muted d-block mt-1" *ngIf="signer">Signer ID: {{ signer.id }}</small>
+      </div>
+    </div>
+
+    <!-- Property List -->
+    <div class="mb-3 mt-3">
+      <label class="form-label">List of Property or Rights to be Sold</label>
+      <textarea class="form-control" rows="5" formControlName="propertyList" placeholder="e.g. 100 x Zimbabwe 100 Billion Special Agro Cheques; SKRs; Shares in ABC Pty Ltd; 167 Admiral Street, Benoni; etc."></textarea>
+    </div>
+
+    <!-- Place of Signature -->
+    <div class="mb-3">
+      <label class="form-label">Place of Signature</label>
+      <input type="text" class="form-control" formControlName="signaturePlace" placeholder="e.g. Johannesburg">
+    </div>
+
+    <!-- Witness Details -->
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label">Witness Full Names</label>
+        <input type="text" class="form-control" formControlName="witnessName">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Witness ID/Passport No</label>
+        <input type="text" class="form-control" formControlName="witnessId">
+      </div>
+    </div>
+
+    <!-- Submit / Payment -->
+    <div class="d-flex align-items-center gap-3 mt-4">
+      <button type="submit"
+              class="btn btn-primary"
+              [disabled]="cessionForm.invalid || lookupLoading || generating">
+        <span *ngIf="!generating">Pay R500 &amp; Generate Agreement</span>
+        <span *ngIf="generating" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span *ngIf="generating" class="ms-2">Processing payment…</span>
+      </button>
+      <small class="text-muted">You’ll be redirected to our secure payment portal. On success, the DOCX &amp; PDF will be generated and emailed.</small>
+    </div>
+  </form>
+</div>

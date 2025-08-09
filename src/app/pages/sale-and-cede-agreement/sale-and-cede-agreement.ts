@@ -1,0 +1,294 @@
+import { Component, ChangeDetectionStrategy, Input, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+
+interface Party {
+  key: string;            // e.g. 'settlor', 'trustee1'
+  role: 'Settlor' | 'Trustee';
+  name: string;
+  id: string;
+  label: string;          // e.g. 'Settlor : Jan Willemse'
+}
+
+@Component({
+  selector: 'app-sale-and-cede-agreement',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, HttpClientModule],
+  templateUrl: './sale-and-cede-agreement.html',
+  styleUrls: ['./sale-and-cede-agreement.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class SaleAndCedeAgreement implements OnInit {
+  @Input() settlorName!: string;
+  @Input() settlorId!: string;
+  @Input() trustees!: Array<{ name: string; id: string }>;
+
+  cessionForm: FormGroup;
+
+  parties: Party[] = [];
+  ownerOptions: Party[] = [];   // Settlor + Trustees
+  signerOptions: Party[] = [];  // Trustees only
+
+  lookupLoading = false;
+  trustNameLoaded: string | null = null;
+  generating = false;
+
+  constructor(private fb: FormBuilder, private http: HttpClient) {
+    this.cessionForm = this.fb.group({
+      trustNumber: ['', Validators.required],
+      settlorId: ['', Validators.required],
+
+      // NEW: dropdown selections
+      owner: [null as Party | null, Validators.required],
+      signer: [null as Party | null, Validators.required],
+
+      propertyList: ['', Validators.required],
+      signaturePlace: ['', Validators.required],
+      witnessName: ['', Validators.required],
+      witnessId: ['', Validators.required],
+    });
+  }
+
+  ngOnInit(): void {
+    // Build parties list from inputs
+    const list: Party[] = [];
+    list.push({
+      key: 'settlor',
+      role: 'Settlor',
+      name: this.settlorName,
+      id: this.settlorId,
+      label: `Settlor : ${this.settlorName}`,
+    });
+
+    this.trustees.forEach((t, idx) => {
+      list.push({
+        key: `trustee${idx + 1}`,
+        role: 'Trustee',
+        name: t.name,
+        id: t.id,
+        label: `Trustee ${idx + 1} : ${t.name}`,
+      });
+    });
+
+    // De-duplicate if Settlor and Trustee 1 are the same person (same ID)
+    const deduped = list.filter((p, i, arr) => arr.findIndex(q => q.role === p.role && q.id === p.id && q.name === p.name) === i);
+
+    this.parties = deduped;
+    this.ownerOptions = deduped; // owner can be Settlor or any Trustee
+    this.signerOptions = deduped.filter(p => p.role === 'Trustee'); // signer must be a Trustee
+
+    // Default selection logic for signer as requested:
+    // - If there are exactly 2 trustees -> default to Trustee 2
+    // - If there are more than 2 trustees -> default to Trustee 1
+    // - If only 1 trustee -> default to that one
+    const trusteesOnly = this.signerOptions;
+    let defaultSigner: Party | null = null;
+    if (trusteesOnly.length === 1) {
+      defaultSigner = trusteesOnly[0];
+    } else if (trusteesOnly.length === 2) {
+      defaultSigner = trusteesOnly[1]; // Trustee 2
+    } else if (trusteesOnly.length >= 3) {
+      defaultSigner = trusteesOnly[0]; // Trustee 1 (can change to 3 if you prefer)
+    }
+
+    // Default owner: Settlor (sensible default, can be changed by user)
+    const defaultOwner = this.ownerOptions.find(p => p.role === 'Settlor') || this.ownerOptions[0] || null;
+
+    this.cessionForm.patchValue({
+      settlorId: this.settlorId,
+      owner: defaultOwner,
+      signer: defaultSigner,
+    });
+
+    // Trigger lookup automatically when both trustNumber and settlorId are filled and valid
+    this.cessionForm.get('trustNumber')?.valueChanges.subscribe(() => this.tryAutoLookup());
+    this.cessionForm.get('settlorId')?.valueChanges.subscribe(() => this.tryAutoLookup());
+  }
+
+  private tryAutoLookup(): void {
+    const tn = this.cessionForm.get('trustNumber')?.value?.toString().trim();
+    const idp = this.cessionForm.get('settlorId')?.value?.toString().trim();
+    if (!tn || !idp || this.lookupLoading) return;
+    // Only auto-fire once per change-set; if already loaded for this pair, skip
+    if (this.trustNameLoaded) return;
+    this.performTrustLookup();
+  }
+
+  /**
+   * Perform lookup to authenticate settlor/applicant and pull existing trust data.
+   * Reused logic from your edit flow, adapted for this component.
+   */
+  async performTrustLookup(): Promise<void> {
+    const tnCtrl = this.cessionForm.get('trustNumber');
+    const idCtrl = this.cessionForm.get('settlorId');
+    if (!tnCtrl || !idCtrl || tnCtrl.invalid || idCtrl.invalid) {
+      this.cessionForm.markAllAsTouched();
+      return;
+    }
+    const trust_number = tnCtrl.value;
+    const id_or_passport = idCtrl.value;
+
+    const API_BASE = 'https://hongkongbackend.onrender.com';
+    const url = `${API_BASE}/trusts/edit-trust/lookup`;
+
+    this.lookupLoading = true;
+    try {
+      const record: any = await this.http.post(url, { trust_number, id_or_passport }).toPromise();
+
+      // Example record mapping (defensive):
+      // {
+      //   trust_number, trust_name,
+      //   settlor: { name, id },
+      //   trustees: [{ name, id }, ...]
+      // }
+
+      this.trustNameLoaded = record?.trust_name ?? null;
+
+      // Update Settlor inputs and local model
+      this.settlorName = record?.settlor?.name ?? this.settlorName;
+      this.settlorId = record?.settlor?.id ?? this.settlorId;
+
+      // Normalise trustees list
+      const apiTrustees = Array.isArray(record?.trustees) ? record.trustees : [];
+      this.trustees = apiTrustees
+        .filter((t: any) => t && (t.name || t.full_name))
+        .map((t: any, idx: number) => ({
+          name: t.name ?? t.full_name ?? `Trustee ${idx + 1}`,
+          id: t.id ?? t.passport ?? t.id_or_passport ?? `T-${idx + 1}`,
+        }));
+
+      // Rebuild party options with the fetched data
+      this.rebuildOptions();
+
+      // Patch form with canonical settlor id from backend
+      this.cessionForm.patchValue({ settlorId: this.settlorId });
+
+      // Optionally lock inputs after successful lookup
+      tnCtrl.disable({ emitEvent: false });
+      idCtrl.disable({ emitEvent: false });
+
+      console.log('Trust lookup success:', record);
+    } catch (err: any) {
+      console.error('Lookup error', err);
+      // Allow user to retry
+      this.trustNameLoaded = null;
+    } finally {
+      this.lookupLoading = false;
+    }
+  }
+
+  private rebuildOptions(): void {
+    const list: Party[] = [];
+    list.push({ key: 'settlor', role: 'Settlor', name: this.settlorName, id: this.settlorId, label: `Settlor : ${this.settlorName}` });
+    this.trustees.forEach((t, idx) => list.push({ key: `trustee${idx + 1}`, role: 'Trustee', name: t.name, id: t.id, label: `Trustee ${idx + 1} : ${t.name}` }));
+    const deduped = list.filter((p, i, arr) => arr.findIndex(q => q.role === p.role && q.id === p.id && q.name === p.name) === i);
+    this.parties = deduped;
+    this.ownerOptions = deduped;
+    this.signerOptions = deduped.filter(p => p.role === 'Trustee');
+
+    // Re-apply default selections based on new trustees count
+    const trusteesOnly = this.signerOptions;
+    let defaultSigner: Party | null = null;
+    if (trusteesOnly.length === 1) defaultSigner = trusteesOnly[0];
+    else if (trusteesOnly.length === 2) defaultSigner = trusteesOnly[1];
+    else if (trusteesOnly.length >= 3) defaultSigner = trusteesOnly[0];
+
+    const defaultOwner = this.ownerOptions.find(p => p.role === 'Settlor') || this.ownerOptions[0] || null;
+
+    this.cessionForm.patchValue({ owner: defaultOwner, signer: defaultSigner });
+  }
+
+  // Convenience getters for template
+  get owner() { return this.cessionForm.get('owner')?.value as Party | null; }
+  get signer() { return this.cessionForm.get('signer')?.value as Party | null; }
+
+  submitForm(): void {
+    if (this.cessionForm.invalid) {
+      this.cessionForm.markAllAsTouched();
+      return;
+    }
+
+    const v = this.cessionForm.value as {
+      trustNumber: string;
+      settlorId: string;
+      owner: Party;
+      signer: Party;
+      propertyList: string;
+      signaturePlace: string;
+      witnessName: string;
+      witnessId: string;
+    };
+
+    const nowISO = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
+
+    const payload = {
+      trust_number: v.trustNumber,
+      trust_name: this.trustNameLoaded ?? '',
+      owner_name: v.owner?.name ?? '',
+      owner_id: v.owner?.id ?? '',
+      signer_name: v.signer?.name ?? '',
+      signer_id: v.signer?.id ?? '',
+      list_of_property: v.propertyList,
+      witness_name: v.witnessName,
+      witness_id: v.witnessId,
+      place_of_signature: v.signaturePlace,
+      date_sign: nowISO,
+      settlor_id: v.settlorId,
+    };
+
+    this.confirmPaymentForSaleCede(payload);
+  }
+
+  private getNormalizedTrustees(): Array<{ key: string; name: string; id: string }> {
+    // Remove duplicates where Settlor and Trustee 1 are the same person
+    const trustees = this.parties.filter(p => p.role === 'Trustee');
+
+    // If Settlor equals Trustee 1 (by id), we still keep only Trustee 1 in array; backend can map to trustee_1
+    const unique: Array<{ key: string; name: string; id: string }> = [];
+    trustees.forEach(t => {
+      if (!unique.some(u => u.id === t.id)) {
+        unique.push({ key: t.key, name: t.name, id: t.id });
+      }
+    });
+    return unique;
+  }
+
+  /**
+   * Use the same payment API as other flows. Amount is fixed at R500.
+   * On success, we redirect to the returned URL. We also stash the agreement payload
+   * in sessionStorage so the post-payment handler can generate & email the docs.
+   */
+  async confirmPaymentForSaleCede(agreementPayload: any): Promise<void> {
+    this.generating = true;
+    try {
+      const amountInCents = 500 * 100; // R500
+
+      // Store payment context in session for the post-payment step
+      sessionStorage.setItem('paymentMethod', 'card');
+      sessionStorage.setItem('paymentAmount', amountInCents.toString());
+      sessionStorage.setItem('saleCedeAgreementPayload', JSON.stringify(agreementPayload));
+      sessionStorage.setItem('saleCedeFlow', 'true');
+
+      const paymentInit = await this.http.post<any>(
+        'https://hongkongbackend.onrender.com/api/payment-session',
+        {
+          amount_cents: amountInCents,
+          // Send context similarly to your other flow so backend can link things up if needed
+          sale_cede_data: agreementPayload,
+        }
+      ).toPromise();
+
+      if (!paymentInit || !paymentInit.redirectUrl) {
+        throw new Error('Invalid response from backend');
+      }
+
+      // Navigate to Yoco / payment portal
+      window.location.href = paymentInit.redirectUrl;
+    } catch (error: any) {
+      console.error('🛑 Payment session error (Sale & Cede):', error);
+      alert('Payment error: ' + (error?.message || 'Failed to start payment'));
+      this.generating = false;
+    }
+  }
+}

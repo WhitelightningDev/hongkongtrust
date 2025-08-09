@@ -58,6 +58,28 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       }
     }
 
+    // Merge in the original form snapshot (what the user entered) to fill any gaps
+    if (payload) {
+      try {
+        const formJson = localStorage.getItem('saleCedeAgreementForm');
+        if (formJson) {
+          const form = JSON.parse(formJson);
+          // Only fill if missing, prefer existing payload values
+          payload.trust_number       = payload.trust_number       || form.trustNumber || '';
+          payload.owner_name         = payload.owner_name         || form.owner?.name || '';
+          payload.owner_id           = payload.owner_id           || form.owner?.id   || '';
+          payload.signer_name        = payload.signer_name        || form.signer?.name|| '';
+          payload.signer_id          = payload.signer_id          || form.signer?.id  || '';
+          payload.list_of_property   = payload.list_of_property   || form.propertyList|| '';
+          payload.place_of_signature = payload.place_of_signature || form.signaturePlace || '';
+          payload.witness_name       = payload.witness_name       || form.witnessName || '';
+          payload.witness_id         = payload.witness_id         || form.witnessId   || '';
+        }
+      } catch (e) {
+        console.warn('Could not merge form snapshot:', e);
+      }
+    }
+
     if (!payload) {
       this.state = 'error';
       this.message = 'No agreement data found. Please start again.';
@@ -90,6 +112,7 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       // Cleanup local flags
       localStorage.removeItem('saleCedeFlow');
       localStorage.removeItem('saleCedeAgreementPayload');
+      localStorage.removeItem('saleCedeAgreementForm');
 
       this.state = 'done';
       this.message = 'Agreement generated and emailed successfully.';

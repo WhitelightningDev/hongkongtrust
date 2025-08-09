@@ -374,6 +374,8 @@ export class SaleAndCedeAgreement implements OnInit {
             owner_id: agreementPayload.owner_id,
             signer_name: agreementPayload.signer_name,
             signer_id: agreementPayload.signer_id,
+            witness_name: agreementPayload.witness_name,
+            witness_id: agreementPayload.witness_id,
             place_of_signature: agreementPayload.place_of_signature,
             date_sign: agreementPayload.date_sign,
             created_at: agreementPayload.created_at,

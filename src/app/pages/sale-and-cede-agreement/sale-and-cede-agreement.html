@@ -56,25 +56,41 @@
 
     <!-- Property List -->
     <div class="mb-3 mt-3">
-      <label class="form-label">List of Property or Rights to be Sold</label>
-      <textarea class="form-control" rows="5" formControlName="propertyList" placeholder="e.g. 100 x Zimbabwe 100 Billion Special Agro Cheques; SKRs; Shares in ABC Pty Ltd; 167 Admiral Street, Benoni; etc."></textarea>
+      <label class="form-label">List of Property or Rights to be Sold <span class="text-danger">*</span></label>
+      <textarea class="form-control" rows="5" formControlName="propertyList"
+                [class.is-invalid]="cessionForm.get('propertyList')?.invalid && cessionForm.get('propertyList')?.touched"
+                placeholder="e.g. 100 x Zimbabwe 100 Billion Special Agro Cheques; SKRs; Shares in ABC Pty Ltd; 167 Admiral Street, Benoni; etc."></textarea>
+      <div class="invalid-feedback">Please list at least one property or right to be sold/ceded.</div>
     </div>
 
     <!-- Place of Signature -->
     <div class="mb-3">
-      <label class="form-label">Place of Signature</label>
-      <input type="text" class="form-control" formControlName="signaturePlace" placeholder="e.g. Johannesburg">
+      <label class="form-label">Place of Signature <span class="text-danger">*</span></label>
+      <input type="text" class="form-control" formControlName="signaturePlace"
+             [class.is-invalid]="cessionForm.get('signaturePlace')?.invalid && cessionForm.get('signaturePlace')?.touched"
+             placeholder="e.g. Johannesburg">
+      <div class="invalid-feedback">Please enter the city/place where the agreement will be signed.</div>
     </div>
 
     <!-- Witness Details -->
+    <div class="mb-2">
+      <label class="form-label fw-semibold">Who will sign as witness on your agreement? <span class="text-danger">*</span></label>
+      <div class="form-text mb-2">May not be a trustee or beneficiary of your trust.</div>
+    </div>
     <div class="row g-3">
       <div class="col-md-6">
-        <label class="form-label">Witness Full Names</label>
-        <input type="text" class="form-control" formControlName="witnessName">
+        <label class="form-label">Full names <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="witnessName"
+               [class.is-invalid]="cessionForm.get('witnessName')?.invalid && cessionForm.get('witnessName')?.touched"
+               placeholder="e.g. Jane Mary Doe">
+        <div class="invalid-feedback">Witness full names are required.</div>
       </div>
       <div class="col-md-6">
-        <label class="form-label">Witness ID/Passport No</label>
-        <input type="text" class="form-control" formControlName="witnessId">
+        <label class="form-label">ID/Passport No <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="witnessId"
+               [class.is-invalid]="cessionForm.get('witnessId')?.invalid && cessionForm.get('witnessId')?.touched"
+               placeholder="e.g. 9001011234081 or Passport #">
+        <div class="invalid-feedback">Witness ID/Passport number is required.</div>
       </div>
     </div>
 

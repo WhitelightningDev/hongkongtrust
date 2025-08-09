@@ -107,15 +107,33 @@ export class Homepage implements OnInit, AfterViewInit {
     });
 
     // Conditional required validator for trustEmail based on useUserEmailForTrustEmail
-    this.trustForm.get('trustEmail')!.disable();  // start disabled as useUserEmailForTrustEmail is false by default
   }
 
   ngOnInit(): void {
+    // If checkbox is ON, keep trustEmail in sync with email
     this.trustForm.get('email')?.valueChanges.subscribe(email => {
       if (this.useUserEmailForTrustEmail) {
-        this.trustForm.get('trustEmail')?.setValue(email);
+        this.trustForm.get('trustEmail')?.setValue(email || '');
       }
     });
+
+    // Auto-toggle the checkbox when user types a trustEmail equal to email
+    this.trustForm.get('trustEmail')?.valueChanges.subscribe(trustEmail => {
+      const email = this.trustForm.get('email')?.value || '';
+      const equal = (trustEmail || '') === email;
+      if (equal && !this.useUserEmailForTrustEmail) {
+        this.useUserEmailForTrustEmail = true;
+      } else if (!equal && this.useUserEmailForTrustEmail) {
+        this.useUserEmailForTrustEmail = false;
+      }
+    });
+
+    // Initialize checkbox state if trustEmail already equals email
+    const initEmail = this.trustForm.get('email')?.value || '';
+    const initTrustEmail = this.trustForm.get('trustEmail')?.value || '';
+    if (initEmail && initTrustEmail && initEmail === initTrustEmail) {
+      this.useUserEmailForTrustEmail = true;
+    }
   }
 
   ngAfterViewInit(): void {
@@ -193,11 +211,10 @@ export class Homepage implements OnInit, AfterViewInit {
     this.useUserEmailForTrustEmail = (event.target as HTMLInputElement).checked;
     const trustEmailControl = this.trustForm.get('trustEmail');
     if (this.useUserEmailForTrustEmail) {
+      // Mirror the current email; field remains enabled (template uses [readOnly])
       trustEmailControl?.setValue(this.trustForm.get('email')?.value || '');
-      trustEmailControl?.disable();
     } else {
-      trustEmailControl?.enable();
-      trustEmailControl?.setValue('');
+      // Leave whatever the user typed; no clearing
     }
   }
 

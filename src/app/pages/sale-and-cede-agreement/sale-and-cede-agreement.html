@@ -253,7 +253,6 @@
           </div>
         </div>
       </div>
-
     </div>
 
     <!-- Summary Sidebar (Desktop) -->
@@ -295,6 +294,32 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Method Modal -->
+<div *ngIf="showPaymentModal" class="hk-modal-backdrop" (click)="closePaymentModal()">
+  <div class="hk-modal" role="dialog" aria-modal="true" aria-labelledby="payMethodTitle" (click)="$event.stopPropagation()">
+    <div class="hk-modal-header d-flex align-items-center justify-content-between">
+      <h2 id="payMethodTitle" class="h6 mb-0">Choose payment method</h2>
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closePaymentModal()" aria-label="Close">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+    <div class="hk-modal-body">
+      <p class="text-muted small mb-3">Secure checkout • Your agreement will be generated and emailed after payment.</p>
+      <div class="d-grid gap-2">
+        <button type="button" class="btn btn-primary rounded-pill py-2" (click)="confirmCardPayment()">
+          <i class="bi bi-credit-card me-2"></i> Pay by Card
+        </button>
+        <button type="button" class="btn btn-outline-dark rounded-pill py-2" (click)="startXrpFlow()">
+          <i class="bi bi-currency-bitcoin me-2"></i> Pay with XRP
+        </button>
+      </div>
+    </div>
+    <div class="hk-modal-footer text-center small text-muted">
+      <span *ngIf="pendingAmountZAR">Amount: R{{ pendingAmountZAR }}</span>
     </div>
   </div>
 </div>

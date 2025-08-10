@@ -37,6 +37,11 @@ export class SaleAndCedeAgreement implements OnInit {
 
   lookupRecord: any = null;
 
+  // Payment method modal state
+  showPaymentModal = false;
+  pendingAgreementPayload: any = null;
+  pendingAmountZAR = 500; // R500 fixed
+
   // Require at least N items in an array-based FormControl
   private minArrayLength(min: number) {
     return (control: any) => {
@@ -340,14 +345,54 @@ export class SaleAndCedeAgreement implements OnInit {
       return;
     }
 
+    // Stash for later (after user chooses payment method)
     localStorage.setItem('saleCedeAgreementForm', JSON.stringify(formSnapshot));
     localStorage.setItem('saleCedeAgreementPayload', JSON.stringify(payload));
 
-    console.log('Sale & Cede Agreement Payload:', payload);
+    console.log('Sale & Cede Agreement Payload (pending):', payload);
 
-    this.confirmPaymentForSaleCede(payload);
+    // Open payment method modal instead of starting payment immediately
+    this.pendingAgreementPayload = payload;
+    this.pendingAmountZAR = 500;
+    this.openPaymentModal();
   }
 
+  // Modal controls
+  openPaymentModal(): void { this.showPaymentModal = true; }
+  closePaymentModal(): void { this.showPaymentModal = false; }
+
+  /** Proceed with the existing card payment flow */
+  async confirmCardPayment(): Promise<void> {
+    if (!this.pendingAgreementPayload) return;
+    this.closePaymentModal();
+    // Mark selection for downstream logic
+    localStorage.setItem('paymentMethod', 'card');
+    await this.confirmPaymentForSaleCede(this.pendingAgreementPayload);
+  }
+
+  /** Start XRP flow (stub). Replace with your real XRP integration. */
+  async startXrpFlow(): Promise<void> {
+    if (!this.pendingAgreementPayload) return;
+    this.closePaymentModal();
+
+    try {
+      if (!this.lookupRecord) {
+        alert('Please look up your trust first before paying.');
+        return;
+      }
+
+      // Mark selection so your post-payment handler can branch
+      localStorage.setItem('paymentMethod', 'xrp');
+      localStorage.setItem('paymentAmount', String(this.pendingAmountZAR * 100));
+      localStorage.setItem('saleCedeFlow', 'true');
+
+      // TODO: Implement XRP payment (e.g., fetch invoice/QR from backend)
+      alert('XRP payment selected. Implement your XRP flow here (e.g., show QR / address from backend).');
+    } catch (e) {
+      console.error('XRP flow error:', e);
+      alert('Could not start XRP payment.');
+    }
+  }
 
   private getNormalizedTrustees(): Array<{ key: string; name: string; id: string }> {
     // Remove duplicates where Settlor and Trustee 1 are the same person

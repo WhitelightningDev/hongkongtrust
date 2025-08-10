@@ -88,6 +88,19 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       }
     }
 
+    // Fallback: enrich payment fields from localStorage if missing
+    try {
+      if (payload && (!payload.payment_method || !payload.payment_amount_cents)) {
+        const lsMethod = (localStorage.getItem('paymentMethod') || '').toString();
+        const lsAmountCents = Number(localStorage.getItem('paymentAmount') || '0');
+        if (!payload.payment_method && lsMethod) payload.payment_method = lsMethod;
+        if (!payload.payment_amount_cents && lsAmountCents) {
+          payload.payment_amount_cents = lsAmountCents;
+          payload.payment_amount = Math.round(lsAmountCents / 100);
+        }
+      }
+    } catch { /* no-op */ }
+
     if (!payload) {
       this.state = 'error';
       this.message = 'No agreement data found. Please start again.';
@@ -209,6 +222,24 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       ''
     );
 
+    // Payment fields (normalize)
+    const ctxPaymentMethod = (cedeCtx.payment_method || fullCtx?.payment_method || fullCtx?.trust_data?.payment_method || '').toString().trim();
+    const ctxAmountCentsRaw = (
+      cedeCtx.payment_amount_cents ??
+      fullCtx?.payment_amount_cents ??
+      fullCtx?.trust_data?.payment_amount_cents ??
+      null
+    );
+    const ctxAmountZarRaw = (
+      cedeCtx.payment_amount ??
+      fullCtx?.payment_amount ??
+      fullCtx?.trust_data?.payment_amount ??
+      null
+    );
+    const payment_amount_cents = Number.isFinite(Number(ctxAmountCentsRaw)) ? Number(ctxAmountCentsRaw) : (Number(ctxAmountZarRaw) * 100 || 0);
+    const payment_amount = payment_amount_cents ? Math.round(payment_amount_cents / 100) : (Number(ctxAmountZarRaw) || 0);
+    const payment_method = ctxPaymentMethod || '';
+
     const payload = {
       trust_number,
       trust_name,
@@ -226,6 +257,9 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       // extra for DOCX merge only
       settlor_id,
       client_email,
+      payment_method,
+      payment_amount,
+      payment_amount_cents,
     };
 
     console.log('[Success] Built payload for /agreements/sale-cede/generate:', payload);

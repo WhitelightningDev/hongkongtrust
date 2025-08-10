@@ -41,6 +41,8 @@ export class SaleAndCedeAgreement implements OnInit {
   showPaymentModal = false;
   pendingAgreementPayload: any = null;
   pendingAmountZAR = 500; // R500 fixed
+  pendingPaymentMethod: 'card' | 'xrp' | null = null;
+  pendingAmountCents = 500 * 100;
 
   // Require at least N items in an array-based FormControl
   private minArrayLength(min: number) {
@@ -66,6 +68,7 @@ export class SaleAndCedeAgreement implements OnInit {
       signer: [null as Party | null, Validators.required],
 
       propertyList: [[], this.minArrayLength(1)],
+      propertyPending: [''],
       signaturePlace: ['', Validators.required],
       witnessName: ['', Validators.required],
       witnessId: ['', Validators.required],
@@ -245,6 +248,7 @@ export class SaleAndCedeAgreement implements OnInit {
     }
     const next = [...current, value];
     ctrl?.setValue(next);
+    this.cessionForm.get('propertyPending')?.setValue('');
     ctrl?.markAsDirty();
     ctrl?.markAsTouched();
     ctrl?.updateValueAndValidity();
@@ -300,7 +304,15 @@ export class SaleAndCedeAgreement implements OnInit {
       ? v.propertyList
       : (v.propertyList ? [v.propertyList] : []);
 
+    const pendingRaw = (this.cessionForm.get('propertyPending')?.value || '').toString().trim();
+    const propertyArrMerged = pendingRaw ? [...propertyArr, pendingRaw] : propertyArr;
+
     const nowISO = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
+    // --- Trimmed helpers ---
+    const signaturePlaceTrim = (v.signaturePlace || '').trim();
+    const witnessNameTrim = (v.witnessName || '').trim();
+    const witnessIdTrim = (v.witnessId || '').trim();
+    const listString = propertyArrMerged.map(s => String(s).trim()).filter(Boolean).join('; ');
 
     const formSnapshot = this.getFormSnapshot();
     console.log('[Sale & Cede] Form snapshot:', formSnapshot);
@@ -312,18 +324,18 @@ export class SaleAndCedeAgreement implements OnInit {
     const payload = {
       trust_number: resolvedTrustNumber,
       trust_name: this.trustNameLoaded ?? '',
-      trust_date: this.trustDateLoaded ?? nowISO, // prefer server lookup value; fallback to today
+      trust_date: this.trustDateLoaded ?? nowISO,
       owner_name: v.owner?.name ?? '',
       owner_id: v.owner?.id ?? '',
       signer_name: v.signer?.name ?? '',
       signer_id: v.signer?.id ?? '',
-      list_of_property: propertyArr,
-      list_of_property_text: propertyArr.join('; '),
-      witness_name: v.witnessName,
-      witness_id: v.witnessId,
-      place_of_signature: v.signaturePlace,
-      date_sign: nowISO, // signing date (today) for this agreement
-      created_at: new Date().toISOString(), // include for completeness; server may override
+      list_of_property: listString,
+      list_of_property_text: listString,
+      witness_name: witnessNameTrim,
+      witness_id: witnessIdTrim,
+      place_of_signature: signaturePlaceTrim,
+      date_sign: nowISO,
+      created_at: new Date().toISOString(),
       settlor_id: v.settlorId,
       client_email: (this.lookupRecord?.email || ''),
     };
@@ -335,10 +347,10 @@ export class SaleAndCedeAgreement implements OnInit {
     if (!payload.owner_id) missing.push('Owner ID');
     if (!payload.signer_name) missing.push('Signer');
     if (!payload.signer_id) missing.push('Signer ID');
-    if (!propertyArr.length) missing.push('List of Property');
-    if (!payload.witness_name) missing.push('Witness Name');
-    if (!payload.witness_id) missing.push('Witness ID');
-    if (!payload.place_of_signature) missing.push('Place of Signature');
+    if (!listString) missing.push('List of Property');
+    if (!witnessNameTrim) missing.push('Witness Name');
+    if (!witnessIdTrim) missing.push('Witness ID');
+    if (!signaturePlaceTrim) missing.push('Place of Signature');
 
     if (missing.length) {
       alert('Please complete the following before paying: ' + missing.join(', '));
@@ -350,6 +362,11 @@ export class SaleAndCedeAgreement implements OnInit {
     localStorage.setItem('saleCedeAgreementPayload', JSON.stringify(payload));
 
     console.log('Sale & Cede Agreement Payload (pending):', payload);
+
+    if (!listString || !witnessNameTrim || !witnessIdTrim) {
+      alert('Please complete Property list and Witness details before continuing.');
+      return;
+    }
 
     // Open payment method modal instead of starting payment immediately
     this.pendingAgreementPayload = payload;
@@ -364,15 +381,30 @@ export class SaleAndCedeAgreement implements OnInit {
   /** Proceed with the existing card payment flow */
   async confirmCardPayment(): Promise<void> {
     if (!this.pendingAgreementPayload) return;
-    this.closePaymentModal();
-    // Mark selection for downstream logic
+
+    // Record selection & amounts
+    this.pendingPaymentMethod = 'card';
+    this.pendingAmountZAR = 500;
+    this.pendingAmountCents = 500 * 100;
+
+    // Persist for downstream handlers
     localStorage.setItem('paymentMethod', 'card');
+    localStorage.setItem('paymentAmount', String(this.pendingAmountCents));
+    localStorage.setItem('saleCedeFlow', 'true');
+
+    this.closePaymentModal();
     await this.confirmPaymentForSaleCede(this.pendingAgreementPayload);
   }
 
   /** Start XRP flow (stub). Replace with your real XRP integration. */
   async startXrpFlow(): Promise<void> {
     if (!this.pendingAgreementPayload) return;
+
+    // Record selection & amounts (adjust if XRP price differs)
+    this.pendingPaymentMethod = 'xrp';
+    this.pendingAmountZAR = 500;
+    this.pendingAmountCents = this.pendingAmountZAR * 100;
+
     this.closePaymentModal();
 
     try {
@@ -383,7 +415,7 @@ export class SaleAndCedeAgreement implements OnInit {
 
       // Mark selection so your post-payment handler can branch
       localStorage.setItem('paymentMethod', 'xrp');
-      localStorage.setItem('paymentAmount', String(this.pendingAmountZAR * 100));
+      localStorage.setItem('paymentAmount', String(this.pendingAmountCents));
       localStorage.setItem('saleCedeFlow', 'true');
 
       // TODO: Implement XRP payment (e.g., fetch invoice/QR from backend)
@@ -425,11 +457,12 @@ export class SaleAndCedeAgreement implements OnInit {
         return;
       }
 
-      const amountInCents = 500 * 100; // R500
+      const paymentMethod = this.pendingPaymentMethod || (localStorage.getItem('paymentMethod') as 'card' | 'xrp' | null) || 'card';
+      const amountInCents = this.pendingAmountCents || 500 * 100;
 
       // Store payment context for the post-payment success page (use localStorage to survive redirects)
-      localStorage.setItem('paymentMethod', 'card');
-      localStorage.setItem('paymentAmount', amountInCents.toString());
+      localStorage.setItem('paymentMethod', paymentMethod);
+      localStorage.setItem('paymentAmount', String(amountInCents));
       localStorage.setItem('saleCedeFlow', 'true');
 
       const paymentInit = await this.http.post<any>(
@@ -444,6 +477,9 @@ export class SaleAndCedeAgreement implements OnInit {
             // Provide a nested context specific to this agreement
             sale_cede_context: {
               ...agreementPayload,
+              payment_method: paymentMethod,
+              payment_amount: Math.round(amountInCents / 100),
+              payment_amount_cents: amountInCents,
             },
             // Also include some top-level mirrors commonly read by older code paths
             trust_number: agreementPayload.trust_number,
@@ -458,6 +494,10 @@ export class SaleAndCedeAgreement implements OnInit {
             place_of_signature: agreementPayload.place_of_signature,
             date_sign: agreementPayload.date_sign,
             created_at: agreementPayload.created_at,
+            // Payment details captured from modal selection
+            payment_method: paymentMethod,
+            payment_amount: Math.round(amountInCents / 100), // in ZAR
+            payment_amount_cents: amountInCents,
           }
         }
       ).toPromise();

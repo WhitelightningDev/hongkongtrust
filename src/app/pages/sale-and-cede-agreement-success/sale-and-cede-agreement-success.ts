@@ -70,10 +70,18 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
           payload.owner_id           = payload.owner_id           || form.owner?.id   || '';
           payload.signer_name        = payload.signer_name        || form.signer?.name|| '';
           payload.signer_id          = payload.signer_id          || form.signer?.id  || '';
-          payload.list_of_property   = payload.list_of_property   || form.propertyList|| '';
-          payload.place_of_signature = payload.place_of_signature || form.signaturePlace || '';
-          payload.witness_name       = payload.witness_name       || form.witnessName || '';
-          payload.witness_id         = payload.witness_id         || form.witnessId   || '';
+          // Ensure list_of_property is a STRING (join array if needed)
+          if (!payload.list_of_property) {
+            const arr = Array.isArray(form.propertyList)
+              ? form.propertyList
+              : (form.propertyList ? [form.propertyList] : []);
+            payload.list_of_property = arr.map((s: any) => String(s).trim()).filter(Boolean).join('; ');
+          }
+          payload.place_of_signature = payload.place_of_signature || (form.signaturePlace || '').toString().trim();
+          payload.witness_name       = payload.witness_name       || (form.witnessName   || '').toString().trim();
+          payload.witness_id         = payload.witness_id         || (form.witnessId     || '').toString().trim();
+          // Fill settlor_id if missing
+          payload.settlor_id         = payload.settlor_id         || (form.settlorId     || '').toString().trim();
         }
       } catch (e) {
         console.warn('Could not merge form snapshot:', e);
@@ -158,13 +166,24 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       signer_id   = signer_id   || t0?.id   || t0?.passport   || t0?.id_or_passport || '';
     }
 
-    // Property/rights list
-    const list_of_property = cedeCtx.list_of_property || cedeCtx.claim_details || '';
+    // Property/rights list (prefer explicit string; accept array and join)
+    let list_of_property: string = '';
+    if (typeof cedeCtx.list_of_property === 'string' && cedeCtx.list_of_property.trim()) {
+      list_of_property = cedeCtx.list_of_property.trim();
+    } else if (Array.isArray(cedeCtx.list_of_property)) {
+      list_of_property = cedeCtx.list_of_property.map((s: any) => String(s).trim()).filter(Boolean).join('; ');
+    } else if (typeof cedeCtx.list_of_property_text === 'string') {
+      list_of_property = cedeCtx.list_of_property_text.toString().trim();
+    } else if (Array.isArray(cedeCtx.propertyList)) {
+      list_of_property = cedeCtx.propertyList.map((s: any) => String(s).trim()).filter(Boolean).join('; ');
+    } else if (cedeCtx.claim_details) {
+      list_of_property = String(cedeCtx.claim_details).trim();
+    }
 
-    // Witness and signature details
-    const witness_name = (cedeCtx.witness_name ?? '').toString();
-    const witness_id   = (cedeCtx.witness_id   ?? '').toString();
-    const place_of_signature = (cedeCtx.place_of_signature ?? '').toString();
+    // Witness and signature details (normalize to strings)
+    const witness_name = (cedeCtx.witness_name ?? '').toString().trim();
+    const witness_id   = (cedeCtx.witness_id   ?? '').toString().trim();
+    const place_of_signature = (cedeCtx.place_of_signature ?? '').toString().trim();
 
     // Dates
     const trust_date = (

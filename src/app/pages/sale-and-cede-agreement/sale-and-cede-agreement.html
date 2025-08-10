@@ -100,7 +100,7 @@
               <div class="row g-3 p-3 border rounded-3 bg-body-tertiary shadow-sm">
                 <div class="col-md-6">
                   <div class="form-floating">
-                    <input type="text" class="form-control" id="trustNumber" placeholder="Trust number" autocomplete="off" inputmode="numeric"
+                    <input type="text" class="form-control" id="trustNumber" placeholder="Trust number" autocomplete="off"
                            formControlName="trustNumber" [readonly]="lookupLoading || trustNameLoaded">
                     <label for="trustNumber">Number of your trust</label>
                   </div>
@@ -165,8 +165,8 @@
                 <div class="mb-3">
                   <label for="propertyItem" class="form-label">Property or Rights to be Sold *</label>
                   <div class="input-group mb-2 shadow-sm rounded-3 overflow-hidden">
-                    <input type="text" class="form-control" id="propertyItem" placeholder="Enter property or right" #propertyInput autocomplete="off">
-                    <button class="btn btn-primary" type="button" (click)="addProperty(propertyInput.value); propertyInput.value=''">
+                    <input type="text" class="form-control" id="propertyItem" placeholder="Enter property or right" formControlName="propertyPending" (keyup.enter)="addProperty(cessionForm.get('propertyPending')?.value)">
+                    <button class="btn btn-primary" type="button" (click)="addProperty(cessionForm.get('propertyPending')?.value)">
                       <i class="bi bi-plus-circle"></i> Add
                     </button>
                   </div>

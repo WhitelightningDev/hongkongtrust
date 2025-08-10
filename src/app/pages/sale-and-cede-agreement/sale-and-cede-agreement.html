@@ -1,41 +1,126 @@
+<!-- Sale & Cede Agreement (Modernized) -->
 <div class="container py-4 py-md-5">
-  <div class="row justify-content-center">
-    <div class="col-12 col-lg-10 col-xxl-8">
-      <div class="card shadow-sm border-0">
+  <div class="row justify-content-center g-4">
+    <!-- Main -->
+    <div class="col-12 col-lg-8 col-xxl-7">
+
+      <!-- Page intro / breadcrumb -->
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <a class="btn btn-outline-secondary btn-sm" href="/">
+          <i class="bi bi-arrow-left"></i>
+          <span class="ms-1">Back</span>
+        </a>
+        <div class="small text-muted d-none d-md-block">Secure • Encrypted • ~2–3 mins</div>
+      </div>
+
+      <div class="card shadow-sm border-0 overflow-hidden">
+        <!-- Header -->
         <div class="card-header bg-white border-0 py-4">
-          <h2 class="h4 fw-bold mb-1">Agreement of Sale and Cession of Claims and Rights</h2>
-          <p class="text-muted mb-0">Transfer ownership or rights to your Hong Kong Foreign Trust (HKFT) for only <span class="fw-semibold">R500</span>.</p>
+          <div class="d-flex flex-column gap-3">
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+              <div>
+                <h1 class="h4 fw-bold mb-1 d-flex align-items-center gap-2">
+                  <i class="bi bi-journal-text"></i>
+                  Agreement of Sale &amp; Cession of Claims and Rights
+                </h1>
+                <p class="text-muted mb-0">Transfer ownership or rights to your Hong Kong Foreign Trust (HKFT).</p>
+              </div>
+              <div class="text-md-end">
+                <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle px-3 py-2">
+                  Only <span class="fw-bold">R500</span>
+                </span>
+                <div class="small text-muted mt-1">DOCX &amp; PDF generated &amp; emailed</div>
+              </div>
+            </div>
+
+            <!-- Progress Stepper -->
+            <ol class="list-unstyled d-flex align-items-center justify-content-between mb-0">
+              <li class="flex-fill">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge rounded-pill border"
+                        [ngClass]="{
+                          'bg-success-subtle text-success-emphasis border-success-subtle': cessionForm.get('trustNumber')?.valid && cessionForm.get('settlorId')?.valid,
+                          'bg-body-tertiary text-muted border-secondary-subtle': !(cessionForm.get('trustNumber')?.valid && cessionForm.get('settlorId')?.valid)
+                        }">1</span>
+                  <span class="small text-muted">Trust</span>
+                </div>
+              </li>
+              <li class="flex-fill text-center"><div class="border-top opacity-25" style="height:1px"></div></li>
+              <li class="flex-fill">
+                <div class="d-flex align-items-center gap-2 justify-content-center">
+                  <span class="badge rounded-pill border"
+                        [ngClass]="{
+                          'bg-success-subtle text-success-emphasis border-success-subtle': cessionForm.get('owner')?.value && cessionForm.get('signer')?.value,
+                          'bg-body-tertiary text-muted border-secondary-subtle': !(cessionForm.get('owner')?.value && cessionForm.get('signer')?.value)
+                        }">2</span>
+                  <span class="small text-muted">Signers</span>
+                </div>
+              </li>
+              <li class="flex-fill text-center"><div class="border-top opacity-25" style="height:1px"></div></li>
+              <li class="flex-fill">
+                <div class="d-flex align-items-center gap-2 justify-content-center">
+                  <span class="badge rounded-pill border"
+                        [ngClass]="{
+                          'bg-success-subtle text-success-emphasis border-success-subtle': cessionForm.get('propertyList')?.valid,
+                          'bg-body-tertiary text-muted border-secondary-subtle': !cessionForm.get('propertyList')?.valid
+                        }">3</span>
+                  <span class="small text-muted">Property</span>
+                </div>
+              </li>
+              <li class="flex-fill text-center"><div class="border-top opacity-25" style="height:1px"></div></li>
+              <li class="flex-fill">
+                <div class="d-flex align-items-center gap-2 justify-content-end">
+                  <span class="badge rounded-pill border"
+                        [ngClass]="{
+                          'bg-success-subtle text-success-emphasis border-success-subtle': cessionForm.get('signaturePlace')?.valid && cessionForm.get('witnessName')?.valid && cessionForm.get('witnessId')?.valid,
+                          'bg-body-tertiary text-muted border-secondary-subtle': !(cessionForm.get('signaturePlace')?.valid && cessionForm.get('witnessName')?.valid && cessionForm.get('witnessId')?.valid)
+                        }">4</span>
+                  <span class="small text-muted">Sign &amp; Witness</span>
+                </div>
+              </li>
+            </ol>
+          </div>
         </div>
 
         <div class="card-body pt-0">
           <div class="alert alert-info d-flex align-items-start gap-2 mb-4">
-            <div class="fw-semibold">Heads‑up:</div>
-            <div class="small">Complete the form below. You'll verify your trust, choose who signs, list the asset(s), and add a witness.</div>
+            <i class="bi bi-info-circle mt-1"></i>
+            <div class="small">
+              Fill the fields below. Sections tick themselves as you complete them.
+            </div>
           </div>
 
           <form [formGroup]="cessionForm" (ngSubmit)="submitForm()" novalidate>
-            <!-- Trust Lookup -->
-            <div class="mb-4">
+
+            <!-- Step 1: Trust Lookup -->
+            <section class="mb-4">
               <div class="d-flex align-items-center justify-content-between mb-2">
-                <h3 class="h6 text-uppercase text-muted mb-0">Trust Lookup</h3>
+                <h2 class="h6 text-uppercase text-muted mb-0">Trust Lookup</h2>
                 <div *ngIf="trustNameLoaded" class="badge bg-success-subtle text-success-emphasis border border-success-subtle">Loaded: {{ trustNameLoaded }}</div>
               </div>
 
-              <div class="row g-3">
+              <div class="row g-3 p-3 border rounded-3 bg-body-tertiary">
                 <div class="col-md-6">
-                  <label class="form-label">Number of your trust?</label>
-                  <input type="text" class="form-control" formControlName="trustNumber" [readonly]="lookupLoading || trustNameLoaded">
+                  <div class="form-floating">
+                    <input type="text" class="form-control" id="trustNumber" placeholder="Trust number"
+                           formControlName="trustNumber" [readonly]="lookupLoading || trustNameLoaded">
+                    <label for="trustNumber">Number of your trust</label>
+                  </div>
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label">Settlor ID or Passport No?</label>
                   <div class="input-group">
-                    <input type="text" class="form-control" formControlName="settlorId" [readonly]="lookupLoading || trustNameLoaded">
+                    <span class="input-group-text"><i class="bi bi-passport"></i></span>
+                    <div class="form-floating flex-grow-1">
+                      <input type="text" class="form-control" id="settlorId" placeholder="Settlor ID/Passport"
+                             formControlName="settlorId" [readonly]="lookupLoading || trustNameLoaded">
+                      <label for="settlorId">Settlor ID / Passport No</label>
+                    </div>
                     <button class="btn btn-outline-primary" type="button"
                             (click)="performTrustLookup()"
                             [disabled]="lookupLoading || !cessionForm.get('trustNumber')?.value || !cessionForm.get('settlorId')?.value">
-                      <span *ngIf="!lookupLoading">Lookup trust</span>
+                      <span *ngIf="!lookupLoading"><i class="bi bi-search"></i> Lookup</span>
                       <span *ngIf="lookupLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                      <span *ngIf="lookupLoading" class="ms-1">Looking up…</span>
+                      <span *ngIf="lookupLoading" class="ms-1">Looking…</span>
                     </button>
                   </div>
                   <div *ngIf="trustNameLoaded" class="form-text mt-1">
@@ -46,95 +131,176 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </section>
 
-            <hr class="my-4">
-
-            <!-- Owner & Signer Selection (Dropdowns) -->
-            <div class="mb-4">
-              <h3 class="h6 text-uppercase text-muted mb-3">Signatories</h3>
-              <div class="row g-3">
+            <!-- Step 2: Signatories -->
+            <section class="mb-4">
+              <h2 class="h6 text-uppercase text-muted mb-2">Signatories</h2>
+              <div class="row g-3 p-3 border rounded-3 bg-body-tertiary">
                 <div class="col-md-6">
-                  <label class="form-label fw-semibold">Who is the current owner of the property?</label>
-                  <select class="form-select" formControlName="owner">
-                    <option [ngValue]="null" disabled>Select owner</option>
-                    <option *ngFor="let p of ownerOptions" [ngValue]="p">{{ p.label }}</option>
-                  </select>
+                  <div class="form-floating">
+                    <select class="form-select" id="owner" formControlName="owner" aria-label="Owner">
+                      <option [ngValue]="null" disabled>Select owner</option>
+                      <option *ngFor="let p of ownerOptions" [ngValue]="p">{{ p.label }}</option>
+                    </select>
+                    <label for="owner">Current owner of the property</label>
+                  </div>
                   <small class="text-muted d-block mt-1" *ngIf="owner">Owner ID: {{ owner.id }}</small>
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label fw-semibold">Who will sign on behalf of the trust?</label>
-                  <select class="form-select" formControlName="signer">
-                    <option [ngValue]="null" disabled>Select trustee signer</option>
-                    <option *ngFor="let p of signerOptions" [ngValue]="p">{{ p.label }}</option>
-                  </select>
+                  <div class="form-floating">
+                    <select class="form-select" id="signer" formControlName="signer" aria-label="Trust signer">
+                      <option [ngValue]="null" disabled>Select trustee signer</option>
+                      <option *ngFor="let p of signerOptions" [ngValue]="p">{{ p.label }}</option>
+                    </select>
+                    <label for="signer">Signer on behalf of trust</label>
+                  </div>
                   <small class="text-muted d-block mt-1" *ngIf="signer">Signer ID: {{ signer.id }}</small>
                 </div>
               </div>
-            </div>
+            </section>
 
-            <hr class="my-4">
+            <!-- Step 3: Property / Rights -->
+            <section class="mb-4">
+              <h2 class="h6 text-uppercase text-muted mb-2">Property / Rights</h2>
+              <div class="p-3 border rounded-3 bg-body-tertiary">
+                <div class="mb-3">
+                  <label for="propertyItem" class="form-label">Property or Rights to be Sold *</label>
+                  <div class="input-group mb-2">
+                    <input type="text" class="form-control" id="propertyItem" placeholder="Enter property or right" #propertyInput>
+                    <button class="btn btn-outline-primary" type="button" (click)="addProperty(propertyInput.value); propertyInput.value=''">
+                      <i class="bi bi-plus-circle"></i> Add
+                    </button>
+                  </div>
+                  <div class="invalid-feedback d-block" *ngIf="cessionForm.get('propertyList')?.invalid && cessionForm.get('propertyList')?.touched">
+                    Please add at least one property or right.
+                  </div>
+                  <ul class="list-group">
+                    <li *ngFor="let item of cessionForm.get('propertyList')?.value; let i = index" class="list-group-item d-flex justify-content-between align-items-center">
+                      {{ item }}
+                      <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeProperty(i)">
+                        <i class="bi bi-x-circle"></i>
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+                <details class="mt-2">
+                  <summary class="small">What counts as property or rights?</summary>
+                  <ul class="small text-muted mb-0 mt-2 ps-3">
+                    <li>Banknotes, coins, bonds, and certificates (e.g., SKRs).</li>
+                    <li>Shares, units, or member interests in companies.</li>
+                    <li>Real property addresses and erf numbers.</li>
+                    <li>Any other claim or right capable of transfer.</li>
+                  </ul>
+                </details>
+              </div>
+            </section>
 
-            <!-- Property List -->
-            <div class="mb-4">
-              <h3 class="h6 text-uppercase text-muted mb-2">Property / Rights</h3>
-              <label class="form-label">List of Property or Rights to be Sold <span class="text-danger">*</span></label>
-              <textarea class="form-control" rows="5" formControlName="propertyList"
-                        [class.is-invalid]="cessionForm.get('propertyList')?.invalid && cessionForm.get('propertyList')?.touched"
-                        placeholder="e.g. 100 x Zimbabwe 100 Billion Special Agro Cheques; SKRs; Shares in ABC Pty Ltd; 167 Admiral Street, Benoni; etc."></textarea>
-              <div class="invalid-feedback">Please list at least one property or right to be sold/ceded.</div>
-              <div class="form-text">Separate multiple items with semicolons.</div>
-            </div>
-
-            <!-- Place of Signature -->
-            <div class="mb-4">
-              <h3 class="h6 text-uppercase text-muted mb-2">Signing Details</h3>
-              <label class="form-label">Place of Signature <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" formControlName="signaturePlace"
-                     [class.is-invalid]="cessionForm.get('signaturePlace')?.invalid && cessionForm.get('signaturePlace')?.touched"
-                     placeholder="e.g. Johannesburg">
-              <div class="invalid-feedback">Please enter the city/place where the agreement will be signed.</div>
-            </div>
-
-            <!-- Witness Details -->
-            <div class="mb-4">
-              <h3 class="h6 text-uppercase text-muted mb-2">Witness</h3>
-              <div class="form-text mb-2">May not be a trustee or beneficiary of your trust.</div>
-              <div class="row g-3">
+            <!-- Step 4: Signing Details & Witness -->
+            <section class="mb-4">
+              <h2 class="h6 text-uppercase text-muted mb-2">Signing Details &amp; Witness</h2>
+              <div class="row g-3 p-3 border rounded-3 bg-body-tertiary">
                 <div class="col-md-6">
-                  <label class="form-label">Full names <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" formControlName="witnessName"
-                         [class.is-invalid]="cessionForm.get('witnessName')?.invalid && cessionForm.get('witnessName')?.touched"
-                         placeholder="e.g. Jane Mary Doe">
-                  <div class="invalid-feedback">Witness full names are required.</div>
+                  <div class="form-floating">
+                    <input type="text" class="form-control" id="signaturePlace" placeholder="Place of signature"
+                           formControlName="signaturePlace"
+                           [class.is-invalid]="cessionForm.get('signaturePlace')?.invalid && cessionForm.get('signaturePlace')?.touched">
+                    <label for="signaturePlace">Place of Signature *</label>
+                    <div class="invalid-feedback">Please enter the city/place where the agreement will be signed.</div>
+                  </div>
+                </div>
+                <div class="col-md-6"></div>
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input type="text" class="form-control" id="witnessName" placeholder="Witness full names"
+                           formControlName="witnessName"
+                           [class.is-invalid]="cessionForm.get('witnessName')?.invalid && cessionForm.get('witnessName')?.touched">
+                    <label for="witnessName">Witness Full Names *</label>
+                    <div class="invalid-feedback">Witness full names are required.</div>
+                  </div>
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label">ID/Passport No <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" formControlName="witnessId"
-                         [class.is-invalid]="cessionForm.get('witnessId')?.invalid && cessionForm.get('witnessId')?.touched"
-                         placeholder="e.g. 9001011234081 or Passport #">
-                  <div class="invalid-feedback">Witness ID/Passport number is required.</div>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person-vcard"></i></span>
+                    <div class="form-floating flex-grow-1">
+                      <input type="text" class="form-control" id="witnessId" placeholder="Witness ID or Passport"
+                             formControlName="witnessId"
+                             [class.is-invalid]="cessionForm.get('witnessId')?.invalid && cessionForm.get('witnessId')?.touched">
+                      <label for="witnessId">Witness ID / Passport No *</label>
+                      <div class="invalid-feedback">Witness ID/Passport number is required.</div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            </section>
 
-            <!-- Submit / Payment -->
-            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3 mt-2">
-              <button type="submit" class="btn btn-primary px-4"
-                      [disabled]="cessionForm.invalid || lookupLoading || generating">
-                <span *ngIf="!generating">Pay R500 &amp; Generate Agreement</span>
-                <span *ngIf="generating" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                <span *ngIf="generating" class="ms-2">Processing payment…</span>
-              </button>
-              <small class="text-muted">You’ll be redirected to our secure payment portal. On success, the DOCX &amp; PDF will be generated and emailed.</small>
+            <!-- Sticky actions -->
+            <div class="position-sticky bottom-0 bg-white pt-3" style="z-index: 1;">
+              <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
+                <button type="submit" class="btn btn-primary rounded-pill px-4"
+                        [disabled]="cessionForm.invalid || lookupLoading || generating">
+                  <span *ngIf="!generating"><i class="bi bi-shield-lock"></i> Generate</span>
+                  <span *ngIf="generating" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  <span *ngIf="generating" class="ms-2">Processing…</span>
+                </button>
+                <div class="small text-muted">Secure payments. Agreement (DOCX &amp; PDF) delivered by email.</div>
+              </div>
             </div>
           </form>
         </div>
 
         <div class="card-footer bg-white border-0 pt-0 pb-4">
-          <div class="small text-muted">Need help? Contact support and we’ll assist with the process.</div>
+          <div class="small text-muted d-flex align-items-center gap-2">
+            <i class="bi bi-shield-check"></i>
+            Need help? Contact support and we’ll assist with the process.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Summary Sidebar (Desktop) -->
+    <div class="col-lg-4 col-xxl-4 d-none d-lg-block">
+      <div class="card border-0 shadow-sm position-sticky" style="top: 24px;">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <h2 class="h6 mb-0">Summary</h2>
+            <span class="badge bg-body-tertiary text-muted border">Preview</span>
+          </div>
+          <hr class="mt-2">
+          <div class="small">
+            <div class="mb-3">
+              <div class="text-muted">Trust</div>
+              <div class="fw-medium"># {{ cessionForm.get('trustNumber')?.value || '—' }}</div>
+              <div class="text-body-secondary">Settlor: {{ cessionForm.get('settlorId')?.value || '—' }}</div>
+            </div>
+            <div class="mb-3">
+              <div class="text-muted">Owner</div>
+              <div class="fw-medium">{{ cessionForm.get('owner')?.value?.label || '—' }}</div>
+            </div>
+            <div class="mb-3">
+              <div class="text-muted">Signer</div>
+              <div class="fw-medium">{{ cessionForm.get('signer')?.value?.label || '—' }}</div>
+            </div>
+            <div class="mb-3">
+              <div class="text-muted">Property / Rights</div>
+              <div class="fw-medium text-break" style="white-space: pre-wrap;">{{ cessionForm.get('propertyList')?.value || '—' }}</div>
+            </div>
+            <div class="mb-3">
+              <div class="text-muted">Signing Place</div>
+              <div class="fw-medium">{{ cessionForm.get('signaturePlace')?.value || '—' }}</div>
+            </div>
+            <div>
+              <div class="text-muted">Witness</div>
+              <div class="fw-medium">{{ cessionForm.get('witnessName')?.value || '—' }}</div>
+              <div class="text-body-secondary">{{ cessionForm.get('witnessId')?.value || '—' }}</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+
+

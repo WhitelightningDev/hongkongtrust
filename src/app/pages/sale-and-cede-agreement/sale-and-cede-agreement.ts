@@ -37,6 +37,17 @@ export class SaleAndCedeAgreement implements OnInit {
 
   lookupRecord: any = null;
 
+  // Require at least N items in an array-based FormControl
+  private minArrayLength(min: number) {
+    return (control: any) => {
+      const v = control?.value;
+      if (Array.isArray(v)) {
+        return v.length >= min ? null : { minArrayLength: { requiredLength: min, actualLength: v.length } };
+      }
+      return { minArrayLength: { requiredLength: min, actualLength: 0 } };
+    };
+  }
+
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
@@ -49,7 +60,7 @@ export class SaleAndCedeAgreement implements OnInit {
       owner: [null as Party | null, Validators.required],
       signer: [null as Party | null, Validators.required],
 
-      propertyList: ['', Validators.required],
+      propertyList: [[], this.minArrayLength(1)],
       signaturePlace: ['', Validators.required],
       witnessName: ['', Validators.required],
       witnessId: ['', Validators.required],
@@ -227,6 +238,34 @@ export class SaleAndCedeAgreement implements OnInit {
   get owner() { return this.cessionForm.get('owner')?.value as Party | null; }
   get signer() { return this.cessionForm.get('signer')?.value as Party | null; }
 
+  /** Add a property/right item to the list input */
+  addProperty(raw: string): void {
+    const value = (raw || '').trim();
+    if (!value) return;
+    const ctrl = this.cessionForm.get('propertyList');
+    const current: string[] = Array.isArray(ctrl?.value) ? ctrl!.value : [];
+    // Avoid duplicates (case-insensitive)
+    if (current.some(it => it.toLowerCase() === value.toLowerCase())) {
+      return;
+    }
+    const next = [...current, value];
+    ctrl?.setValue(next);
+    ctrl?.markAsDirty();
+    ctrl?.markAsTouched();
+    ctrl?.updateValueAndValidity();
+  }
+
+  /** Remove a property/right item by index */
+  removeProperty(index: number): void {
+    const ctrl = this.cessionForm.get('propertyList');
+    const current: string[] = Array.isArray(ctrl?.value) ? ctrl!.value : [];
+    if (index < 0 || index >= current.length) return;
+    const next = current.filter((_, i) => i !== index);
+    ctrl?.setValue(next);
+    ctrl?.markAsDirty();
+    ctrl?.updateValueAndValidity();
+  }
+
   /** Return a clean snapshot of what the user has entered/selected in the form */
   private getFormSnapshot() {
     const v = this.cessionForm.value as any;
@@ -238,7 +277,7 @@ export class SaleAndCedeAgreement implements OnInit {
       settlorId: v.settlorId || '',
       owner: owner ? { name: owner.name, id: owner.id, role: owner.role } : null,
       signer: signer ? { name: signer.name, id: signer.id, role: signer.role } : null,
-      propertyList: v.propertyList || '',
+      propertyList: Array.isArray(v.propertyList) ? v.propertyList : (v.propertyList ? [v.propertyList] : []),
       signaturePlace: v.signaturePlace || '',
       witnessName: v.witnessName || '',
       witnessId: v.witnessId || '',
@@ -256,11 +295,15 @@ export class SaleAndCedeAgreement implements OnInit {
       settlorId: string;
       owner: Party;
       signer: Party;
-      propertyList: string;
+      propertyList: string[] | string;
       signaturePlace: string;
       witnessName: string;
       witnessId: string;
     };
+
+    const propertyArr: string[] = Array.isArray(v.propertyList)
+      ? v.propertyList
+      : (v.propertyList ? [v.propertyList] : []);
 
     const nowISO = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
 
@@ -279,7 +322,8 @@ export class SaleAndCedeAgreement implements OnInit {
       owner_id: v.owner?.id ?? '',
       signer_name: v.signer?.name ?? '',
       signer_id: v.signer?.id ?? '',
-      list_of_property: v.propertyList,
+      list_of_property: propertyArr,
+      list_of_property_text: propertyArr.join('; '),
       witness_name: v.witnessName,
       witness_id: v.witnessId,
       place_of_signature: v.signaturePlace,
@@ -296,7 +340,7 @@ export class SaleAndCedeAgreement implements OnInit {
     if (!payload.owner_id) missing.push('Owner ID');
     if (!payload.signer_name) missing.push('Signer');
     if (!payload.signer_id) missing.push('Signer ID');
-    if (!payload.list_of_property) missing.push('List of Property');
+    if (!propertyArr.length) missing.push('List of Property');
     if (!payload.witness_name) missing.push('Witness Name');
     if (!payload.witness_id) missing.push('Witness ID');
     if (!payload.place_of_signature) missing.push('Place of Signature');

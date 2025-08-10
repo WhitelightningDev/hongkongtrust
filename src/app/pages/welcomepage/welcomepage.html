@@ -21,73 +21,102 @@
   <!-- Main Content Panels -->
   <div class="overflow-auto" style="max-height: 100vh;">
     <div class="container py-5">
-    <div class="row gy-4">
-      <!-- Left Panel -->
-      <div class="col-12 col-lg-6">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <h1 class="btn btn-primary btn-sm border rounded-pill d-inline-flex align-items-center gap-2 mb-0">
-            Step 1
-          </h1>
-          <a class="btn btn-outline-primary rounded-pill d-flex align-items-center gap-2 px-3" href="#" (click)="openTermsPopup($event)">
-            <i class="bi bi-pencil-square"></i> Edit Current Trust Deed
-          </a>
-        </div>
-        <h2 class="fw-bold mb-3">Set Up Your Hong Kong Foreign Trust</h2>
-        <img src="/HK-Banner-main.webp" class="img-fluid rounded-3 shadow-sm mb-2" alt="Trust Banner">
-        <p class="small text-muted">
-          Hong Kong trusts, governed by the Trustee Ordinance and common law, offer a robust and flexible framework for
-          wealth management, particularly for high-net-worth individuals. They provide asset protection, tax efficiency,
-          and the ability to structure trusts with perpetual duration, shielding assets from foreign forced heirship
-          rules. Hong Kong's legal system also recognizes and enforces foreign trusts, making it a suitable location for
-          international estate planning.
-        </p>
-        <div class="d-flex flex-wrap gap-2 mt-2">
-          <a class="btn btn-dark rounded-pill d-flex align-items-center gap-2 px-3" href="#" (click)="openTermsPopup($event)">
-            <i class="bi bi-arrow-up-right-circle"></i> Get Started
-          </a>
-         
-          <a class="btn btn-outline-dark rounded-pill d-flex align-items-center gap-2 px-3" href="/Learnmore">
-            <i class="bi bi-arrow-right-circle"></i> Learn More
-          </a>
-          <a class="btn btn-outline-secondary rounded-pill d-flex align-items-center gap-2 px-3" href="/HKFT-Pricing">
-            <i class="bi bi-currency-dollar"></i> Pricing
-          </a>
-          <a class="btn btn-outline-secondary rounded-pill d-flex align-items-center gap-2 px-3" href="/Downloads">
-            <i class="bi bi-download"></i> Downloadable's
-          </a>
-        </div>
-      </div>
+      <div class="row gy-4">
+        <!-- Left Panel -->
+        <div class="col-12 col-lg-6 split-left">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h1 class="btn btn-primary btn-sm border rounded-pill d-inline-flex align-items-center gap-2 mb-0">
+              Step 1
+            </h1>
+            <a class="btn btn-outline-primary rounded-pill d-flex align-items-center gap-2 px-3" href="#"
+              (click)="openTermsPopup($event)">
+              <i class="bi bi-pencil-square"></i> Edit Current Trust Deed
+            </a>
+          </div>
+          <h2 class="fw-bold mb-3">Set Up Your Hong Kong Foreign Trust</h2>
+          <img src="/HK-Banner-main.webp" class="img-fluid rounded-3 shadow-sm mb-2" alt="Trust Banner">
+          <p class="small text-muted">
+            Hong Kong trusts, governed by the Trustee Ordinance and common law, offer a robust and flexible framework
+            for
+            wealth management, particularly for high-net-worth individuals. They provide asset protection, tax
+            efficiency,
+            and the ability to structure trusts with perpetual duration, shielding assets from foreign forced heirship
+            rules. Hong Kong's legal system also recognizes and enforces foreign trusts, making it a suitable location
+            for
+            international estate planning.
+          </p>
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            <a class="btn btn-dark rounded-pill d-flex align-items-center gap-2 px-3" href="#"
+              (click)="openTermsPopup($event)">
+              <i class="bi bi-arrow-up-right-circle"></i> Get Started
+            </a>
 
-      <!-- Right Panel -->
-      <div class="col-12 col-lg-6">
-        <div class="d-flex align-items-center gap-3 mb-2">
-          <h1 class="btn btn-primary btn-sm border rounded-pill d-inline-flex align-items-center gap-2 mb-0">
-            Step 2
-          </h1>
-          <span class="p-2 h3 rounded text-black">Fee R500</span>
+            <a class="btn btn-outline-dark rounded-pill d-flex align-items-center gap-2 px-3" href="/Learnmore">
+              <i class="bi bi-arrow-right-circle"></i> Learn More
+            </a>
+            <a class="btn btn-outline-secondary rounded-pill d-flex align-items-center gap-2 px-3" href="/HKFT-Pricing">
+              <i class="bi bi-currency-dollar"></i> Pricing
+            </a>
+            <a class="btn btn-outline-secondary rounded-pill d-flex align-items-center gap-2 px-3" href="/Downloads">
+              <i class="bi bi-download"></i> Downloadable's
+            </a>
+          </div>
         </div>
-        <h2 class="fw-bold mb-3">Generate your cede and sale agreement</h2>
-        <p class="small text-muted mb-3">
-          Transfer ownership or rights to selected property or assets into your Hong Kong Foreign Trust (HKFT)
-        </p>
-        <ul class="small mb-4 text-muted ps-3">
-          <li class="mb-2"><strong>Secure future value today</strong> – Sell assets with uncertain future payouts to your trust now, ensuring they’re protected before their value emerges.</li>
-          <li><strong>Enhance asset protection</strong> – Internationalise your ownership and potentially benefit from China–South Africa bilateral treaty protections, reducing risks of expropriation or hostile state action.</li>
-        </ul>
-        
-           <!-- <a class="btn btn-dark rounded-pill d-flex align-items-center gap-2 px-3 disabled" href="javascript:void(0)" tabindex="-1" aria-disabled="true">
+
+        <!-- Right Panel -->
+        <div class="col-12 col-lg-6 split-right">
+          <div class="d-flex align-items-center gap-3 mb-2">
+            <h1 class="btn btn-primary btn-sm border rounded-pill d-inline-flex align-items-center gap-2 mb-0">
+              Step 2
+            </h1>
+            <span class="p-2 h5 rounded text-black">Fee R500</span>
+          </div>
+          <h2 class="fw-bold mb-3">Generate your cede and sale agreement</h2>
+          <p class="small text-muted mb-3">
+            Transfer ownership or rights to selected property or assets into your Hong Kong Foreign Trust (HKFT)
+          </p>
+          <ul class="small mb-4 text-muted ps-3">
+            <li class="mb-2"><strong>Secure future value today</strong> – Sell assets with uncertain future payouts to
+              your trust now, ensuring they’re protected before their value emerges.</li>
+            <li><strong>Enhance asset protection</strong> – Internationalise your ownership and potentially benefit from
+              China–South Africa bilateral treaty protections, reducing risks of expropriation or hostile state action.
+            </li>
+          </ul>
+
+          <!-- <a class="btn btn-dark rounded-pill d-flex align-items-center gap-2 px-3 disabled" href="javascript:void(0)" tabindex="-1" aria-disabled="true">
             <i class="bi bi-arrow-up-right-circle"></i> Generate Your Agreement
           </a> -->
+          <div class="step" id="step2">
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="video-container mt-3 align-self-center rounded-2">
+                <div class="position-relative" style="width: 300px; height: 200px;">
+                  <div
+                    class="skeleton-loader rounded-2 position-absolute top-0 start-0 w-100 h-100"
+                    style="background-color: #e9ecef; z-index: 2;"
+                    #skeleton>
+                  </div>
+                  <iframe
+                    src="https://drive.google.com/file/d/1JCEK5db8ilVaftHj7qeMTsnWl4W8ED5u/preview"
+                    width="300"
+                    height="200"
+                    allow="autoplay"
+                    allowfullscreen
+                    loading="lazy"
+                    class="rounded-2 border-0"
+                    (load)="skeleton.style.display = 'none'">
+                  </iframe>
+                </div>
+              </div>
+              <a class="btn btn-dark rounded-pill d-flex align-items-center gap-2 px-3" href="/sale-and-cede-agreement">
+                <i class="bi bi-arrow-up-right-circle"></i> Generate Your Agreement
+              </a>
+            </div>
+          </div>
 
-          
-          <a class="btn btn-dark rounded-pill d-flex align-items-center gap-2 px-3" href="/sale-and-cede-agreement" >
-            <i class="bi bi-arrow-up-right-circle"></i> Generate Your Agreement
-          </a>
-      
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- Terms Modal -->
-<app-notice *ngIf="showModal" (onAccept)="acceptTerms()" (onClose)="showModal = false"></app-notice>
+  <!-- Terms Modal -->
+  <app-notice *ngIf="showModal" (onAccept)="acceptTerms()" (onClose)="showModal = false"></app-notice>

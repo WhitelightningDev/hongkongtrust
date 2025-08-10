@@ -1,21 +1,20 @@
 <!-- Sale & Cede Agreement (Modernized) -->
-<div class="container py-4 py-md-5">
-  <div class="row justify-content-center g-4">
+<div class="container py-4 py-md-5 container-lg">
+  <div class="row justify-content-center g-4 g-xl-5">
     <!-- Main -->
     <div class="col-12 col-lg-8 col-xxl-7">
 
       <!-- Page intro / breadcrumb -->
       <div class="d-flex align-items-center justify-content-between mb-3">
-        <a class="btn btn-outline-secondary btn-sm" href="/">
+        <a class="btn btn-outline-secondary btn-sm rounded-pill shadow-sm" href="/">
           <i class="bi bi-arrow-left"></i>
-          <span class="ms-1">Back</span>
+          <span class="ms-4">Back</span>
         </a>
         <div class="small text-muted d-none d-md-block">Secure • Encrypted • ~2–3 mins</div>
       </div>
-
-      <div class="card shadow-sm border-0 overflow-hidden">
+      <div class="card shadow-lg border-0 overflow-hidden rounded-4">
         <!-- Header -->
-        <div class="card-header bg-white border-0 py-4">
+        <div class="card-header bg-white border-0 py-4 bg-gradient">
           <div class="d-flex flex-column gap-3">
             <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
               <div>
@@ -26,7 +25,7 @@
                 <p class="text-muted mb-0">Transfer ownership or rights to your Hong Kong Foreign Trust (HKFT).</p>
               </div>
               <div class="text-md-end">
-                <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle px-3 py-2">
+                <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle px-3 py-2 shadow-sm">
                   Only <span class="fw-bold">R500</span>
                 </span>
                 <div class="small text-muted mt-1">DOCX &amp; PDF generated &amp; emailed</div>
@@ -34,10 +33,10 @@
             </div>
 
             <!-- Progress Stepper -->
-            <ol class="list-unstyled d-flex align-items-center justify-content-between mb-0">
+            <ol class="list-unstyled d-flex align-items-center justify-content-between mb-0 text-uppercase small">
               <li class="flex-fill">
                 <div class="d-flex align-items-center gap-2">
-                  <span class="badge rounded-pill border"
+                  <span class="badge rounded-pill border px-3 py-2 shadow-sm"
                         [ngClass]="{
                           'bg-success-subtle text-success-emphasis border-success-subtle': cessionForm.get('trustNumber')?.valid && cessionForm.get('settlorId')?.valid,
                           'bg-body-tertiary text-muted border-secondary-subtle': !(cessionForm.get('trustNumber')?.valid && cessionForm.get('settlorId')?.valid)
@@ -48,7 +47,7 @@
               <li class="flex-fill text-center"><div class="border-top opacity-25" style="height:1px"></div></li>
               <li class="flex-fill">
                 <div class="d-flex align-items-center gap-2 justify-content-center">
-                  <span class="badge rounded-pill border"
+                  <span class="badge rounded-pill border px-3 py-2 shadow-sm"
                         [ngClass]="{
                           'bg-success-subtle text-success-emphasis border-success-subtle': cessionForm.get('owner')?.value && cessionForm.get('signer')?.value,
                           'bg-body-tertiary text-muted border-secondary-subtle': !(cessionForm.get('owner')?.value && cessionForm.get('signer')?.value)
@@ -59,7 +58,7 @@
               <li class="flex-fill text-center"><div class="border-top opacity-25" style="height:1px"></div></li>
               <li class="flex-fill">
                 <div class="d-flex align-items-center gap-2 justify-content-center">
-                  <span class="badge rounded-pill border"
+                  <span class="badge rounded-pill border px-3 py-2 shadow-sm"
                         [ngClass]="{
                           'bg-success-subtle text-success-emphasis border-success-subtle': cessionForm.get('propertyList')?.valid,
                           'bg-body-tertiary text-muted border-secondary-subtle': !cessionForm.get('propertyList')?.valid
@@ -70,7 +69,7 @@
               <li class="flex-fill text-center"><div class="border-top opacity-25" style="height:1px"></div></li>
               <li class="flex-fill">
                 <div class="d-flex align-items-center gap-2 justify-content-end">
-                  <span class="badge rounded-pill border"
+                  <span class="badge rounded-pill border px-3 py-2 shadow-sm"
                         [ngClass]="{
                           'bg-success-subtle text-success-emphasis border-success-subtle': cessionForm.get('signaturePlace')?.valid && cessionForm.get('witnessName')?.valid && cessionForm.get('witnessId')?.valid,
                           'bg-body-tertiary text-muted border-secondary-subtle': !(cessionForm.get('signaturePlace')?.valid && cessionForm.get('witnessName')?.valid && cessionForm.get('witnessId')?.valid)
@@ -81,11 +80,10 @@
             </ol>
           </div>
         </div>
-
-        <div class="card-body pt-0">
-          <div class="alert alert-info d-flex align-items-start gap-2 mb-4">
+        <div class="card-body pt-0 pb-2">
+          <div class="alert alert-primary-subtle border border-primary-subtle d-flex align-items-start gap-2 mb-4 rounded-3">
             <i class="bi bi-info-circle mt-1"></i>
-            <div class="small">
+            <div class="small m-2">
               Fill the fields below. Sections tick themselves as you complete them.
             </div>
           </div>
@@ -95,14 +93,14 @@
             <!-- Step 1: Trust Lookup -->
             <section class="mb-4">
               <div class="d-flex align-items-center justify-content-between mb-2">
-                <h2 class="h6 text-uppercase text-muted mb-0">Trust Lookup</h2>
+                <h2 class="h6 text-uppercase text-muted mb-3">Trust Lookup</h2>
                 <div *ngIf="trustNameLoaded" class="badge bg-success-subtle text-success-emphasis border border-success-subtle">Loaded: {{ trustNameLoaded }}</div>
               </div>
 
-              <div class="row g-3 p-3 border rounded-3 bg-body-tertiary">
+              <div class="row g-3 p-3 border rounded-3 bg-body-tertiary shadow-sm">
                 <div class="col-md-6">
                   <div class="form-floating">
-                    <input type="text" class="form-control" id="trustNumber" placeholder="Trust number"
+                    <input type="text" class="form-control" id="trustNumber" placeholder="Trust number" autocomplete="off" inputmode="numeric"
                            formControlName="trustNumber" [readonly]="lookupLoading || trustNameLoaded">
                     <label for="trustNumber">Number of your trust</label>
                   </div>
@@ -115,7 +113,7 @@
                              formControlName="settlorId" [readonly]="lookupLoading || trustNameLoaded">
                       <label for="settlorId">Settlor ID / Passport No</label>
                     </div>
-                    <button class="btn btn-outline-primary" type="button"
+                    <button class="btn btn-outline-primary rounded-pill shadow-sm p-2 m-2" type="button"
                             (click)="performTrustLookup()"
                             [disabled]="lookupLoading || !cessionForm.get('trustNumber')?.value || !cessionForm.get('settlorId')?.value">
                       <span *ngIf="!lookupLoading"><i class="bi bi-search"></i> Lookup</span>
@@ -127,7 +125,7 @@
                     <span class="text-success">Loaded trust:</span>
                     <span class="badge bg-success">{{ trustNameLoaded }}</span>
                     <button type="button" class="btn btn-link btn-sm p-0 ms-2"
-                            (click)="cessionForm.get('trustNumber')?.enable(); cessionForm.get('settlorId')?.enable(); trustNameLoaded = null;">Change</button>
+                            (click)="cessionForm.get('trustNumber')?.enable(); cessionForm.get('settlorId')?.enable(); trustNameLoaded = null;"><i class="bi bi-pencil-square me-1"></i>Change</button>
                   </div>
                 </div>
               </div>
@@ -135,8 +133,8 @@
 
             <!-- Step 2: Signatories -->
             <section class="mb-4">
-              <h2 class="h6 text-uppercase text-muted mb-2">Signatories</h2>
-              <div class="row g-3 p-3 border rounded-3 bg-body-tertiary">
+              <h2 class="h6 text-uppercase text-muted mb-4">Signatories</h2>
+              <div class="row g-3 p-3 border rounded-3 bg-body-tertiary shadow-sm">
                 <div class="col-md-6">
                   <div class="form-floating">
                     <select class="form-select" id="owner" formControlName="owner" aria-label="Owner">
@@ -163,20 +161,20 @@
             <!-- Step 3: Property / Rights -->
             <section class="mb-4">
               <h2 class="h6 text-uppercase text-muted mb-2">Property / Rights</h2>
-              <div class="p-3 border rounded-3 bg-body-tertiary">
+              <div class="p-3 border rounded-3 bg-body-tertiary shadow-sm">
                 <div class="mb-3">
                   <label for="propertyItem" class="form-label">Property or Rights to be Sold *</label>
-                  <div class="input-group mb-2">
-                    <input type="text" class="form-control" id="propertyItem" placeholder="Enter property or right" #propertyInput>
-                    <button class="btn btn-outline-primary" type="button" (click)="addProperty(propertyInput.value); propertyInput.value=''">
+                  <div class="input-group mb-2 shadow-sm rounded-3 overflow-hidden">
+                    <input type="text" class="form-control" id="propertyItem" placeholder="Enter property or right" #propertyInput autocomplete="off">
+                    <button class="btn btn-primary" type="button" (click)="addProperty(propertyInput.value); propertyInput.value=''">
                       <i class="bi bi-plus-circle"></i> Add
                     </button>
                   </div>
                   <div class="invalid-feedback d-block" *ngIf="cessionForm.get('propertyList')?.invalid && cessionForm.get('propertyList')?.touched">
                     Please add at least one property or right.
                   </div>
-                  <ul class="list-group">
-                    <li *ngFor="let item of cessionForm.get('propertyList')?.value; let i = index" class="list-group-item d-flex justify-content-between align-items-center">
+                  <ul class="list-group list-group-flush">
+                    <li *ngFor="let item of cessionForm.get('propertyList')?.value; let i = index" class="list-group-item d-flex justify-content-between align-items-center bg-white rounded-3 shadow-sm my-2 px-3">
                       {{ item }}
                       <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeProperty(i)">
                         <i class="bi bi-x-circle"></i>
@@ -185,7 +183,7 @@
                   </ul>
                 </div>
                 <details class="mt-2">
-                  <summary class="small">What counts as property or rights?</summary>
+                  <summary class="small text-muted">What counts as property or rights?</summary>
                   <ul class="small text-muted mb-0 mt-2 ps-3">
                     <li>Banknotes, coins, bonds, and certificates (e.g., SKRs).</li>
                     <li>Shares, units, or member interests in companies.</li>
@@ -198,8 +196,8 @@
 
             <!-- Step 4: Signing Details & Witness -->
             <section class="mb-4">
-              <h2 class="h6 text-uppercase text-muted mb-2">Signing Details &amp; Witness</h2>
-              <div class="row g-3 p-3 border rounded-3 bg-body-tertiary">
+              <h2 class="h6 text-uppercase text-muted mb-4">Signing Details &amp; Witness</h2>
+              <div class="row g-3 p-3 border rounded-3 bg-body-tertiary shadow-sm">
                 <div class="col-md-6">
                   <div class="form-floating">
                     <input type="text" class="form-control" id="signaturePlace" placeholder="Place of signature"
@@ -235,9 +233,9 @@
             </section>
 
             <!-- Sticky actions -->
-            <div class="position-sticky bottom-0 bg-white pt-3" style="z-index: 1;">
+            <div class="position-sticky bottom-0 bg-white pt-3 border-top " style="z-index: 1;">
               <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
-                <button type="submit" class="btn btn-primary rounded-pill px-4"
+                <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 shadow-sm"
                         [disabled]="cessionForm.invalid || lookupLoading || generating">
                   <span *ngIf="!generating"><i class="bi bi-shield-lock"></i> Generate</span>
                   <span *ngIf="generating" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -248,9 +246,8 @@
             </div>
           </form>
         </div>
-
         <div class="card-footer bg-white border-0 pt-0 pb-4">
-          <div class="small text-muted d-flex align-items-center gap-2">
+          <div class="small text-muted d-flex align-items-center gap-2 mt-2">
             <i class="bi bi-shield-check"></i>
             Need help? Contact support and we’ll assist with the process.
           </div>
@@ -261,37 +258,37 @@
 
     <!-- Summary Sidebar (Desktop) -->
     <div class="col-lg-4 col-xxl-4 d-none d-lg-block">
-      <div class="card border-0 shadow-sm position-sticky" style="top: 24px;">
+      <div class="card border-0 shadow-lg position-sticky rounded-4" style="top: 24px;">
         <div class="card-body">
           <div class="d-flex align-items-center justify-content-between mb-2">
             <h2 class="h6 mb-0">Summary</h2>
-            <span class="badge bg-body-tertiary text-muted border">Preview</span>
+            <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle">Preview</span>
           </div>
           <hr class="mt-2">
           <div class="small">
             <div class="mb-3">
-              <div class="text-muted">Trust</div>
+              <div class="text-secondary">Trust</div>
               <div class="fw-medium"># {{ cessionForm.get('trustNumber')?.value || '—' }}</div>
               <div class="text-body-secondary">Settlor: {{ cessionForm.get('settlorId')?.value || '—' }}</div>
             </div>
             <div class="mb-3">
-              <div class="text-muted">Owner</div>
+              <div class="text-secondary">Owner</div>
               <div class="fw-medium">{{ cessionForm.get('owner')?.value?.label || '—' }}</div>
             </div>
             <div class="mb-3">
-              <div class="text-muted">Signer</div>
+              <div class="text-secondary">Signer</div>
               <div class="fw-medium">{{ cessionForm.get('signer')?.value?.label || '—' }}</div>
             </div>
             <div class="mb-3">
-              <div class="text-muted">Property / Rights</div>
-              <div class="fw-medium text-break" style="white-space: pre-wrap;">{{ cessionForm.get('propertyList')?.value || '—' }}</div>
+              <div class="text-secondary">Property / Rights</div>
+              <div class="fw-medium text-break bg-body-tertiary rounded-3 p-2" style="white-space: pre-wrap;">{{ cessionForm.get('propertyList')?.value || '—' }}</div>
             </div>
             <div class="mb-3">
-              <div class="text-muted">Signing Place</div>
+              <div class="text-secondary">Signing Place</div>
               <div class="fw-medium">{{ cessionForm.get('signaturePlace')?.value || '—' }}</div>
             </div>
             <div>
-              <div class="text-muted">Witness</div>
+              <div class="text-secondary">Witness</div>
               <div class="fw-medium">{{ cessionForm.get('witnessName')?.value || '—' }}</div>
               <div class="text-body-secondary">{{ cessionForm.get('witnessId')?.value || '—' }}</div>
             </div>

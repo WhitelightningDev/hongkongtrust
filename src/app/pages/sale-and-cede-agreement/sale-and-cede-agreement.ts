@@ -121,18 +121,8 @@ export class SaleAndCedeAgreement implements OnInit {
     });
 
     // Trigger lookup automatically when both trustNumber and settlorId are filled and valid
-    this.cessionForm.get('trustNumber')?.valueChanges.subscribe(() => this.tryAutoLookup());
-    this.cessionForm.get('settlorId')?.valueChanges.subscribe(() => this.tryAutoLookup());
   }
 
-  private tryAutoLookup(): void {
-    const tn = this.cessionForm.get('trustNumber')?.value?.toString().trim();
-    const idp = this.cessionForm.get('settlorId')?.value?.toString().trim();
-    if (!tn || !idp || this.lookupLoading) return;
-    // Only auto-fire once per change-set; if already loaded for this pair, skip
-    if (this.trustNameLoaded) return;
-    this.performTrustLookup();
-  }
 
   /**
    * Perform lookup to authenticate settlor/applicant and pull existing trust data.

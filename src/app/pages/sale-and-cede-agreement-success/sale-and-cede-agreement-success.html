@@ -15,8 +15,7 @@
   <div *ngIf="state === 'done'" class="alert alert-success mt-3">
     {{ message }}
     <div *ngIf="result?.docx_path || result?.pdf_path" class="mt-2">
-      <div *ngIf="result?.docx_path"><strong>DOCX:</strong> {{ result.docx_path }}</div>
-      <div *ngIf="result?.pdf_path"><strong>PDF:</strong> {{ result.pdf_path }}</div>
+      <button href="/">Back</button>
     </div>
   </div>
 

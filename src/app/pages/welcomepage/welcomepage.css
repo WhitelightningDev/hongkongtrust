@@ -1,154 +1,188 @@
-/* General container styling */
-.hero-section {
-  padding: 0.2rem 1rem;
-  margin: 0;
-  border-radius: 20px;
-  height: 100vh;
-  overflow-y: auto;
-  box-sizing: border-box;
+:root {
+  --ink: #1c1c1c;
+  --muted: #6c757d;
+  --beige: #efe9db;   /* cards in section 3 */
+  --beige-2: #f3efe5; /* section 2 background */
+  --radius: 16px;
 }
 
-/* Heading styles */
-.hero-section h2 {
-  font-weight: 700;
-  margin-bottom: 0.75rem;
+/* General */
+section { scroll-margin-top: 96px; }
+.container { max-width: 1140px; }
+.text-muted { color: var(--muted) !important; }
+
+/* HERO */
+section.position-relative.text-white h1 {
+  text-shadow: 0 8px 28px rgba(0,0,0,.45);
+  letter-spacing: .2px;
+}
+section.position-relative.text-white .btn {
+  box-shadow: 0 6px 18px rgba(0,0,0,.25);
+}
+section.position-relative.text-white .btn.btn-light {
+  box-shadow: 0 4px 16px rgba(0,0,0,.2);
+}
+
+/* Exact hero look & pills */
+.hero-title {
+  font-size: 3.25rem;
+  line-height: 1.1;
+  text-shadow: 0 14px 38px rgba(0,0,0,.45);
+}
+.hero-pill { box-shadow: 0 10px 28px rgba(0,0,0,.25); }
+.hero-pill--red   { background: #d64a43; border: none; color: #fff; }
+.hero-pill--green { background: #203321; border: none; color: #fff; }
+.hero-pill--beige { background: #f3efe5; border: none; color: #1c1c1c; }
+.hero-pill--beige:hover { background: #efe9db; }
+.contact-pill {
+  background: #efe9db;
   color: #000;
-}
-
-/* Paragraphs and text */
-.hero-section p,
-.hero-section ul {
-  font-size: 0.95rem;
-  color: #5a5a5a;
-  line-height: 1.6;
-}
-
-.hero-section ul {
-  padding-left: 1.2rem;
-}
-
-.hero-section li {
-  margin-bottom: 0.75rem;
-}
-
-/* Image */
-.hero-section img {
-  max-height: 250px;
-  object-fit: cover;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-}
-
-/* Buttons */
-.hero-section .btn {
-  font-size: 0.9rem;
-  font-weight: 500;
-  border-radius: 2rem;
-  padding: 0.5rem 1.2rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease-in-out;
-}
-
-.hero-section .btn-dark {
-  background-color: #000;
-  color: #fff;
   border: none;
+  padding: .55rem 1rem;
+  box-shadow: 0 10px 28px rgba(0,0,0,.12);
 }
 
-.hero-section .btn-dark:hover {
-  background-color: #333;
+/* Step badges (1,2,3 red circles) */
+.rounded-circle.bg-danger { box-shadow: 0 4px 14px rgba(220, 53, 69, .45); }
+
+/* Section 1 title pill + badge */
+.section-title-pill {
+  background: #f2f2f2;
+  border-radius: 14px;
+}
+.step-badge {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: #dc3545;
+  color: #fff;
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  font-weight: 700;
+  box-shadow: 0 6px 16px rgba(220,53,69,.45);
 }
 
-.hero-section .btn-outline-dark {
+/* Cards */
+.card.border-0,
+.card.shadow-sm {
+  border-radius: var(--radius);
+  box-shadow: 0 12px 28px rgba(0,0,0,.08) !important;
+}
+.card .card-body { padding: 1.25rem 1.25rem; }
+
+/* Pricing chips */
+.bg-light.rounded {
+  border-radius: 12px !important;
+  background: #f6f7f9 !important;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.04);
+}
+
+/* Buttons (pills) */
+.btn.rounded-pill {
+  border-radius: 999px !important;
+  padding-top: .5rem; padding-bottom: .5rem;
+}
+.btn-outline-dark.rounded-pill { border-width: 1.5px; }
+.btn-dark.rounded-pill { box-shadow: 0 8px 20px rgba(0,0,0,.2); }
+.action-btn { font-weight: 700; }
+
+/* Deep green filled pill buttons as per mock */
+.btn-deepgreen {
+  background: #1f2d1e;
+  color: #fff;
+  border: 0;
+}
+.btn-deepgreen:hover { filter: brightness(1.05); }
+
+/* Ghost white pills with leading dot icon (Learn More / Resources) */
+.ghost-pill {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .45rem .9rem;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 6px 16px rgba(0,0,0,.06);
+  color: #1c1c1c; text-decoration: none; font-weight: 600;
+}
+.ghost-pill .dot {
+  display:inline-flex; align-items:center; justify-content:center;
+  width: 24px; height: 24px; border-radius: 50%;
+  background:#000; color:#fff; font-size:.8rem; line-height:1; font-weight:700;
+}
+
+/* Label pills on right column (Get Started / Pricing) */
+.label-pill {
+  text-decoration: none;
   color: #000;
-  border: 1px solid #000;
+  display: inline-block;
+  border: 2px solid #1c1c1c;
+  border-radius: 999px;
+  padding: .25rem .9rem;
+  font-weight: 700;
+  transition: all 0.3s ease;
 }
-
-.hero-section .btn-outline-dark:hover {
-  background-color: #000;
+.label-pill:hover {
+  background: #1f2d1e;
   color: #fff;
+  border-color: #1f2d1e;
 }
 
-.hero-section .btn-outline-secondary {
-  color: #333;
-  border: 1px solid #ccc;
-}
+/* Images & media */
+img.img-fluid.rounded { border-radius: var(--radius) !important; }
+.ratio.rounded { border-radius: var(--radius) !important; box-shadow: 0 12px 28px rgba(0,0,0,.12); }
 
-.hero-section .btn-outline-secondary:hover {
-  background-color: #333;
-  color: #fff;
-  border-color: #333;
-}
+/* Section 2 background */
+#sell { background: var(--beige-2); }
 
-/* Responsive tweaks */
-@media (max-width: 768px) {
-  .hero-section {
-    padding: 1rem;
-    overflow-y: auto;
-  }
-
-  .hero-section .btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .hero-section ul {
-    padding-left: 1rem;
-  }
-}
-
-
-/* Skeleton loader for video/image placeholders */
-.skeleton-loader {
-  background-color: #e0e0e0;
-  background-image: linear-gradient(90deg, #e0e0e0 0px, #f0f0f0 40px, #e0e0e0 80px);
-  background-size: 200% 100%;
-  animation: skeleton-loading 1.5s infinite linear;
-  border-radius: 0.5rem;
-}
-
-@keyframes skeleton-loading {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-/* --- Split view separator between left and right panels --- */
-@media (min-width: 992px) { /* lg and up */
-  .split-right {
-    position: relative;
-    padding-left: 2rem; /* breathing room from divider */
-  }
-  .split-right::before {
+/* Vertical rule aesthetic in Section 1/2 (right column) */
+@media (min-width: 992px) {
+  /* Enhanced left-edge divider for right columns on lg+ */
+  .border-start-lg { position: relative; }
+  .border-start-lg::before {
     content: "";
     position: absolute;
+    top: .5rem; /* small inset for breathing room */
+    bottom: .5rem;
     left: 0;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: linear-gradient(to bottom,
-      rgba(0,0,0,0),
-      rgba(0,0,0,0.12) 20%,
-      rgba(0,0,0,0.12) 80%,
-      rgba(0,0,0,0));
+    width: 2px;
+    background: linear-gradient(180deg, rgba(0,0,0,.05), #d9d4c7, rgba(0,0,0,.05));
+    border-radius: 2px;
   }
+  .section-vrule { padding-left: 2rem; }
+  #sell .border-start { border-left-width: 2px !important; }
 }
 
-@media (max-width: 991.98px) { /* below lg: use gentle horizontal divider */
-  .split-right {
-    border-top: 1px dashed rgba(0,0,0,0.15);
-    padding-top: 1rem;
-    margin-top: 1rem;
-  }
+/* Section 3 cards */
+#free-docs .card { background: var(--beige); }
+#free-docs .card .rounded-circle.bg-white { box-shadow: inset 0 -4px 10px rgba(0,0,0,.06); }
+#free-docs .card h6 { color: var(--ink); letter-spacing: .2px; }
+#free-docs .card p { color: var(--muted); }
+
+/* Spacing tweaks to better match the mock */
+#setup h5,
+#sell h5,
+#free-docs h5 { margin-top: .15rem; }
+#setup p,
+#sell p { line-height: 1.6; }
+
+/* Match justified body copy and line-height for section 1 */
+#setup .setup-copy {
+  max-width: 560px;
+  line-height: 1.8;
+  text-align: justify;
 }
 
-/* --- Video frame polish --- */
-.video-container { border-radius: 0.5rem; overflow: hidden; }
-.video-container iframe { display: block; border: 0; border-radius: 0.5rem; }
-.video-container .skeleton-loader { border-radius: 0.5rem; }
+/* Contact Us pill in hero */
+section.position-relative.text-white > a.btn.btn-light {
+  border: none;
+  padding: .4rem 1rem;
+}
+
+/* Smooth hover elevations */
+.card:hover { transform: translateY(-2px); transition: transform .2s ease, box-shadow .2s ease; }
+.btn:hover { filter: brightness(.98); }
+
+/* Responsive niceties */
+@media (max-width: 575.98px) {
+  section.position-relative.text-white h1 { font-size: 1.8rem; }
+  .card .card-body { padding: 1rem; }
+}

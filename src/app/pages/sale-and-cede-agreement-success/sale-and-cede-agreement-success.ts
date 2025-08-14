@@ -181,6 +181,19 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       payload.payment_gateway = 'yoco';
     }
 
+    // Before required fields check, ensure payment fields are always populated by falling back to localStorage if missing
+    try {
+      if (payload) {
+        const lsMethod = (localStorage.getItem('paymentMethod') || '').toString();
+        const lsAmountCents = Number(localStorage.getItem('paymentAmount') || '0');
+        if (!payload.payment_method && lsMethod) payload.payment_method = lsMethod;
+        if ((!payload.payment_amount_cents || payload.payment_amount_cents === 0) && lsAmountCents) {
+          payload.payment_amount_cents = lsAmountCents;
+          payload.payment_amount = Math.round(lsAmountCents / 100);
+        }
+      }
+    } catch { /* no-op */ }
+
     // Guard against missing required fields
     const required = ['trust_number','trust_name','owner_name','owner_id','signer_name','signer_id','list_of_property','witness_name','witness_id','place_of_signature','date_sign'];
     const missing = required.filter(k => !payload[k] || (typeof payload[k] === 'string' && payload[k].trim() === ''));
@@ -289,24 +302,39 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       (cedeCtx.client_email || trustData.email || trustData.trustEmail || trustData.applicant_email || trustData.settlor_email || (trustData.applicant && trustData.applicant.email) || (trustData.settlor && trustData.settlor.email) || '')
     ).toString().trim();
 
-    // Payment fields (normalize)
-    const ctxPaymentMethod = (cedeCtx.payment_method || fullCtx?.payment_method || fullCtx?.trust_data?.payment_method || '').toString().trim();
-    const ctxAmountCentsRaw = (
+    // Payment fields (normalize) with fallback to localStorage if missing
+    let ctxPaymentMethod = (cedeCtx.payment_method || fullCtx?.payment_method || fullCtx?.trust_data?.payment_method || '').toString().trim();
+    let ctxAmountCentsRaw = (
       cedeCtx.payment_amount_cents ??
       fullCtx?.payment_amount_cents ??
       fullCtx?.trust_data?.payment_amount_cents ??
       null
     );
-    const ctxAmountZarRaw = (
+    let ctxAmountZarRaw = (
       cedeCtx.payment_amount ??
       fullCtx?.payment_amount ??
       fullCtx?.trust_data?.payment_amount ??
       null
     );
-    const payment_amount_cents = Number.isFinite(Number(ctxAmountCentsRaw)) ? Number(ctxAmountCentsRaw) : (Number(ctxAmountZarRaw) * 100 || 0);
-    const payment_amount = payment_amount_cents ? Math.round(payment_amount_cents / 100) : (Number(ctxAmountZarRaw) || 0);
-    const payment_method = ctxPaymentMethod || '';
 
+    // Fallbacks from localStorage if missing
+    if (!ctxPaymentMethod) {
+      try {
+        ctxPaymentMethod = (localStorage.getItem('paymentMethod') || '').toString().trim();
+      } catch { ctxPaymentMethod = ''; }
+    }
+    if ((!ctxAmountCentsRaw || ctxAmountCentsRaw === 0) && typeof window !== 'undefined') {
+      try {
+        const lsAmountCents = Number(localStorage.getItem('paymentAmount') || '0');
+        if (lsAmountCents) ctxAmountCentsRaw = lsAmountCents;
+      } catch { /* no-op */ }
+    }
+    // If payment_amount still missing, derive from cents
+    let payment_amount_cents = Number.isFinite(Number(ctxAmountCentsRaw)) ? Number(ctxAmountCentsRaw) : (Number(ctxAmountZarRaw) * 100 || 0);
+    let payment_amount = payment_amount_cents ? Math.round(payment_amount_cents / 100) : (Number(ctxAmountZarRaw) || 0);
+    let payment_method = ctxPaymentMethod || '';
+
+    // Final payload
     const payload = {
       trust_number,
       trust_name,

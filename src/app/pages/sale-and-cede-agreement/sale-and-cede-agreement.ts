@@ -389,6 +389,10 @@ export class SaleAndCedeAgreement implements OnInit {
       created_at: new Date().toISOString(),
       settlor_id: v.settlorId,
       client_email: (this.lookupRecord?.email || ''),
+      // Payment details for persistence and backend
+      payment_method: this.pendingPaymentMethod || localStorage.getItem('paymentMethod') || 'card',
+      payment_amount: this.pendingAmountZAR || 500,
+      payment_amount_cents: this.pendingAmountCents || 50000,
     };
 
     // Preflight validation to avoid 422 on backend
@@ -509,8 +513,15 @@ export class SaleAndCedeAgreement implements OnInit {
         return;
       }
 
-      const paymentMethod = this.pendingPaymentMethod || (localStorage.getItem('paymentMethod') as 'card' | 'xrp' | null) || 'card';
-      const amountInCents = this.pendingAmountCents || 500 * 100;
+      // Ensure payment fields are present in agreementPayload
+      const paymentMethod = this.pendingPaymentMethod || (agreementPayload.payment_method) || (localStorage.getItem('paymentMethod') as 'card' | 'xrp' | null) || 'card';
+      const amountInCents = this.pendingAmountCents || agreementPayload.payment_amount_cents || 500 * 100;
+      const paymentAmount = Math.round(amountInCents / 100);
+
+      // Patch agreementPayload if missing payment fields
+      if (!agreementPayload.payment_method) agreementPayload.payment_method = paymentMethod;
+      if (!agreementPayload.payment_amount) agreementPayload.payment_amount = paymentAmount;
+      if (!agreementPayload.payment_amount_cents) agreementPayload.payment_amount_cents = amountInCents;
 
       // Store payment context for the post-payment success page (use localStorage to survive redirects)
       localStorage.setItem('paymentMethod', paymentMethod);
@@ -530,8 +541,9 @@ export class SaleAndCedeAgreement implements OnInit {
             sale_cede_context: {
               ...agreementPayload,
               payment_method: paymentMethod,
-              payment_amount: Math.round(amountInCents / 100),
+              payment_amount: paymentAmount,
               payment_amount_cents: amountInCents,
+              payment_status: 'pending',
             },
             // Also include some top-level mirrors commonly read by older code paths
             trust_number: agreementPayload.trust_number,
@@ -548,8 +560,9 @@ export class SaleAndCedeAgreement implements OnInit {
             created_at: agreementPayload.created_at,
             // Payment details captured from modal selection
             payment_method: paymentMethod,
-            payment_amount: Math.round(amountInCents / 100), // in ZAR
+            payment_amount: paymentAmount, // in ZAR
             payment_amount_cents: amountInCents,
+            payment_status: 'pending',
           }
         }
       ).toPromise();

@@ -327,5 +327,83 @@
   </div>
 </div>
 
+<!-- XRP Payment Modal -->
+<div *ngIf="showXrpModal" class="hk-modal-backdrop" (click)="closeXrpModal()">
+  <div class="hk-modal" role="dialog" aria-modal="true" aria-labelledby="xrpModalTitle" (click)="$event.stopPropagation()">
+    <div class="hk-modal-header d-flex align-items-center justify-content-between">
+      <h2 id="xrpModalTitle" class="h6 mb-0">Pay with XRP</h2>
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeXrpModal()" aria-label="Close">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
 
+    <div class="hk-modal-body">
+      <p class="text-muted small mb-3">Send the exact amount of XRP to the address below, then paste your 64‑character transaction hash to confirm.</p>
+
+      <!-- Address Row -->
+      <div class="mb-3">
+        <label class="form-label small text-uppercase text-muted">Destination Address</label>
+        <div class="input-group shadow-sm rounded-3 overflow-hidden">
+          <span class="input-group-text"><i class="bi bi-qr-code"></i></span>
+          <input type="text" class="form-control" [value]="xrpAddress || 'rMuStHBy5N17ysmiQjUj4QQv5DTk8ovWDS'" readonly>
+          <button type="button" class="btn btn-outline-secondary" (click)="copyXrpAddress()">
+            <i class="bi bi-clipboard"></i> Copy
+          </button>
+        </div>
+        <div class="form-text">Tag/Memo not required.</div>
+      </div>
+
+      <!-- Amount Row -->
+      <div class="mb-3">
+        <label class="form-label small text-uppercase text-muted">Amount to send</label>
+        <div class="d-flex align-items-center justify-content-between border rounded-3 p-2 bg-body-tertiary shadow-sm">
+          <div>
+            <div class="fw-semibold">{{ xrpAmountXrp || '—' }} XRP</div>
+            <div class="small text-muted">≈ R{{ pendingAmountZAR || 500 }} (auto‑converted)</div>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" (click)="refreshXrpQuote()" [disabled]="xrpQuoteLoading">
+            <span *ngIf="!xrpQuoteLoading"><i class="bi bi-arrow-clockwise"></i> Refresh</span>
+            <span *ngIf="xrpQuoteLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="form-text">We fetch the latest XRP/ZAR from CoinGecko and compute R{{ pendingAmountZAR || 500 }} ÷ price(ZAR).</div>
+      </div>
+
+      <!-- Optional QR placeholder (can be wired up later) -->
+      <div class="mb-3 d-none" *ngIf="xrpQrData">
+        <img [src]="xrpQrData" alt="XRP QR" class="img-fluid rounded-3 border" />
+      </div>
+
+      <!-- Transaction Hash Input -->
+      <div class="mb-2">
+        <label for="xrpTxHash" class="form-label">Transaction Hash (64‑char hex)</label>
+        <input
+          id="xrpTxHash"
+          type="text"
+          class="form-control"
+          [class.is-invalid]="xrpHashTouched && !isXrpHashValid"
+          [value]="xrpTxId || ''"
+          maxlength="64"
+          inputmode="latin"
+          autocomplete="off"
+          placeholder="Paste your 64‑character transaction hash"
+          (input)="onXrpHashInput($any($event.target).value)"
+          (blur)="xrpHashTouched = true"
+        />
+        <div class="invalid-feedback">Hash must be exactly 64 hexadecimal characters (0–9, a–f).</div>
+      </div>
+
+      <div class="small text-muted mb-2" *ngIf="xrpNetworkNotice">{{ xrpNetworkNotice }}</div>
+    </div>
+
+    <div class="hk-modal-footer d-flex flex-column flex-md-row gap-2 justify-content-between align-items-stretch align-items-md-center">
+      <button type="button" class="btn btn-outline-secondary rounded-pill" (click)="backToPaymentMethods()">
+        <i class="bi bi-arrow-left"></i> Back
+      </button>
+      <button type="button" class="btn btn-primary rounded-pill" (click)="confirmXrpPayment()" [disabled]="!isXrpHashValid || !xrpAmountXrp">
+        <i class="bi bi-shield-lock"></i> Submit XRP Payment
+      </button>
+    </div>
+  </div>
+</div>
 

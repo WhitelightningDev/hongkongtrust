@@ -75,6 +75,31 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       }
     }
 
+    // 2b) Fallback to XRP-specific localStorage payload if present
+    if (!payload) {
+      const lsJsonXrp = localStorage.getItem('saleCedeAgreementPayloadXrp');
+      if (lsJsonXrp) {
+        try {
+          const lsPayloadXrp = JSON.parse(lsJsonXrp);
+          payload = this.buildPayloadFromContext(lsPayloadXrp, null);
+          // Ensure XRP method/amounts are preserved
+          if (lsPayloadXrp?.payment_method === 'xrp') {
+            payload.payment_method = 'xrp';
+          }
+          if (!payload.payment_amount_cents && storedPaymentAmount) {
+            payload.payment_amount_cents = storedPaymentAmount;
+            payload.payment_amount = Math.round(storedPaymentAmount / 100);
+          }
+          // Pass through XRP fields when present
+          if (lsPayloadXrp?.xrp_amount) payload.xrp_amount = lsPayloadXrp.xrp_amount;
+          if (lsPayloadXrp?.xrp_address) payload.xrp_address = lsPayloadXrp.xrp_address;
+          if (lsPayloadXrp?.xrp_tx_hash) payload.xrp_tx_hash = lsPayloadXrp.xrp_tx_hash;
+        } catch (_) {
+          payload = null;
+        }
+      }
+    }
+
     // Merge in the original form snapshot (what the user entered) to fill any gaps
     if (payload) {
       try {
@@ -165,6 +190,18 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
           payload.payment_amount_cents = lsAmountCents;
           payload.payment_amount = Math.round(lsAmountCents / 100);
         }
+        // If XRP, hydrate xrp_amount/xrp_tx_hash/xrp_address from localStorage if present
+        if (payload.payment_method === 'xrp') {
+          try {
+            const lsJsonX = localStorage.getItem('saleCedeAgreementPayloadXrp');
+            if (lsJsonX) {
+              const x = JSON.parse(lsJsonX);
+              if (x?.xrp_amount && !payload.xrp_amount) payload.xrp_amount = x.xrp_amount;
+              if (x?.xrp_tx_hash && !payload.xrp_tx_hash) payload.xrp_tx_hash = x.xrp_tx_hash;
+              if (x?.xrp_address && !payload.xrp_address) payload.xrp_address = x.xrp_address;
+            }
+          } catch { /* no-op */ }
+        }
       }
     } catch { /* no-op */ }
 
@@ -191,6 +228,18 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
           payload.payment_amount_cents = lsAmountCents;
           payload.payment_amount = Math.round(lsAmountCents / 100);
         }
+        // If XRP, hydrate xrp_amount/xrp_tx_hash/xrp_address from localStorage if present
+        if (payload.payment_method === 'xrp') {
+          try {
+            const lsJsonX = localStorage.getItem('saleCedeAgreementPayloadXrp');
+            if (lsJsonX) {
+              const x = JSON.parse(lsJsonX);
+              if (x?.xrp_amount && !payload.xrp_amount) payload.xrp_amount = x.xrp_amount;
+              if (x?.xrp_tx_hash && !payload.xrp_tx_hash) payload.xrp_tx_hash = x.xrp_tx_hash;
+              if (x?.xrp_address && !payload.xrp_address) payload.xrp_address = x.xrp_address;
+            }
+          } catch { /* no-op */ }
+        }
       }
     } catch { /* no-op */ }
 
@@ -215,6 +264,7 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       // Cleanup local flags
       localStorage.removeItem('saleCedeFlow');
       localStorage.removeItem('saleCedeAgreementPayload');
+      localStorage.removeItem('saleCedeAgreementPayloadXrp');
       localStorage.removeItem('saleCedeAgreementForm');
 
       this.state = 'done';
@@ -302,6 +352,11 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       (cedeCtx.client_email || trustData.email || trustData.trustEmail || trustData.applicant_email || trustData.settlor_email || (trustData.applicant && trustData.applicant.email) || (trustData.settlor && trustData.settlor.email) || '')
     ).toString().trim();
 
+    // XRP passthrough fields (optional)
+    const xrp_amount  = cedeCtx.xrp_amount  ?? fullCtx?.xrp_amount  ?? fullCtx?.trust_data?.xrp_amount  ?? null;
+    const xrp_tx_hash = cedeCtx.xrp_tx_hash ?? fullCtx?.xrp_tx_hash ?? fullCtx?.trust_data?.xrp_tx_hash ?? '';
+    const xrp_address = cedeCtx.xrp_address ?? fullCtx?.xrp_address ?? fullCtx?.trust_data?.xrp_address ?? '';
+
     // Payment fields (normalize) with fallback to localStorage if missing
     let ctxPaymentMethod = (cedeCtx.payment_method || fullCtx?.payment_method || fullCtx?.trust_data?.payment_method || '').toString().trim();
     let ctxAmountCentsRaw = (
@@ -334,6 +389,10 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
     let payment_amount = payment_amount_cents ? Math.round(payment_amount_cents / 100) : (Number(ctxAmountZarRaw) || 0);
     let payment_method = ctxPaymentMethod || '';
 
+    if (!payment_method && (xrp_tx_hash || xrp_amount)) {
+      payment_method = 'xrp';
+    }
+
     // Final payload
     const payload = {
       trust_number,
@@ -355,6 +414,10 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       payment_method,
       payment_amount,
       payment_amount_cents,
+      // optional XRP fields for backend association
+      ...(xrp_amount  ? { xrp_amount } : {}),
+      ...(xrp_tx_hash ? { xrp_tx_hash } : {}),
+      ...(xrp_address ? { xrp_address } : {}),
     };
 
     console.log('[Success] Built payload for /agreements/sale-cede/generate:', payload);

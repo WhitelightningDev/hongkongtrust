@@ -44,6 +44,16 @@ export class SaleAndCedeAgreement implements OnInit {
   pendingPaymentMethod: 'card' | 'xrp' | null = null;
   pendingAmountCents = 500 * 100;
 
+  // XRP modal + flow state
+  showXrpModal = false;
+  xrpAddress = 'rMuStHBy5N17ysmiQjUj4QQv5DTk8ovWDS';
+  xrpAmountXrp: number | null = null; // converted amount to send
+  xrpQuoteLoading = false;
+  xrpTxId: string = '';
+  xrpHashTouched = false;
+  xrpNetworkNotice: string | null = 'XRPL mainnet • payments confirm within seconds.';
+  xrpQrData: string | null = null; // optional; can be wired to a QR generator later
+
   // Require at least N items in an array-based FormControl
   private minArrayLength(min: number) {
     return (control: any) => {
@@ -452,33 +462,120 @@ export class SaleAndCedeAgreement implements OnInit {
     await this.confirmPaymentForSaleCede(this.pendingAgreementPayload);
   }
 
-  /** Start XRP flow (stub). Replace with your real XRP integration. */
+  /** Start XRP flow: show XRP modal and prefetch quote */
   async startXrpFlow(method: 'card' | 'xrp' = 'xrp'): Promise<void> {
     if (!this.pendingAgreementPayload) return;
 
-    // Record selection & amounts (adjust if XRP price differs)
     this.pendingPaymentMethod = method;
     this.pendingAmountZAR = 500;
     this.pendingAmountCents = this.pendingAmountZAR * 100;
 
+    // Persist common context
+    localStorage.setItem('paymentMethod', method);
+    localStorage.setItem('paymentAmount', String(this.pendingAmountCents));
+    localStorage.setItem('saleCedeFlow', 'true');
+
+    // Close the chooser and open the XRP modal
     this.closePaymentModal();
+    this.showXrpModal = true;
 
+    // Prefetch a quote for convenience
+    this.refreshXrpQuote();
+  }
+
+  closeXrpModal(): void { this.showXrpModal = false; }
+
+  backToPaymentMethods(): void {
+    this.showXrpModal = false;
+    this.openPaymentModal();
+  }
+
+  async copyXrpAddress(): Promise<void> {
     try {
-      if (!this.lookupRecord) {
-        alert('Please look up your trust first before paying.');
-        return;
-      }
+      await navigator.clipboard.writeText(this.xrpAddress);
+      alert('XRP address copied to clipboard');
+    } catch {
+      alert('Could not copy address. Please copy manually.');
+    }
+  }
 
-      // Mark selection so your post-payment handler can branch
-      localStorage.setItem('paymentMethod', method);
-      localStorage.setItem('paymentAmount', String(this.pendingAmountCents));
-      localStorage.setItem('saleCedeFlow', 'true');
+  /** Validate and store the 64-char hex tx hash */
+  onXrpHashInput(val: string): void {
+    this.xrpTxId = (val || '').trim();
+  }
 
-      // TODO: Implement XRP payment (e.g., fetch invoice/QR from backend)
-      alert('XRP payment selected. Implement your XRP flow here (e.g., show QR / address from backend).');
+  /** True if xrpTxId is exactly 64 hex chars */
+  get isXrpHashValid(): boolean {
+    return /^[0-9a-fA-F]{64}$/.test(this.xrpTxId || '');
+  }
+
+  /** Fetch XRP price (ZAR) from CoinGecko and compute amount */
+  async refreshXrpQuote(): Promise<void> {
+    this.xrpQuoteLoading = true;
+    try {
+      const url = 'https://api.coingecko.com/api/v3/simple/price?ids=ripple&vs_currencies=usd,zar';
+      const res: any = await this.http.get(url).toPromise();
+      const priceZar = Number(res?.ripple?.zar);
+      if (!isFinite(priceZar) || priceZar <= 0) throw new Error('Invalid price');
+
+      const amountZar = this.pendingAmountZAR || 500;
+      const xrp = amountZar / priceZar;
+      // Round to 6 decimals to avoid dust issues
+      this.xrpAmountXrp = Math.round(xrp * 1e6) / 1e6;
     } catch (e) {
-      console.error('XRP flow error:', e);
-      alert('Could not start XRP payment.');
+      console.error('XRP quote error:', e);
+      this.xrpAmountXrp = null;
+      alert('Could not fetch XRP price. Please try again.');
+    } finally {
+      this.xrpQuoteLoading = false;
+    }
+  }
+
+  /** Submit XRP payment details (tx hash + computed XRP amount) to backend */
+  async confirmXrpPayment(): Promise<void> {
+    if (!this.pendingAgreementPayload) return;
+    if (!this.isXrpHashValid) {
+      this.xrpHashTouched = true;
+      return;
+    }
+    if (!this.xrpAmountXrp) {
+      alert('Missing XRP amount. Please refresh the quote.');
+      return;
+    }
+
+    const payload = {
+      ...this.pendingAgreementPayload,
+      payment_method: 'xrp',
+      payment_amount: this.pendingAmountZAR || 500, // ZAR reference
+      payment_amount_cents: (this.pendingAmountZAR || 500) * 100,
+      xrp_amount: this.xrpAmountXrp,
+      xrp_address: this.xrpAddress,
+      xrp_tx_hash: this.xrpTxId,
+      payment_status: 'pending',
+    };
+
+    // Stash so success page / follow-ups can read it
+    localStorage.setItem('saleCedeAgreementPayloadXrp', JSON.stringify(payload));
+
+    // Try notify backend (best effort)
+    this.generating = true;
+    try {
+      const resp = await this.http.post<any>(
+        'https://hongkongbackend.onrender.com/api/cede/xrp-payment',
+        { trust_data: { ...(this.lookupRecord || {}), flow: 'sale_cede', sale_cede_context: payload } }
+      ).toPromise();
+
+      // Optional: backend may return an acknowledgement
+      console.log('XRP payment ack:', resp);
+      this.showXrpModal = false;
+      alert('Thanks! We\'ve recorded your XRP payment. We\'ll email you once it confirms on-chain.');
+    } catch (e) {
+      console.error('XRP payment submit error:', e);
+      this.showXrpModal = false;
+      // Still proceed with a local confirmation so the user isn't blocked
+      alert('We\'ve saved your XRP payment details locally. If you don\'t get an email soon, please contact support with your tx hash.');
+    } finally {
+      this.generating = false;
     }
   }
 

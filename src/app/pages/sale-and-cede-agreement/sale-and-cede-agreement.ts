@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidatorFn } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 interface Party {
@@ -55,6 +55,18 @@ export class SaleAndCedeAgreement implements OnInit {
     };
   }
 
+  private isPartyComplete(p: Party | null | undefined): boolean {
+    return !!(p && String(p.name || '').trim() && String(p.id || '').trim());
+  }
+
+  private partyValidator(): ValidatorFn {
+    return (control: AbstractControl) => {
+      const p = control.value as Party | null;
+      if (!p) return { required: true };
+      return this.isPartyComplete(p) ? null : { partyIncomplete: true };
+    };
+  }
+
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
@@ -64,8 +76,8 @@ export class SaleAndCedeAgreement implements OnInit {
       settlorId: ['', Validators.required],
 
       // NEW: dropdown selections
-      owner: [null as Party | null, Validators.required],
-      signer: [null as Party | null, Validators.required],
+      owner: [null as Party | null, [Validators.required, this.partyValidator()]],
+      signer: [null as Party | null, [Validators.required, this.partyValidator()]],
 
       propertyList: [[], this.minArrayLength(1)],
       propertyPending: [''],
@@ -119,14 +131,15 @@ export class SaleAndCedeAgreement implements OnInit {
       defaultSigner = trusteesOnly[0]; // Trustee 1 (can change to 3 if you prefer)
     }
 
-    // Default owner: Settlor (sensible default, can be changed by user)
-    const defaultOwner = this.ownerOptions.find(p => p.role === 'Settlor') || this.ownerOptions[0] || null;
+    // Default owner: Settlor if complete; otherwise leave null until lookup
+    const settlorCandidate = this.ownerOptions.find(p => p.role === 'Settlor') || null;
+    const defaultOwner = this.isPartyComplete(settlorCandidate) ? (settlorCandidate as Party) : null;
 
     this.cessionForm.patchValue({
       settlorId: this.settlorId,
       owner: defaultOwner,
       signer: defaultSigner,
-    });
+    }, { emitEvent: false });
 
     // Trigger lookup automatically when both trustNumber and settlorId are filled and valid
   }
@@ -168,19 +181,20 @@ export class SaleAndCedeAgreement implements OnInit {
         this.lookupRecord.email = record?.email || record?.contact_email || record?.applicant?.email || record?.settlor?.email || null;
       }
 
-      // Example record mapping (defensive):
-      // {
-      //   trust_number, trust_name,
-      //   settlor: { name, id },
-      //   trustees: [{ name, id }, ...]
-      // }
-
       this.trustNameLoaded = record?.trust_name ?? null;
       this.trustDateLoaded = record?.trust_date || record?.trustDate || record?.trust_created_at || null;
 
-      // Update Settlor inputs and local model
+      // Update Settlor inputs and local model, but only patch settlorId if backend value is non-empty and different from the form
       this.settlorName = record?.settlor?.name ?? this.settlorName;
-      this.settlorId = record?.settlor?.id ?? this.settlorId;
+      const backendSettlorId = record?.settlor?.id ?? '';
+      const currentSettlorId = idCtrl.value ?? '';
+      if (backendSettlorId && backendSettlorId !== currentSettlorId) {
+        this.settlorId = backendSettlorId;
+        this.cessionForm.patchValue({ settlorId: backendSettlorId }, { emitEvent: false });
+      } else {
+        this.settlorId = currentSettlorId;
+        // Do not patch settlorId if user has entered it and backend is empty or same
+      }
 
       // Normalise trustees list
       const apiTrustees = Array.isArray(record?.trustees) ? record.trustees : [];
@@ -194,12 +208,21 @@ export class SaleAndCedeAgreement implements OnInit {
       // Rebuild party options with the fetched data
       this.rebuildOptions();
 
-      // Patch form with canonical settlor id from backend
-      this.cessionForm.patchValue({ settlorId: this.settlorId });
+      // Optionally patch owner if Settlor is now complete
+      const settlorParty: Party = {
+        key: 'settlor',
+        role: 'Settlor',
+        name: this.settlorName,
+        id: this.settlorId,
+        label: `Settlor : ${this.settlorName}`,
+      };
+      if (this.isPartyComplete(settlorParty)) {
+        this.cessionForm.patchValue({ owner: settlorParty }, { emitEvent: false });
+      }
 
-      // Optionally lock inputs after successful lookup
-      tnCtrl.disable({ emitEvent: false });
-      idCtrl.disable({ emitEvent: false });
+      // Instead of disabling controls, rely on template [readonly] to prevent editing but keep value visible
+
+      // No need to patch settlorId again here; it is already handled above
 
       console.log('Trust lookup success:', record);
     } catch (err: any) {
@@ -229,7 +252,11 @@ export class SaleAndCedeAgreement implements OnInit {
 
     const defaultOwner = this.ownerOptions.find(p => p.role === 'Settlor') || this.ownerOptions[0] || null;
 
-    this.cessionForm.patchValue({ owner: defaultOwner, signer: defaultSigner });
+    this.cessionForm.patchValue({
+      owner: this.isPartyComplete(defaultOwner) ? defaultOwner : null,
+      signer: defaultSigner
+    });
+    // Do NOT patch settlorId here; let user's entered value persist unless explicitly changed in lookup logic.
   }
 
   // Convenience getters for template
@@ -288,6 +315,11 @@ export class SaleAndCedeAgreement implements OnInit {
       this.cessionForm.markAllAsTouched();
       return;
     }
+    const currentOwner = this.cessionForm.get('owner')?.value as Party | null;
+    if (!this.isPartyComplete(currentOwner)) {
+      alert('Please perform Trust Lookup and select a valid Owner (with ID) before continuing.');
+      return;
+    }
 
     const v = this.cessionForm.value as {
       trustNumber: string;
@@ -321,6 +353,25 @@ export class SaleAndCedeAgreement implements OnInit {
     const resolvedTrustNumber = (v.trustNumber && v.trustNumber.toString().trim()) || (this.lookupRecord?.trust_number || this.lookupRecord?.trustNumber) || '';
     console.log('[Sale & Cede] Resolved trust number:', resolvedTrustNumber);
 
+    // Ensure these fields are always present in payload, either from lookup or form snapshot
+    // They must be stored for later use (success page)
+    let list_of_property = '';
+    let witness_name = '';
+    let witness_id = '';
+    let place_of_signature = '';
+    // Prefer from lookupRecord if present, else from formSnapshot
+    if (this.lookupRecord && typeof this.lookupRecord === 'object') {
+      list_of_property = this.lookupRecord.list_of_property ?? '';
+      witness_name = this.lookupRecord.witness_name ?? '';
+      witness_id = this.lookupRecord.witness_id ?? '';
+      place_of_signature = this.lookupRecord.place_of_signature ?? '';
+    }
+    // If missing in lookupRecord, set from formSnapshot
+    if (!list_of_property) list_of_property = formSnapshot.propertyList?.join('; ') || listString;
+    if (!witness_name) witness_name = formSnapshot.witnessName || witnessNameTrim;
+    if (!witness_id) witness_id = formSnapshot.witnessId || witnessIdTrim;
+    if (!place_of_signature) place_of_signature = formSnapshot.signaturePlace || signaturePlaceTrim;
+
     const payload = {
       trust_number: resolvedTrustNumber,
       trust_name: this.trustNameLoaded ?? '',
@@ -329,11 +380,11 @@ export class SaleAndCedeAgreement implements OnInit {
       owner_id: v.owner?.id ?? '',
       signer_name: v.signer?.name ?? '',
       signer_id: v.signer?.id ?? '',
-      list_of_property: listString,
-      list_of_property_text: listString,
-      witness_name: witnessNameTrim,
-      witness_id: witnessIdTrim,
-      place_of_signature: signaturePlaceTrim,
+      list_of_property: list_of_property,
+      list_of_property_text: list_of_property,
+      witness_name: witness_name,
+      witness_id: witness_id,
+      place_of_signature: place_of_signature,
       date_sign: nowISO,
       created_at: new Date().toISOString(),
       settlor_id: v.settlorId,
@@ -347,10 +398,10 @@ export class SaleAndCedeAgreement implements OnInit {
     if (!payload.owner_id) missing.push('Owner ID');
     if (!payload.signer_name) missing.push('Signer');
     if (!payload.signer_id) missing.push('Signer ID');
-    if (!listString) missing.push('List of Property');
-    if (!witnessNameTrim) missing.push('Witness Name');
-    if (!witnessIdTrim) missing.push('Witness ID');
-    if (!signaturePlaceTrim) missing.push('Place of Signature');
+    if (!payload.list_of_property) missing.push('List of Property');
+    if (!payload.witness_name) missing.push('Witness Name');
+    if (!payload.witness_id) missing.push('Witness ID');
+    if (!payload.place_of_signature) missing.push('Place of Signature');
 
     if (missing.length) {
       alert('Please complete the following before paying: ' + missing.join(', '));
@@ -359,11 +410,12 @@ export class SaleAndCedeAgreement implements OnInit {
 
     // Stash for later (after user chooses payment method)
     localStorage.setItem('saleCedeAgreementForm', JSON.stringify(formSnapshot));
+    // Ensure payload in localStorage always includes these fields
     localStorage.setItem('saleCedeAgreementPayload', JSON.stringify(payload));
 
     console.log('Sale & Cede Agreement Payload (pending):', payload);
 
-    if (!listString || !witnessNameTrim || !witnessIdTrim) {
+    if (!payload.list_of_property || !payload.witness_name || !payload.witness_id) {
       alert('Please complete Property list and Witness details before continuing.');
       return;
     }
@@ -379,16 +431,16 @@ export class SaleAndCedeAgreement implements OnInit {
   closePaymentModal(): void { this.showPaymentModal = false; }
 
   /** Proceed with the existing card payment flow */
-  async confirmCardPayment(): Promise<void> {
+  async confirmCardPayment(method: 'card' | 'xrp' = 'card'): Promise<void> {
     if (!this.pendingAgreementPayload) return;
 
     // Record selection & amounts
-    this.pendingPaymentMethod = 'card';
+    this.pendingPaymentMethod = method;
     this.pendingAmountZAR = 500;
     this.pendingAmountCents = 500 * 100;
 
     // Persist for downstream handlers
-    localStorage.setItem('paymentMethod', 'card');
+    localStorage.setItem('paymentMethod', method);
     localStorage.setItem('paymentAmount', String(this.pendingAmountCents));
     localStorage.setItem('saleCedeFlow', 'true');
 
@@ -397,11 +449,11 @@ export class SaleAndCedeAgreement implements OnInit {
   }
 
   /** Start XRP flow (stub). Replace with your real XRP integration. */
-  async startXrpFlow(): Promise<void> {
+  async startXrpFlow(method: 'card' | 'xrp' = 'xrp'): Promise<void> {
     if (!this.pendingAgreementPayload) return;
 
     // Record selection & amounts (adjust if XRP price differs)
-    this.pendingPaymentMethod = 'xrp';
+    this.pendingPaymentMethod = method;
     this.pendingAmountZAR = 500;
     this.pendingAmountCents = this.pendingAmountZAR * 100;
 
@@ -414,7 +466,7 @@ export class SaleAndCedeAgreement implements OnInit {
       }
 
       // Mark selection so your post-payment handler can branch
-      localStorage.setItem('paymentMethod', 'xrp');
+      localStorage.setItem('paymentMethod', method);
       localStorage.setItem('paymentAmount', String(this.pendingAmountCents));
       localStorage.setItem('saleCedeFlow', 'true');
 

@@ -27,6 +27,9 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
     const qs = new URLSearchParams(window.location.search);
     const sid = qs.get('sid') || undefined;
 
+    const storedPaymentMethod = localStorage.getItem('paymentMethod') || '';
+    const storedPaymentAmount = Number(localStorage.getItem('paymentAmount') || '0');
+
     let payload: any | null = null;
 
     // 1) Try server session fetch first (most reliable across redirects)
@@ -39,6 +42,13 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
         const cedeCtx = ctx?.sale_cede_context || null;
         if (cedeCtx) {
           payload = this.buildPayloadFromContext(cedeCtx, ctx);
+          if (!payload.payment_method && storedPaymentMethod) {
+            payload.payment_method = storedPaymentMethod;
+          }
+          if (!payload.payment_amount_cents && storedPaymentAmount) {
+            payload.payment_amount_cents = storedPaymentAmount;
+            payload.payment_amount = Math.round(storedPaymentAmount / 100);
+          }
         }
       } catch (err) {
         console.warn('Could not fetch session by sid; will try localStorage fallback.', err);
@@ -52,6 +62,13 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
         try {
           const lsPayload = JSON.parse(lsJson);
           payload = this.buildPayloadFromContext(lsPayload, null);
+          if (!payload.payment_method && storedPaymentMethod) {
+            payload.payment_method = storedPaymentMethod;
+          }
+          if (!payload.payment_amount_cents && storedPaymentAmount) {
+            payload.payment_amount_cents = storedPaymentAmount;
+            payload.payment_amount = Math.round(storedPaymentAmount / 100);
+          }
         } catch (_) {
           payload = null;
         }
@@ -82,11 +99,61 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
           payload.witness_id         = payload.witness_id         || (form.witnessId     || '').toString().trim();
           // Fill settlor_id if missing
           payload.settlor_id         = payload.settlor_id         || (form.settlorId     || '').toString().trim();
+          // Fill client_email if missing
+          payload.client_email       = payload.client_email       || (form.clientEmail   || '').toString().trim();
+
+          // Always preserve these from form snapshot if present
+          if (form.propertyList || form.list_of_property_text) {
+            if (form.list_of_property_text && form.list_of_property_text.toString().trim()) {
+              payload.list_of_property = form.list_of_property_text.toString().trim();
+            } else if (form.propertyList) {
+              const arr = Array.isArray(form.propertyList)
+                ? form.propertyList
+                : (form.propertyList ? [form.propertyList] : []);
+              payload.list_of_property = arr.map((s: any) => String(s).trim()).filter(Boolean).join('; ');
+            }
+          }
+          if (form.signaturePlace && form.signaturePlace.toString().trim()) {
+            payload.place_of_signature = form.signaturePlace.toString().trim();
+          }
+          if (form.witnessName && form.witnessName.toString().trim()) {
+            payload.witness_name = form.witnessName.toString().trim();
+          }
+          if (form.witnessId && form.witnessId.toString().trim()) {
+            payload.witness_id = form.witnessId.toString().trim();
+          }
+
+          // Overwrite list_of_property, witness_name, witness_id, place_of_signature always with latest from form snapshot if present
+          if (form.list_of_property_text && form.list_of_property_text.toString().trim()) {
+            payload.list_of_property = form.list_of_property_text.toString().trim();
+          } else if (form.propertyList) {
+            const arr = Array.isArray(form.propertyList)
+              ? form.propertyList
+              : (form.propertyList ? [form.propertyList] : []);
+            payload.list_of_property = arr.map((s: any) => String(s).trim()).filter(Boolean).join('; ');
+          }
+          if (form.signaturePlace && form.signaturePlace.toString().trim()) {
+            payload.place_of_signature = form.signaturePlace.toString().trim();
+          }
+          if (form.witnessName && form.witnessName.toString().trim()) {
+            payload.witness_name = form.witnessName.toString().trim();
+          }
+          if (form.witnessId && form.witnessId.toString().trim()) {
+            payload.witness_id = form.witnessId.toString().trim();
+          }
         }
       } catch (e) {
         console.warn('Could not merge form snapshot:', e);
       }
     }
+
+    // Debug logs after merging form snapshot
+    console.log('Payload after merging form snapshot:', {
+      list_of_property: payload?.list_of_property,
+      place_of_signature: payload?.place_of_signature,
+      witness_name: payload?.witness_name,
+      witness_id: payload?.witness_id,
+    });
 
     // Fallback: enrich payment fields from localStorage if missing
     try {
@@ -123,6 +190,8 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       console.error('Sale & Cede missing fields:', missing, 'Payload:', payload);
       return;
     }
+
+    console.log('Payload before posting:', payload);
 
     this.state = 'working';
     try {
@@ -185,7 +254,7 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       list_of_property = cedeCtx.list_of_property.trim();
     } else if (Array.isArray(cedeCtx.list_of_property)) {
       list_of_property = cedeCtx.list_of_property.map((s: any) => String(s).trim()).filter(Boolean).join('; ');
-    } else if (typeof cedeCtx.list_of_property_text === 'string') {
+    } else if (typeof cedeCtx.list_of_property_text === 'string' && cedeCtx.list_of_property_text.trim()) {
       list_of_property = cedeCtx.list_of_property_text.toString().trim();
     } else if (Array.isArray(cedeCtx.propertyList)) {
       list_of_property = cedeCtx.propertyList.map((s: any) => String(s).trim()).filter(Boolean).join('; ');
@@ -193,10 +262,15 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       list_of_property = String(cedeCtx.claim_details).trim();
     }
 
-    // Witness and signature details (normalize to strings)
-    const witness_name = (cedeCtx.witness_name ?? '').toString().trim();
-    const witness_id   = (cedeCtx.witness_id   ?? '').toString().trim();
-    const place_of_signature = (cedeCtx.place_of_signature ?? '').toString().trim();
+    // If list_of_property is empty and list_of_property_text is present and non-empty, override
+    if ((!list_of_property || list_of_property.trim() === '') && typeof cedeCtx.list_of_property_text === 'string' && cedeCtx.list_of_property_text.trim()) {
+      list_of_property = cedeCtx.list_of_property_text.trim();
+    }
+
+    // Witness and signature details (normalize to strings and trim)
+    const witness_name = (cedeCtx.witness_name ?? trustData.witness_name ?? '').toString().trim();
+    const witness_id   = (cedeCtx.witness_id   ?? trustData.witness_id   ?? '').toString().trim();
+    const place_of_signature = (cedeCtx.place_of_signature ?? trustData.place_of_signature ?? '').toString().trim();
 
     // Dates
     const trust_date = (
@@ -209,18 +283,11 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
     const date_sign  = cedeCtx.date_sign || today;
     const created_at = cedeCtx.created_at || nowISO;
 
-    // Settlor and email
-    const settlor_id = cedeCtx.settlor_id || trustData.settlor_id || trustData.settlorId || '';
+    // Settlor and email (ensure trimmed strings)
+    const settlor_id = (cedeCtx.settlor_id || trustData.settlor_id || trustData.settlorId || '').toString().trim();
     const client_email = (
-      cedeCtx.client_email ||
-      trustData.email ||
-      trustData.trustEmail ||
-      trustData.applicant_email ||
-      trustData.settlor_email ||
-      (trustData.applicant && trustData.applicant.email) ||
-      (trustData.settlor && trustData.settlor.email) ||
-      ''
-    );
+      (cedeCtx.client_email || trustData.email || trustData.trustEmail || trustData.applicant_email || trustData.settlor_email || (trustData.applicant && trustData.applicant.email) || (trustData.settlor && trustData.settlor.email) || '')
+    ).toString().trim();
 
     // Payment fields (normalize)
     const ctxPaymentMethod = (cedeCtx.payment_method || fullCtx?.payment_method || fullCtx?.trust_data?.payment_method || '').toString().trim();

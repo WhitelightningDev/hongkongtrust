@@ -101,7 +101,7 @@
                 <div class="col-md-6">
                   <div class="form-floating">
                     <input type="text" class="form-control" id="trustNumber" placeholder="Trust number" autocomplete="off"
-                           formControlName="trustNumber" [readonly]="lookupLoading || trustNameLoaded">
+                           formControlName="trustNumber" [attr.readonly]="(lookupLoading || trustNameLoaded) ? '' : null">
                     <label for="trustNumber">Number of your trust</label>
                   </div>
                 </div>
@@ -109,8 +109,8 @@
                   <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-passport"></i></span>
                     <div class="form-floating flex-grow-1">
-                      <input type="text" class="form-control" id="settlorId" placeholder="Settlor ID/Passport"
-                             formControlName="settlorId" [readonly]="lookupLoading || trustNameLoaded">
+                      <input type="text" class="form-control" id="settlorId" placeholder="Settlor ID/Passport" autocomplete="off"
+                             formControlName="settlorId" [attr.readonly]="(lookupLoading || trustNameLoaded) ? '' : null">
                       <label for="settlorId">Settlor ID / Passport No</label>
                     </div>
                     <button class="btn btn-outline-primary rounded-pill shadow-sm p-2 m-2" type="button"
@@ -125,7 +125,10 @@
                     <span class="text-success">Loaded trust:</span>
                     <span class="badge bg-success">{{ trustNameLoaded }}</span>
                     <button type="button" class="btn btn-link btn-sm p-0 ms-2"
-                            (click)="cessionForm.get('trustNumber')?.enable(); cessionForm.get('settlorId')?.enable(); trustNameLoaded = null;"><i class="bi bi-pencil-square me-1"></i>Change</button>
+                            (click)="trustNameLoaded = null;"><i class="bi bi-pencil-square me-1"></i>Change</button>
+                    <br>
+                    <span class="text-success">Settlor ID:</span>
+                    <span class="badge bg-secondary">{{ cessionForm.get('settlorId')?.value }}</span>
                   </div>
                 </div>
               </div>
@@ -310,10 +313,10 @@
     <div class="hk-modal-body">
       <p class="text-muted small mb-3">Secure checkout • Your agreement will be generated and emailed after payment.</p>
       <div class="d-grid gap-2">
-        <button type="button" class="btn btn-primary rounded-pill py-2" (click)="confirmCardPayment()">
+        <button type="button" class="btn btn-primary rounded-pill py-2" (click)="confirmCardPayment('card')">
           <i class="bi bi-credit-card me-2"></i> Pay by Card
         </button>
-        <button type="button" class="btn btn-outline-dark rounded-pill py-2" (click)="startXrpFlow()">
+        <button type="button" class="btn btn-outline-dark rounded-pill py-2" (click)="startXrpFlow('xrp')">
           <i class="bi bi-currency-bitcoin me-2"></i> Pay with XRP
         </button>
       </div>

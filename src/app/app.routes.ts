@@ -10,13 +10,17 @@ import { Downloads } from './pages/downloads/downloads';
 import { Contact } from './pages/contact/contact';
 import { SaleAndCedeAgreement } from './pages/sale-and-cede-agreement/sale-and-cede-agreement';
 import { SaleAndCedeAgreementSuccessComponent } from './pages/sale-and-cede-agreement-success/sale-and-cede-agreement-success';
+import { TestingPage } from './pages/testing-page/testing-page';
 
 
 export const routes: Routes = [
   {
-    path: '',
-    component: Welcomepage,
+    path: '', component: TestingPage
   },
+  // {
+  //   path: '',
+  //   component: Welcomepage,
+  // },
 
   {
     path: 'homepage',

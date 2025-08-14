@@ -1,0 +1,8 @@
+  .maintenance-wrap { min-height: 70vh; display: flex; align-items: center; justify-content: center; padding: 2rem; background: #f8f9fa; }
+  .maintenance-card { max-width: 640px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 2rem; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,.06); }
+  .maintenance-card .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+  .maintenance-card h1 { margin: 0.25rem 0 0.75rem; font-size: 1.75rem; }
+  .maintenance-card p { margin: 0.5rem 0; color: #59627a; }
+  .maintenance-card a { color: #0d6efd; text-decoration: none; }
+  .maintenance-card a:hover { text-decoration: underline; }
+  .small { font-size: 0.875rem; color: #848e9c; }

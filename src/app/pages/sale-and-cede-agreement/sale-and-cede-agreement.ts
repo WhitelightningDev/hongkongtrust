@@ -556,6 +556,11 @@ export class SaleAndCedeAgreement implements OnInit {
 
     // Stash so success page / follow-ups can read it
     localStorage.setItem('saleCedeAgreementPayloadXrp', JSON.stringify(payload));
+    // Mirror standard keys so success page logic works the same as card
+    localStorage.setItem('saleCedeAgreementPayload', JSON.stringify(payload));
+    localStorage.setItem('paymentMethod', 'xrp');
+    localStorage.setItem('paymentAmount', String(payload.payment_amount_cents));
+    localStorage.setItem('saleCedeFlow', 'true');
 
     // Try notify backend (best effort)
     this.generating = true;
@@ -569,11 +574,14 @@ export class SaleAndCedeAgreement implements OnInit {
       console.log('XRP payment ack:', resp);
       this.showXrpModal = false;
       alert('Thanks! We\'ve recorded your XRP payment. We\'ll email you once it confirms on-chain.');
+      // Route to success page (no gateway redirect needed for XRP)
+      window.location.href = '/agreements/sale-cede/success';
     } catch (e) {
       console.error('XRP payment submit error:', e);
       this.showXrpModal = false;
       // Still proceed with a local confirmation so the user isn't blocked
       alert('We\'ve saved your XRP payment details locally. If you don\'t get an email soon, please contact support with your tx hash.');
+      window.location.href = '/agreements/sale-cede/success';
     } finally {
       this.generating = false;
     }

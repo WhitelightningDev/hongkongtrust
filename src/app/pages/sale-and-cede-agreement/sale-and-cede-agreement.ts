@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, Input, OnInit } from '@angular/core
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidatorFn } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 interface Party {
   key: string;            // e.g. 'settlor', 'trustee1'
@@ -80,6 +81,7 @@ export class SaleAndCedeAgreement implements OnInit {
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
+    private router: Router,
   ) {
     this.cessionForm = this.fb.group({
       trustNumber: ['', Validators.required],
@@ -575,13 +577,13 @@ export class SaleAndCedeAgreement implements OnInit {
       this.showXrpModal = false;
       alert('Thanks! We\'ve recorded your XRP payment. We\'ll email you once it confirms on-chain.');
       // Route to success page (no gateway redirect needed for XRP)
-      window.location.href = '/agreements/sale-cede/success';
+      await this.router.navigate(['/agreements/sale-cede/success'], { queryParams: { src: 'xrp' } });
     } catch (e) {
       console.error('XRP payment submit error:', e);
       this.showXrpModal = false;
       // Still proceed with a local confirmation so the user isn't blocked
       alert('We\'ve saved your XRP payment details locally. If you don\'t get an email soon, please contact support with your tx hash.');
-      window.location.href = '/agreements/sale-cede/success';
+      await this.router.navigate(['/agreements/sale-cede/success'], { queryParams: { src: 'xrp' } });
     } finally {
       this.generating = false;
     }

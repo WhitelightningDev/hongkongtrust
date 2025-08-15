@@ -11,6 +11,7 @@ import { Contact } from './pages/contact/contact';
 import { SaleAndCedeAgreement } from './pages/sale-and-cede-agreement/sale-and-cede-agreement';
 import { SaleAndCedeAgreementSuccessComponent } from './pages/sale-and-cede-agreement-success/sale-and-cede-agreement-success';
 import { TestingPage } from './pages/testing-page/testing-page';
+import { LoanAgreement } from './pages/loan-agreement/loan-agreement';
 
 
 export const routes: Routes = [
@@ -30,6 +31,9 @@ export const routes: Routes = [
   {
     path: 'success',
     component: SuccessComponent,
+  },
+  {
+    path: 'loan-agreement', component: LoanAgreement
   },
 
   {

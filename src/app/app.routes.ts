@@ -14,13 +14,13 @@ import { TestingPage } from './pages/testing-page/testing-page';
 
 
 export const routes: Routes = [
-  {
-    path: '', component: TestingPage
-  },
   // {
-  //   path: '',
-  //   component: Welcomepage,
+  //   path: '', component: TestingPage
   // },
+  {
+    path: '',
+    component: Welcomepage,
+  },
 
   {
     path: 'homepage',

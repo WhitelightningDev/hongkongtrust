@@ -33,9 +33,9 @@ export interface TrustLookupResponse {
 @Injectable({ providedIn: 'root' })
 export class LoanAgreementService {
   private http = inject(HttpClient);
-  // Set your backend base URL:
-  private baseUrl = '/api'; // e.g. http://localhost:8000/api
-  private trustsBaseUrl = '/trusts'; // trust lookup router is mounted at /trusts
+  // Backend lives on Render
+  private baseUrl = 'https://hongkongbackend.onrender.com/api';
+  private trustsBaseUrl = 'https://hongkongbackend.onrender.com/trusts';
 
   getTrust(trust_number: string, user_id?: string): Observable<TrustLookupResponse> {
     const params = new URLSearchParams();

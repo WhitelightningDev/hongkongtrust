@@ -1,6 +1,6 @@
-import { Component, OnInit, computed, effect, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { LoanAgreementService, TrustCore, TrusteeRow } from '../../loan-agreement.service';
 
 @Component({
@@ -52,9 +52,16 @@ export class LoanAgreement implements OnInit {
 
   addItem(data?: { Desc?: string; Type?: string; Val?: number }) {
     this.items.push(this.fb.group({
-      Desc: [data?.Desc ?? ''],
+      Desc: [data?.Desc ?? '', [Validators.maxLength(200)]],
       Type: [data?.Type ?? ''],
-      Val: [data?.Val ?? null]
+      Val: [
+        data?.Val ?? null,
+        {
+          validators: [
+            (ctrl: AbstractControl): ValidationErrors | null => (ctrl.value == null || Number(ctrl.value) >= 0) ? null : { min: true }
+          ]
+        }
+      ]
     }));
   }
 
@@ -143,6 +150,10 @@ export class LoanAgreement implements OnInit {
     return (this.trustees || []).map(t => t.Trustee_Name).join(', ');
   }
 
+  private hasAtLeastOnePositiveItem(): boolean {
+    return (this.items.value as any[]).some(i => i?.Val != null && Number(i.Val) > 0);
+  }
+
   onSave() {
     this.saveError = '';
     this.createdId = null;
@@ -153,6 +164,10 @@ export class LoanAgreement implements OnInit {
     }
     if (this.agreementForm.invalid) {
       this.agreementForm.markAllAsTouched();
+      return;
+    }
+    if (!this.hasAtLeastOnePositiveItem()) {
+      this.saveError = 'At least one loan item value must be greater than zero.';
       return;
     }
 

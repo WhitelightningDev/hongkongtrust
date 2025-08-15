@@ -55,5 +55,7 @@ export const routes: Routes = [
   },
   {
     path: 'sale-cede/success', component: SaleAndCedeAgreementSuccessComponent
-  }
+  },
+  { path: 'agreements/sale-cede/success', component: SaleAndCedeAgreementSuccessComponent },
+  { path: '**', redirectTo: '' }
 ];

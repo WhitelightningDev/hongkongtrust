@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 
+type Method = 'card' | 'xrp';
+
 @Component({
   selector: 'app-sale-and-cede-agreement-success',
   standalone: true,
@@ -16,6 +18,11 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
   message = '';
   result: any;
 
+  // handy for UI if you want to show them
+  method: Method = 'card';
+  amountZar = 500;
+  amountCents = 50000;
+
   private readonly API_BASE = 'https://hongkongbackend.onrender.com';
 
   constructor(private http: HttpClient) {}
@@ -23,16 +30,16 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
   async ngOnInit() {
     this.state = 'init';
 
-    // Prefer fetching by session id from backend; fallback to localStorage
     const qs = new URLSearchParams(window.location.search);
     const sid = qs.get('sid') || undefined;
 
-    const storedPaymentMethod = localStorage.getItem('paymentMethod') || '';
+    // read any stored payment context early
+    const storedPaymentMethod = (localStorage.getItem('paymentMethod') || '').toString().trim() as Method | '';
     const storedPaymentAmount = Number(localStorage.getItem('paymentAmount') || '0');
 
     let payload: any | null = null;
 
-    // 1) Try server session fetch first (most reliable across redirects)
+    // 1) Try fetch session by sid (best across redirects)
     if (sid) {
       try {
         const session: any = await firstValueFrom(
@@ -42,168 +49,40 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
         const cedeCtx = ctx?.sale_cede_context || null;
         if (cedeCtx) {
           payload = this.buildPayloadFromContext(cedeCtx, ctx);
-          if (!payload.payment_method && storedPaymentMethod) {
-            payload.payment_method = storedPaymentMethod;
-          }
-          if (!payload.payment_amount_cents && storedPaymentAmount) {
-            payload.payment_amount_cents = storedPaymentAmount;
-            payload.payment_amount = Math.round(storedPaymentAmount / 100);
-          }
         }
       } catch (err) {
         console.warn('Could not fetch session by sid; will try localStorage fallback.', err);
       }
     }
 
-    // 2) Fallback to localStorage (we store this on the payment-start page)
+    // 2) Fallback to standard localStorage payload
     if (!payload) {
       const lsJson = localStorage.getItem('saleCedeAgreementPayload');
       if (lsJson) {
-        try {
-          const lsPayload = JSON.parse(lsJson);
-          payload = this.buildPayloadFromContext(lsPayload, null);
-          if (!payload.payment_method && storedPaymentMethod) {
-            payload.payment_method = storedPaymentMethod;
-          }
-          if (!payload.payment_amount_cents && storedPaymentAmount) {
-            payload.payment_amount_cents = storedPaymentAmount;
-            payload.payment_amount = Math.round(storedPaymentAmount / 100);
-          }
-        } catch (_) {
-          payload = null;
-        }
+        try { payload = this.buildPayloadFromContext(JSON.parse(lsJson), null); } catch { payload = null; }
       }
     }
 
-    // 2b) Fallback to XRP-specific localStorage payload if present
+    // 2b) XRP-specific fallback if needed
     if (!payload) {
       const lsJsonXrp = localStorage.getItem('saleCedeAgreementPayloadXrp');
       if (lsJsonXrp) {
-        try {
-          const lsPayloadXrp = JSON.parse(lsJsonXrp);
-          payload = this.buildPayloadFromContext(lsPayloadXrp, null);
-          // Ensure XRP method/amounts are preserved
-          if (lsPayloadXrp?.payment_method === 'xrp') {
-            payload.payment_method = 'xrp';
-          }
-          if (!payload.payment_amount_cents && storedPaymentAmount) {
-            payload.payment_amount_cents = storedPaymentAmount;
-            payload.payment_amount = Math.round(storedPaymentAmount / 100);
-          }
-          // Pass through XRP fields when present
-          if (lsPayloadXrp?.xrp_amount) payload.xrp_amount = lsPayloadXrp.xrp_amount;
-          if (lsPayloadXrp?.xrp_address) payload.xrp_address = lsPayloadXrp.xrp_address;
-          if (lsPayloadXrp?.xrp_tx_hash) payload.xrp_tx_hash = lsPayloadXrp.xrp_tx_hash;
-        } catch (_) {
-          payload = null;
-        }
+        try { payload = this.buildPayloadFromContext(JSON.parse(lsJsonXrp), null); } catch { payload = null; }
       }
     }
 
-    // Merge in the original form snapshot (what the user entered) to fill any gaps
+    // 3) Merge in the original form snapshot to fill gaps
     if (payload) {
       try {
         const formJson = localStorage.getItem('saleCedeAgreementForm');
-        if (formJson) {
-          const form = JSON.parse(formJson);
-          // Only fill if missing, prefer existing payload values
-          payload.trust_number       = payload.trust_number       || form.trustNumber || '';
-          payload.owner_name         = payload.owner_name         || form.owner?.name || '';
-          payload.owner_id           = payload.owner_id           || form.owner?.id   || '';
-          payload.signer_name        = payload.signer_name        || form.signer?.name|| '';
-          payload.signer_id          = payload.signer_id          || form.signer?.id  || '';
-          // Ensure list_of_property is a STRING (join array if needed)
-          if (!payload.list_of_property) {
-            const arr = Array.isArray(form.propertyList)
-              ? form.propertyList
-              : (form.propertyList ? [form.propertyList] : []);
-            payload.list_of_property = arr.map((s: any) => String(s).trim()).filter(Boolean).join('; ');
-          }
-          payload.place_of_signature = payload.place_of_signature || (form.signaturePlace || '').toString().trim();
-          payload.witness_name       = payload.witness_name       || (form.witnessName   || '').toString().trim();
-          payload.witness_id         = payload.witness_id         || (form.witnessId     || '').toString().trim();
-          // Fill settlor_id if missing
-          payload.settlor_id         = payload.settlor_id         || (form.settlorId     || '').toString().trim();
-          // Fill client_email if missing
-          payload.client_email       = payload.client_email       || (form.clientEmail   || '').toString().trim();
-
-          // Always preserve these from form snapshot if present
-          if (form.propertyList || form.list_of_property_text) {
-            if (form.list_of_property_text && form.list_of_property_text.toString().trim()) {
-              payload.list_of_property = form.list_of_property_text.toString().trim();
-            } else if (form.propertyList) {
-              const arr = Array.isArray(form.propertyList)
-                ? form.propertyList
-                : (form.propertyList ? [form.propertyList] : []);
-              payload.list_of_property = arr.map((s: any) => String(s).trim()).filter(Boolean).join('; ');
-            }
-          }
-          if (form.signaturePlace && form.signaturePlace.toString().trim()) {
-            payload.place_of_signature = form.signaturePlace.toString().trim();
-          }
-          if (form.witnessName && form.witnessName.toString().trim()) {
-            payload.witness_name = form.witnessName.toString().trim();
-          }
-          if (form.witnessId && form.witnessId.toString().trim()) {
-            payload.witness_id = form.witnessId.toString().trim();
-          }
-
-          // Overwrite list_of_property, witness_name, witness_id, place_of_signature always with latest from form snapshot if present
-          if (form.list_of_property_text && form.list_of_property_text.toString().trim()) {
-            payload.list_of_property = form.list_of_property_text.toString().trim();
-          } else if (form.propertyList) {
-            const arr = Array.isArray(form.propertyList)
-              ? form.propertyList
-              : (form.propertyList ? [form.propertyList] : []);
-            payload.list_of_property = arr.map((s: any) => String(s).trim()).filter(Boolean).join('; ');
-          }
-          if (form.signaturePlace && form.signaturePlace.toString().trim()) {
-            payload.place_of_signature = form.signaturePlace.toString().trim();
-          }
-          if (form.witnessName && form.witnessName.toString().trim()) {
-            payload.witness_name = form.witnessName.toString().trim();
-          }
-          if (form.witnessId && form.witnessId.toString().trim()) {
-            payload.witness_id = form.witnessId.toString().trim();
-          }
-        }
+        if (formJson) this.mergeFormSnapshotIntoPayload(payload, JSON.parse(formJson));
       } catch (e) {
         console.warn('Could not merge form snapshot:', e);
       }
     }
 
-    // Debug logs after merging form snapshot
-    console.log('Payload after merging form snapshot:', {
-      list_of_property: payload?.list_of_property,
-      place_of_signature: payload?.place_of_signature,
-      witness_name: payload?.witness_name,
-      witness_id: payload?.witness_id,
-    });
-
-    // Fallback: enrich payment fields from localStorage if missing
-    try {
-      if (payload && (!payload.payment_method || !payload.payment_amount_cents)) {
-        const lsMethod = (localStorage.getItem('paymentMethod') || '').toString();
-        const lsAmountCents = Number(localStorage.getItem('paymentAmount') || '0');
-        if (!payload.payment_method && lsMethod) payload.payment_method = lsMethod;
-        if (!payload.payment_amount_cents && lsAmountCents) {
-          payload.payment_amount_cents = lsAmountCents;
-          payload.payment_amount = Math.round(lsAmountCents / 100);
-        }
-        // If XRP, hydrate xrp_amount/xrp_tx_hash/xrp_address from localStorage if present
-        if (payload.payment_method === 'xrp') {
-          try {
-            const lsJsonX = localStorage.getItem('saleCedeAgreementPayloadXrp');
-            if (lsJsonX) {
-              const x = JSON.parse(lsJsonX);
-              if (x?.xrp_amount && !payload.xrp_amount) payload.xrp_amount = x.xrp_amount;
-              if (x?.xrp_tx_hash && !payload.xrp_tx_hash) payload.xrp_tx_hash = x.xrp_tx_hash;
-              if (x?.xrp_address && !payload.xrp_address) payload.xrp_address = x.xrp_address;
-            }
-          } catch { /* no-op */ }
-        }
-      }
-    } catch { /* no-op */ }
+    // 4) Single, consolidated hydration for payment fields (card & XRP)
+    this.hydratePaymentFields(payload, storedPaymentMethod, storedPaymentAmount);
 
     if (!payload) {
       this.state = 'error';
@@ -211,40 +90,19 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       return;
     }
 
-    // Optional: attach gateway transaction id from query params
+    // Attach optional gateway ids (card flow)
     const txId = qs.get('txId') || qs.get('transactionId') || qs.get('id') || undefined;
     if (txId) {
       payload.payment_tx_id = txId;
       payload.payment_gateway = 'yoco';
     }
 
-    // Before required fields check, ensure payment fields are always populated by falling back to localStorage if missing
-    try {
-      if (payload) {
-        const lsMethod = (localStorage.getItem('paymentMethod') || '').toString();
-        const lsAmountCents = Number(localStorage.getItem('paymentAmount') || '0');
-        if (!payload.payment_method && lsMethod) payload.payment_method = lsMethod;
-        if ((!payload.payment_amount_cents || payload.payment_amount_cents === 0) && lsAmountCents) {
-          payload.payment_amount_cents = lsAmountCents;
-          payload.payment_amount = Math.round(lsAmountCents / 100);
-        }
-        // If XRP, hydrate xrp_amount/xrp_tx_hash/xrp_address from localStorage if present
-        if (payload.payment_method === 'xrp') {
-          try {
-            const lsJsonX = localStorage.getItem('saleCedeAgreementPayloadXrp');
-            if (lsJsonX) {
-              const x = JSON.parse(lsJsonX);
-              if (x?.xrp_amount && !payload.xrp_amount) payload.xrp_amount = x.xrp_amount;
-              if (x?.xrp_tx_hash && !payload.xrp_tx_hash) payload.xrp_tx_hash = x.xrp_tx_hash;
-              if (x?.xrp_address && !payload.xrp_address) payload.xrp_address = x.xrp_address;
-            }
-          } catch { /* no-op */ }
-        }
-      }
-    } catch { /* no-op */ }
-
-    // Guard against missing required fields
-    const required = ['trust_number','trust_name','owner_name','owner_id','signer_name','signer_id','list_of_property','witness_name','witness_id','place_of_signature','date_sign'];
+    // Guard: required fields
+    const required = [
+      'trust_number','trust_name','owner_name','owner_id',
+      'signer_name','signer_id','list_of_property',
+      'witness_name','witness_id','place_of_signature','date_sign'
+    ];
     const missing = required.filter(k => !payload[k] || (typeof payload[k] === 'string' && payload[k].trim() === ''));
     if (missing.length) {
       this.state = 'error';
@@ -252,6 +110,11 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       console.error('Sale & Cede missing fields:', missing, 'Payload:', payload);
       return;
     }
+
+    // Update UI helpers (optional)
+    this.method = (payload.payment_method === 'xrp' ? 'xrp' : 'card');
+    this.amountCents = Number(payload.payment_amount_cents) || 50000;
+    this.amountZar = Math.round(this.amountCents / 100);
 
     console.log('Payload before posting:', payload);
 
@@ -277,11 +140,80 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
     }
   }
 
+  // --- helpers ---------------------------------------------------------------
+
+  private mergeFormSnapshotIntoPayload(payload: any, form: any) {
+    // Only fill if missing, prefer existing payload values
+    payload.trust_number       = payload.trust_number       || form.trustNumber || '';
+    payload.owner_name         = payload.owner_name         || form.owner?.name || '';
+    payload.owner_id           = payload.owner_id           || form.owner?.id   || '';
+    payload.signer_name        = payload.signer_name        || form.signer?.name|| '';
+    payload.signer_id          = payload.signer_id          || form.signer?.id  || '';
+
+    // Ensure list_of_property is a STRING (join array if needed)
+    const coerceList = (arrLike: any) => {
+      const arr = Array.isArray(arrLike) ? arrLike : (arrLike ? [arrLike] : []);
+      return arr.map((s: any) => String(s).trim()).filter(Boolean).join('; ');
+    };
+
+    if (!payload.list_of_property) {
+      payload.list_of_property = form.list_of_property_text?.toString().trim()
+        || coerceList(form.propertyList);
+    }
+
+    // Latest values from form override if present
+    if (form.list_of_property_text && String(form.list_of_property_text).trim()) {
+      payload.list_of_property = String(form.list_of_property_text).trim();
+    } else if (form.propertyList) {
+      payload.list_of_property = coerceList(form.propertyList);
+    }
+    if (form.signaturePlace) payload.place_of_signature = String(form.signaturePlace).trim() || payload.place_of_signature;
+    if (form.witnessName)    payload.witness_name       = String(form.witnessName).trim()    || payload.witness_name;
+    if (form.witnessId)      payload.witness_id         = String(form.witnessId).trim()      || payload.witness_id;
+
+    // Fill settlor/email if missing
+    if (!payload.settlor_id && form.settlorId) payload.settlor_id = String(form.settlorId).trim();
+    if (!payload.client_email && form.clientEmail) payload.client_email = String(form.clientEmail).trim();
+  }
+
+  /** Normalize/ensure payment fields once (for both card and XRP) */
+  private hydratePaymentFields(payload: any | null, storedMethod: Method | '', storedAmountCents: number) {
+    if (!payload) return;
+
+    // Pull XRP mirror if present in localStorage
+    try {
+      const lsX = localStorage.getItem('saleCedeAgreementPayloadXrp');
+      if (lsX) {
+        const x = JSON.parse(lsX);
+        payload.xrp_amount  = payload.xrp_amount  ?? x?.xrp_amount  ?? null;
+        payload.xrp_tx_hash = payload.xrp_tx_hash ?? x?.xrp_tx_hash ?? '';
+        payload.xrp_address = payload.xrp_address ?? x?.xrp_address ?? '';
+      }
+    } catch { /* no-op */ }
+
+    // payment_method
+    let method: Method | '' = (payload.payment_method || '').toString().trim().toLowerCase() as Method | '';
+    if (!method && (payload.xrp_tx_hash || payload.xrp_amount)) method = 'xrp';
+    if (!method && storedMethod) method = storedMethod;
+    payload.payment_method = method || 'card';
+
+    // amounts
+    let cents = Number(payload.payment_amount_cents);
+    let zar = Number(payload.payment_amount);
+    if (!Number.isFinite(cents) || cents <= 0) {
+      if (Number.isFinite(zar) && zar > 0) cents = Math.round(zar * 100);
+      else if (Number.isFinite(storedAmountCents) && storedAmountCents > 0) cents = storedAmountCents;
+      else cents = 50000; // default
+    }
+    payload.payment_amount_cents = cents;
+    payload.payment_amount = Math.round(cents / 100);
+  }
+
   /**
    * Build EXACT payload expected by backend/DB:
    *  trust_number, trust_name, trust_date, owner_name, owner_id, signer_name,
    *  signer_id, list_of_property, witness_name, witness_id, place_of_signature,
-   *  date_sign, created_at, and settlor_id (for merge). Also ensure client_email.
+   *  date_sign, created_at, settlor_id, client_email, payment_* and optional XRP fields.
    */
   private buildPayloadFromContext(cedeCtx: any, fullCtx: any | null): any {
     const trustData = fullCtx?.trust_data || {};
@@ -294,7 +226,7 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
     const trust_number = cedeCtx.trust_number || trustData.trust_number || trustData.trustNumber || '';
     const trust_name   = cedeCtx.trust_name   || trustData.trust_name   || trustData.trustName   || '';
 
-    // Derive owner (seller): prefer explicit cedeCtx; else from trustData.settlor
+    // Owner (seller)
     let owner_name = cedeCtx.owner_name || trustData.owner_name || '';
     let owner_id   = cedeCtx.owner_id   || trustData.owner_id   || '';
     if ((!owner_name || !owner_id) && trustData.settlor) {
@@ -302,7 +234,7 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       owner_id   = owner_id   || trustData.settlor.id   || trustData.settlor.passport || trustData.settlor.id_or_passport || '';
     }
 
-    // Derive signer (on behalf of trust): prefer explicit cedeCtx; else first trustee
+    // Signer (trust)
     let signer_name = cedeCtx.signer_name || trustData.signer_name || '';
     let signer_id   = cedeCtx.signer_id   || trustData.signer_id   || '';
     if ((!signer_name || !signer_id) && Array.isArray(trustData.trustees) && trustData.trustees.length) {
@@ -311,26 +243,16 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       signer_id   = signer_id   || t0?.id   || t0?.passport   || t0?.id_or_passport || '';
     }
 
-    // Property/rights list (prefer explicit string; accept array and join)
-    let list_of_property: string = '';
-    if (typeof cedeCtx.list_of_property === 'string' && cedeCtx.list_of_property.trim()) {
-      list_of_property = cedeCtx.list_of_property.trim();
-    } else if (Array.isArray(cedeCtx.list_of_property)) {
-      list_of_property = cedeCtx.list_of_property.map((s: any) => String(s).trim()).filter(Boolean).join('; ');
-    } else if (typeof cedeCtx.list_of_property_text === 'string' && cedeCtx.list_of_property_text.trim()) {
-      list_of_property = cedeCtx.list_of_property_text.toString().trim();
-    } else if (Array.isArray(cedeCtx.propertyList)) {
-      list_of_property = cedeCtx.propertyList.map((s: any) => String(s).trim()).filter(Boolean).join('; ');
-    } else if (cedeCtx.claim_details) {
-      list_of_property = String(cedeCtx.claim_details).trim();
-    }
+    // Property / rights
+    const coerceList = (v: any) => Array.isArray(v) ? v.map((s: any) => String(s).trim()).filter(Boolean).join('; ') : String(v || '').trim();
+    let list_of_property = '';
+    if (typeof cedeCtx.list_of_property === 'string' && cedeCtx.list_of_property.trim()) list_of_property = cedeCtx.list_of_property.trim();
+    else if (Array.isArray(cedeCtx.list_of_property)) list_of_property = coerceList(cedeCtx.list_of_property);
+    else if (typeof cedeCtx.list_of_property_text === 'string' && cedeCtx.list_of_property_text.trim()) list_of_property = cedeCtx.list_of_property_text.trim();
+    else if (Array.isArray(cedeCtx.propertyList)) list_of_property = coerceList(cedeCtx.propertyList);
+    else if (cedeCtx.claim_details) list_of_property = String(cedeCtx.claim_details).trim();
 
-    // If list_of_property is empty and list_of_property_text is present and non-empty, override
-    if ((!list_of_property || list_of_property.trim() === '') && typeof cedeCtx.list_of_property_text === 'string' && cedeCtx.list_of_property_text.trim()) {
-      list_of_property = cedeCtx.list_of_property_text.trim();
-    }
-
-    // Witness and signature details (normalize to strings and trim)
+    // Witness/signing
     const witness_name = (cedeCtx.witness_name ?? trustData.witness_name ?? '').toString().trim();
     const witness_id   = (cedeCtx.witness_id   ?? trustData.witness_id   ?? '').toString().trim();
     const place_of_signature = (cedeCtx.place_of_signature ?? trustData.place_of_signature ?? '').toString().trim();
@@ -346,54 +268,39 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
     const date_sign  = cedeCtx.date_sign || today;
     const created_at = cedeCtx.created_at || nowISO;
 
-    // Settlor and email (ensure trimmed strings)
+    // Settlor/email
     const settlor_id = (cedeCtx.settlor_id || trustData.settlor_id || trustData.settlorId || '').toString().trim();
     const client_email = (
-      (cedeCtx.client_email || trustData.email || trustData.trustEmail || trustData.applicant_email || trustData.settlor_email || (trustData.applicant && trustData.applicant.email) || (trustData.settlor && trustData.settlor.email) || '')
+      cedeCtx.client_email ||
+      trustData.email ||
+      trustData.trustEmail ||
+      trustData.applicant_email ||
+      trustData.settlor_email ||
+      (trustData.applicant && trustData.applicant.email) ||
+      (trustData.settlor && trustData.settlor.email) ||
+      ''
     ).toString().trim();
 
-    // XRP passthrough fields (optional)
+    // Optional XRP passthrough
     const xrp_amount  = cedeCtx.xrp_amount  ?? fullCtx?.xrp_amount  ?? fullCtx?.trust_data?.xrp_amount  ?? null;
     const xrp_tx_hash = cedeCtx.xrp_tx_hash ?? fullCtx?.xrp_tx_hash ?? fullCtx?.trust_data?.xrp_tx_hash ?? '';
     const xrp_address = cedeCtx.xrp_address ?? fullCtx?.xrp_address ?? fullCtx?.trust_data?.xrp_address ?? '';
 
-    // Payment fields (normalize) with fallback to localStorage if missing
-    let ctxPaymentMethod = (cedeCtx.payment_method || fullCtx?.payment_method || fullCtx?.trust_data?.payment_method || '').toString().trim();
-    let ctxAmountCentsRaw = (
+    // Payment (raw; final hydration happens in hydratePaymentFields)
+    const payment_method = (cedeCtx.payment_method || fullCtx?.payment_method || fullCtx?.trust_data?.payment_method || '').toString().trim();
+    const payment_amount_cents = (
       cedeCtx.payment_amount_cents ??
       fullCtx?.payment_amount_cents ??
       fullCtx?.trust_data?.payment_amount_cents ??
       null
     );
-    let ctxAmountZarRaw = (
+    const payment_amount = (
       cedeCtx.payment_amount ??
       fullCtx?.payment_amount ??
       fullCtx?.trust_data?.payment_amount ??
       null
     );
 
-    // Fallbacks from localStorage if missing
-    if (!ctxPaymentMethod) {
-      try {
-        ctxPaymentMethod = (localStorage.getItem('paymentMethod') || '').toString().trim();
-      } catch { ctxPaymentMethod = ''; }
-    }
-    if ((!ctxAmountCentsRaw || ctxAmountCentsRaw === 0) && typeof window !== 'undefined') {
-      try {
-        const lsAmountCents = Number(localStorage.getItem('paymentAmount') || '0');
-        if (lsAmountCents) ctxAmountCentsRaw = lsAmountCents;
-      } catch { /* no-op */ }
-    }
-    // If payment_amount still missing, derive from cents
-    let payment_amount_cents = Number.isFinite(Number(ctxAmountCentsRaw)) ? Number(ctxAmountCentsRaw) : (Number(ctxAmountZarRaw) * 100 || 0);
-    let payment_amount = payment_amount_cents ? Math.round(payment_amount_cents / 100) : (Number(ctxAmountZarRaw) || 0);
-    let payment_method = ctxPaymentMethod || '';
-
-    if (!payment_method && (xrp_tx_hash || xrp_amount)) {
-      payment_method = 'xrp';
-    }
-
-    // Final payload
     const payload = {
       trust_number,
       trust_name,
@@ -408,13 +315,11 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       place_of_signature,
       date_sign,
       created_at,
-      // extra for DOCX merge only
       settlor_id,
       client_email,
       payment_method,
       payment_amount,
       payment_amount_cents,
-      // optional XRP fields for backend association
       ...(xrp_amount  ? { xrp_amount } : {}),
       ...(xrp_tx_hash ? { xrp_tx_hash } : {}),
       ...(xrp_address ? { xrp_address } : {}),

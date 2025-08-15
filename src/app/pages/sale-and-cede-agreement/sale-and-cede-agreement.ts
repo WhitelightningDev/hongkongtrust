@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidatorFn } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
@@ -82,6 +82,8 @@ export class SaleAndCedeAgreement implements OnInit {
     private fb: FormBuilder,
     private http: HttpClient,
     private router: Router,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone,
   ) {
     this.cessionForm = this.fb.group({
       trustNumber: ['', Validators.required],
@@ -480,6 +482,7 @@ export class SaleAndCedeAgreement implements OnInit {
     // Close the chooser and open the XRP modal
     this.closePaymentModal();
     this.showXrpModal = true;
+    this.cdr.markForCheck();
 
     // Prefetch a quote for convenience
     this.refreshXrpQuote();
@@ -490,6 +493,7 @@ export class SaleAndCedeAgreement implements OnInit {
   backToPaymentMethods(): void {
     this.showXrpModal = false;
     this.openPaymentModal();
+    this.cdr.markForCheck();
   }
 
   async copyXrpAddress(): Promise<void> {
@@ -504,6 +508,7 @@ export class SaleAndCedeAgreement implements OnInit {
   /** Validate and store the 64-char hex tx hash */
   onXrpHashInput(val: string): void {
     this.xrpTxId = (val || '').trim();
+    this.cdr.markForCheck();
   }
 
   /** True if xrpTxId is exactly 64 hex chars */
@@ -514,22 +519,34 @@ export class SaleAndCedeAgreement implements OnInit {
   /** Fetch XRP price (ZAR) from CoinGecko and compute amount */
   async refreshXrpQuote(): Promise<void> {
     this.xrpQuoteLoading = true;
+    // Clear any previous amount while loading to avoid stale renders
+    this.xrpAmountXrp = null;
+    this.cdr.markForCheck();
     try {
       const url = 'https://api.coingecko.com/api/v3/simple/price?ids=ripple&vs_currencies=usd,zar';
       const res: any = await this.http.get(url).toPromise();
-      const priceZar = Number(res?.ripple?.zar);
-      if (!isFinite(priceZar) || priceZar <= 0) throw new Error('Invalid price');
 
-      const amountZar = this.pendingAmountZAR || 500;
-      const xrp = amountZar / priceZar;
-      // Round to 6 decimals to avoid dust issues
-      this.xrpAmountXrp = Math.round(xrp * 1e6) / 1e6;
+      // Ensure UI updates even under OnPush
+      this.ngZone.run(() => {
+        const priceZar = Number(res?.ripple?.zar);
+        if (!isFinite(priceZar) || priceZar <= 0) {
+          throw new Error('Invalid price');
+        }
+        const amountZar = this.pendingAmountZAR || 500;
+        const xrp = amountZar / priceZar;
+        // Round to 6 decimals to avoid dust issues and string->number glitches
+        this.xrpAmountXrp = Number(xrp.toFixed(6));
+        this.xrpQuoteLoading = false;
+        this.cdr.markForCheck();
+      });
     } catch (e) {
       console.error('XRP quote error:', e);
-      this.xrpAmountXrp = null;
+      this.ngZone.run(() => {
+        this.xrpAmountXrp = null;
+        this.xrpQuoteLoading = false;
+        this.cdr.markForCheck();
+      });
       alert('Could not fetch XRP price. Please try again.');
-    } finally {
-      this.xrpQuoteLoading = false;
     }
   }
 
@@ -575,12 +592,14 @@ export class SaleAndCedeAgreement implements OnInit {
       // Optional: backend may return an acknowledgement
       console.log('XRP payment ack:', resp);
       this.showXrpModal = false;
+      this.cdr.markForCheck();
       alert('Thanks! We\'ve recorded your XRP payment. We\'ll email you once it confirms on-chain.');
       // Route to success page (no gateway redirect needed for XRP)
       await this.router.navigate(['/agreements/sale-cede/success'], { queryParams: { src: 'xrp' } });
     } catch (e) {
       console.error('XRP payment submit error:', e);
       this.showXrpModal = false;
+      this.cdr.markForCheck();
       // Still proceed with a local confirmation so the user isn't blocked
       alert('We\'ve saved your XRP payment details locally. If you don\'t get an email soon, please contact support with your tx hash.');
       await this.router.navigate(['/agreements/sale-cede/success'], { queryParams: { src: 'xrp' } });

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable } from 'rxjs';
 
 export interface TrustCore {
   trust_number: string;
@@ -35,12 +35,17 @@ export class LoanAgreementService {
   private http = inject(HttpClient);
   // Set your backend base URL:
   private baseUrl = '/api'; // e.g. http://localhost:8000/api
+  private trustsBaseUrl = '/trusts'; // trust lookup router is mounted at /trusts
 
   getTrust(trust_number: string, user_id?: string): Observable<TrustLookupResponse> {
     const params = new URLSearchParams();
     if (user_id) params.set('user_id', user_id);
-    const url = `${this.baseUrl}/trusts/${encodeURIComponent(trust_number)}?${params.toString()}`;
-    return this.http.get<TrustLookupResponse>(url);
+    params.set('_ts', Date.now().toString()); // cache-buster to avoid 304 with empty body
+    const qs = params.toString();
+    const url = `${this.trustsBaseUrl}/${encodeURIComponent(trust_number)}${qs ? '?' + qs : ''}`;
+    return this.http.get<TrustLookupResponse>(url, {
+      headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+    });
   }
 
   createLoanAgreement(payload: {

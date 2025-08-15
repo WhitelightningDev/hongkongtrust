@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 export interface TrustCore {
   trust_number: string;
@@ -40,12 +40,46 @@ export class LoanAgreementService {
   getTrust(trust_number: string, user_id?: string): Observable<TrustLookupResponse> {
     const params = new URLSearchParams();
     if (user_id) params.set('user_id', user_id);
-    params.set('_ts', Date.now().toString()); // cache-buster to avoid 304 with empty body
+    params.set('_ts', Date.now().toString());
     const qs = params.toString();
     const url = `${this.trustsBaseUrl}/${encodeURIComponent(trust_number)}${qs ? '?' + qs : ''}`;
-    return this.http.get<TrustLookupResponse>(url, {
-      headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
-    });
+    return this.http.get<any>(url, {
+      headers: { 'Accept': 'application/json', 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+    }).pipe(
+      map((raw: any): TrustLookupResponse => {
+        const core: TrustCore = {
+          trust_number: raw.trust_number,
+          trust_name: raw.trust_name,
+          full_name: raw.full_name,
+          id_number: raw.id_number,
+          email: raw.email,
+          phone_number: raw.phone_number,
+          trust_email: raw.trust_email,
+          member_number: raw.member_number,
+          referrer_number: raw.referrer_number,
+          submitted_at: raw.submitted_at,
+          status: raw.status,
+          payment_status: raw.payment_status,
+          payment_method: raw.payment_method,
+          payment_amount: raw.payment_amount,
+          payment_currency: raw.payment_currency,
+          payment_timestamp: raw.payment_timestamp,
+        };
+
+        const trustees: TrusteeRow[] = [];
+        const pushIf = (seq: number, name: any, id: any) => {
+          const n = (name ?? '').toString().trim();
+          const i = (id ?? '').toString().trim();
+          if (n) trustees.push({ Trustee_Seq: seq, Trustee_Name: n, Trustee_ID: i || null });
+        };
+        pushIf(1, raw.trustee1_name, raw.trustee1_id);
+        pushIf(2, raw.trustee2_name, raw.trustee2_id);
+        pushIf(3, raw.trustee3_name, raw.trustee3_id);
+        pushIf(4, raw.trustee4_name, raw.trustee4_id);
+
+        return { core, trustees } as TrustLookupResponse;
+      })
+    );
   }
 
   createLoanAgreement(payload: {

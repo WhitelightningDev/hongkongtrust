@@ -42,6 +42,7 @@ export class LoanAgreement implements OnInit {
   createdId: number | null = null;
   docxLoading = false;
   docxError = '';
+  docxInfo = '';
 
   ngOnInit(): void {
     // Ensure at least one empty item row exists initially
@@ -89,6 +90,7 @@ export class LoanAgreement implements OnInit {
     this.addItem();
     this.saveError = '';
     this.createdId = null;
+    this.docxInfo = '';
   }
 
   onLookup() {
@@ -216,6 +218,8 @@ export class LoanAgreement implements OnInit {
       next: (res) => {
         this.saveLoading = false;
         this.createdId = res?.Loan_Agreement_ID ?? null;
+        this.docxInfo = 'Generating your loan agreement document now. It will be available for download on this page.';
+        this.onDownloadDocx();
       },
       error: (err) => {
         this.saveLoading = false;
@@ -226,6 +230,9 @@ export class LoanAgreement implements OnInit {
 
   onDownloadDocx() {
     this.docxError = '';
+    if (!this.docxInfo) {
+      this.docxInfo = 'Generating your loan agreement document now. It will be available for download on this page.';
+    }
 
     if (!this.trustCore) {
       this.docxError = 'Please look up a trust first.';
@@ -268,6 +275,7 @@ export class LoanAgreement implements OnInit {
     this.api.generateLoanAgreementDocx(payload).subscribe({
       next: (blob: Blob) => {
         this.docxLoading = false;
+        this.docxInfo = 'Your document is being downloaded. If it did not start, please check your browser pop-up/download settings.';
         const tn = (this.trustCore?.trust_number || 'loan').replace(/\//g, '-');
         const a = document.createElement('a');
         const url = URL.createObjectURL(blob);
@@ -281,6 +289,7 @@ export class LoanAgreement implements OnInit {
       error: (err: any) => {
         this.docxLoading = false;
         this.docxError = this.msg(err, 'Failed to generate document.');
+        this.docxInfo = '';
       }
     });
   }

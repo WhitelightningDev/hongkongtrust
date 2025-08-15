@@ -40,6 +40,8 @@ export class LoanAgreement implements OnInit {
   saveLoading = false;
   saveError = '';
   createdId: number | null = null;
+  docxLoading = false;
+  docxError = '';
 
   ngOnInit(): void {
     // Ensure at least one empty item row exists initially
@@ -206,6 +208,67 @@ export class LoanAgreement implements OnInit {
       error: (err) => {
         this.saveLoading = false;
         this.saveError = err?.error?.message || err?.message || 'Save failed.';
+      }
+    });
+  }
+
+  onDownloadDocx() {
+    this.docxError = '';
+
+    if (!this.trustCore) {
+      this.docxError = 'Please look up a trust first.';
+      return;
+    }
+    if (this.agreementForm.invalid) {
+      this.agreementForm.markAllAsTouched();
+      this.docxError = 'Please complete the required fields before generating the document.';
+      return;
+    }
+    if (!this.hasAtLeastOnePositiveItem()) {
+      this.docxError = 'At least one loan item value must be greater than zero.';
+      return;
+    }
+
+    const v = this.agreementForm.value;
+    const flatItems = (this.items.value as any[])
+      .slice(0, 6)
+      .map((x) => ({
+        Desc: x.Desc || null,
+        Type: x.Type || null,
+        Val: x.Val !== null && x.Val !== undefined ? Number(x.Val) : null
+      }));
+
+    const payload = {
+      Trust_Number: v.Trust_Number as string,
+      User_Id: (this.lookupForm.value.user_id || null) as string | null,
+      Trust_Name: v.Trust_Name as string,
+      Country: v.Country as string,
+      Lender_Name: v.Lender_Name as string,
+      Lender_ID: v.Lender_ID as string,
+      Trustee_Name: v.Trustee_Name as string,
+      Witness_Name: (v.Witness_Name || null) as string | null,
+      Loan_Date: v.Loan_Date as string,
+      CurrencyCode: v.CurrencyCode as string,
+      Items: flatItems
+    };
+
+    this.docxLoading = true;
+    this.api.generateLoanAgreementDocx(payload).subscribe({
+      next: (blob: Blob) => {
+        this.docxLoading = false;
+        const tn = (this.trustCore?.trust_number || 'loan').replace(/\//g, '-');
+        const a = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        a.href = url;
+        a.download = `Loan_Agreement_${tn}.docx`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      },
+      error: (err: any) => {
+        this.docxLoading = false;
+        this.docxError = err?.error?.message || err?.message || 'Failed to generate document.';
       }
     });
   }

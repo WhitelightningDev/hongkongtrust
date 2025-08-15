@@ -30,6 +30,26 @@ export interface TrustLookupResponse {
   trustees: TrusteeRow[];
 }
 
+export interface LoanAgreementItem {
+  Desc: string | null;
+  Type: string | null;
+  Val: number | null;
+}
+
+export interface LoanAgreementCreatePayload {
+  Trust_Number: string;
+  User_Id: string | null;
+  Trust_Name: string;
+  Country: string;
+  Lender_Name: string;
+  Lender_ID: string;
+  Trustee_Name: string;
+  Witness_Name: string | null;
+  Loan_Date: string; // YYYY-MM-DD
+  CurrencyCode: string;
+  Items: LoanAgreementItem[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class LoanAgreementService {
   private http = inject(HttpClient);
@@ -82,19 +102,18 @@ export class LoanAgreementService {
     );
   }
 
-  createLoanAgreement(payload: {
-    Trust_Number: string;
-    User_Id: string | null;
-    Trust_Name: string;
-    Country: string;
-    Lender_Name: string;
-    Lender_ID: string;
-    Trustee_Name: string;
-    Witness_Name: string | null;
-    Loan_Date: string; // YYYY-MM-DD
-    CurrencyCode: string;
-    Items: { Desc: string | null; Type: string | null; Val: number | null }[];
-  }): Observable<{ Loan_Agreement_ID: number }> {
-    return this.http.post<{ Loan_Agreement_ID: number }>(`${this.baseUrl}/loan-agreements`, payload);
+  createLoanAgreement(payload: LoanAgreementCreatePayload): Observable<{ Loan_Agreement_ID: number }> {
+    return this.http.post<{ Loan_Agreement_ID: number }>(
+      `${this.baseUrl}/loan-agreements`,
+      payload,
+      { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } }
+    );
+  }
+
+  generateLoanAgreementDocx(payload: LoanAgreementCreatePayload): Observable<Blob> {
+    return this.http.post(`${this.baseUrl}/loan-agreements/docx`, payload, {
+      responseType: 'blob' as const,
+      headers: { 'Accept': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }
+    });
   }
 }

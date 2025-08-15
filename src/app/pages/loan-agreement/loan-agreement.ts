@@ -46,6 +46,7 @@ export class LoanAgreement implements OnInit {
   ngOnInit(): void {
     // Ensure at least one empty item row exists initially
     if (this.items.length === 0) this.addItem();
+    this.agreementForm.get('Lender_Name')?.valueChanges.subscribe(() => this.syncLenderId());
   }
 
   get items(): FormArray<FormGroup> {
@@ -123,7 +124,7 @@ export class LoanAgreement implements OnInit {
       },
       error: (err) => {
         this.lookupLoading = false;
-        this.lookupError = err?.error?.message || err?.message || 'Lookup failed.';
+        this.lookupError = this.msg(err, 'Lookup failed.');
       }
     });
   }
@@ -148,6 +149,17 @@ export class LoanAgreement implements OnInit {
     // fallback to lender or next available
     return this.defaultLenderName() || (this.trustees[1]?.Trustee_Name ?? '');
   }
+
+  private msg(err: any, fallback: string): string {
+    // FastAPI usually returns { detail: { message } } or { detail: string }
+    if (!err) return fallback;
+    const d = err.error ?? err;
+    if (typeof d?.detail === 'string') return d.detail;
+    if (typeof d?.detail?.message === 'string') return d.detail.message;
+    if (typeof d?.message === 'string') return d.message;
+    return fallback;
+  }
+
   trusteeNames(): string {
     return (this.trustees || []).map(t => t.Trustee_Name).join(', ');
   }
@@ -207,7 +219,7 @@ export class LoanAgreement implements OnInit {
       },
       error: (err) => {
         this.saveLoading = false;
-        this.saveError = err?.error?.message || err?.message || 'Save failed.';
+        this.saveError = this.msg(err, 'Save failed.');
       }
     });
   }
@@ -268,7 +280,7 @@ export class LoanAgreement implements OnInit {
       },
       error: (err: any) => {
         this.docxLoading = false;
-        this.docxError = err?.error?.message || err?.message || 'Failed to generate document.';
+        this.docxError = this.msg(err, 'Failed to generate document.');
       }
     });
   }

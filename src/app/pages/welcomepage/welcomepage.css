@@ -150,6 +150,10 @@ img.img-fluid.rounded { border-radius: var(--radius) !important; }
 
 /* Section 2 background */
 #sell { background: var(--beige-2); }
+#sell p,
+#sell ul {
+  text-align: justify;
+}
 
 /* Vertical rule aesthetic in Section 1/2 (right column) */
 @media (min-width: 992px) {

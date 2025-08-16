@@ -22,6 +22,8 @@ export class Welcomepage implements OnInit {
   constructor(private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
+    this.showModal = true; // show modal when page loads
+
     this.route.queryParams.subscribe(params => {
       const status = params['payment'];
       if (status === 'success') this.router.navigate(['/success'], { replaceUrl: true });

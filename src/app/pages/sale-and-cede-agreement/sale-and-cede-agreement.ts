@@ -346,6 +346,30 @@ export class SaleAndCedeAgreement implements OnInit {
       witnessId: string;
     };
 
+    // Prevent witness ID being the same as owner or signer, show Bootstrap modal instead of alert
+    if (v.witnessId === v.owner.id || v.witnessId === v.signer.id) {
+      // Requires Bootstrap Modal JS to be loaded and modal with id 'witnessConflictModal' present in DOM
+      const modalEl = document.getElementById('witnessConflictModal');
+      if (modalEl && (window as any).bootstrap && (window as any).bootstrap.Modal) {
+        const modal = new (window as any).bootstrap.Modal(modalEl);
+        modal.show();
+      }
+      // fallback if bootstrap not global (Angular CLI projects may not have it on window)
+      else if (typeof (window as any).bootstrap === 'undefined' && typeof (window as any)['Bootstrap'] !== 'undefined') {
+        // try alternative global
+        const modal = new (window as any)['Bootstrap'].Modal(modalEl);
+        modal.show();
+      }
+      // fallback: try global bootstrap variable (if imported as ES module)
+      else if (typeof (window as any).bootstrap !== 'undefined') {
+        const modal = new (window as any).bootstrap.Modal(modalEl);
+        modal.show();
+      }
+      // If no Bootstrap modal found, do nothing (or optionally fallback to alert)
+      // alert('The witness ID cannot be the same as the property owner or trustee signer.');
+      return;
+    }
+
     const propertyArr: string[] = Array.isArray(v.propertyList)
       ? v.propertyList
       : (v.propertyList ? [v.propertyList] : []);

@@ -157,6 +157,9 @@
                     <label for="signer">Signer on behalf of trust</label>
                   </div>
                   <small class="text-muted d-block mt-1" *ngIf="signer">Signer ID: {{ signer.id }}</small>
+                  <div *ngIf="cessionForm.get('owner')?.value?.id === cessionForm.get('signer')?.value?.id" class="alert alert-warning mt-2 small">
+                    The owner and the trustee signer must be different people.
+                  </div>
                 </div>
               </div>
             </section>
@@ -167,6 +170,7 @@
               <div class="p-3 border rounded-3 bg-body-tertiary shadow-sm">
                 <div class="mb-3">
                   <label for="propertyItem" class="form-label">Property or Rights to be Sold *</label>
+                  <div class="form-text text-muted mb-2">Please provide a detailed description of the property or rights being transferred.</div>
                   <div class="input-group mb-2 shadow-sm rounded-3 overflow-hidden">
                     <input type="text" class="form-control" id="propertyItem" placeholder="Enter property or right" formControlName="propertyPending" (keyup.enter)="addProperty(cessionForm.get('propertyPending')?.value)">
                     <button class="btn btn-primary" type="button" (click)="addProperty(cessionForm.get('propertyPending')?.value)">
@@ -403,6 +407,25 @@
       <button type="button" class="btn btn-primary rounded-pill" (click)="confirmXrpPayment()" [disabled]="!isXrpHashValid || !xrpAmountXrp">
         <i class="bi bi-shield-lock"></i> Submit XRP Payment
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- Witness Conflict Modal -->
+<div class="modal fade" id="witnessConflictModal" tabindex="-1" aria-labelledby="witnessConflictModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="witnessConflictModalLabel">Invalid Witness</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        The witness cannot be the same as either the property owner (Trustee 1) or the trustee signer (Trustee 2).
+        Please select a different person to act as the witness.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+      </div>
     </div>
   </div>
 </div>

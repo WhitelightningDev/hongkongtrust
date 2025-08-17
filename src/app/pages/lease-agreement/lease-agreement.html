@@ -1,4 +1,11 @@
 <div class="container py-5">
+      <!-- Back Button with separate "Learn More" heading -->
+<div class="d-flex align-items-center mb-4">
+  <button class="btn btn-dark rounded-circle" (click)="goBackToHome()">
+    <i class="bi bi-arrow-left fs-5"></i>
+  </button>
+  <h4 class="fw-bold ms-3 mb-0">Lease Agreement</h4>
+</div>
   <h2 class="mb-4">Generate Lease Agreement</h2>
 
   <form (ngSubmit)="generateLeaseAgreement()" #leaseForm="ngForm">

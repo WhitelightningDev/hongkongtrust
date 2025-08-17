@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { LoanAgreementService, TrustCore, TrusteeRow } from '../../loan-agreement.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-loan-agreement',
@@ -11,6 +12,8 @@ import { LoanAgreementService, TrustCore, TrusteeRow } from '../../loan-agreemen
   styleUrls: ['./loan-agreement.css']
 })
 export class LoanAgreement implements OnInit {
+
+  constructor(private router: Router) {}
 
   fb = inject(FormBuilder);
   api = inject(LoanAgreementService);
@@ -297,5 +300,9 @@ export class LoanAgreement implements OnInit {
   private todayIso(): string {
     const d = new Date();
     return d.toISOString().slice(0,10);
+  }
+
+  goBackToHome(): void {
+    this.router.navigate(['/']);
   }
 }

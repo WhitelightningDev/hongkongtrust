@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-lease-agreement',
@@ -16,7 +16,7 @@ export class LeaseAgreement {
   loading: boolean = false;
   trustDataRetrieved: boolean = false;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   async generateLeaseAgreement() {
     try {
@@ -81,5 +81,10 @@ export class LeaseAgreement {
     this.formData = {};
     this.loading = false;
     this.trustDataRetrieved = false;
+  }
+
+
+  goBackToHome(): void {
+    this.router.navigate(['/']);
   }
 }

@@ -13,6 +13,7 @@ import { SaleAndCedeAgreementSuccessComponent } from './pages/sale-and-cede-agre
 import { TestingPage } from './pages/testing-page/testing-page';
 import { LoanAgreement } from './pages/loan-agreement/loan-agreement';
 import { LeaseAgreement } from './pages/lease-agreement/lease-agreement';
+import { TrusteeResolution } from './pages/trustee-resolution/trustee-resolution';
 
 
 
@@ -36,6 +37,9 @@ export const routes: Routes = [
   },
   {
     path: 'lease-agreement', component: LeaseAgreement
+  },
+  {
+path: 'trustee-resolution', component: TrusteeResolution
   },
   {
     path: 'loan-agreement', component: LoanAgreement

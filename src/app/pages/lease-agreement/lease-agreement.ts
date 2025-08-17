@@ -68,7 +68,8 @@ export class LeaseAgreement {
     try {
       const encodedTrustNumber = encodeURIComponent(this.formData.trust_number);
       const response = await this.http.get<any>(`https://hongkongbackend.onrender.com/trusts/${encodedTrustNumber}?user_id=${this.formData.settlor_id}`).toPromise();
-      this.formData = { ...this.formData, ...response };
+      const { trustee1_name, trustee1_id, ...rest } = response;
+      this.formData = { ...this.formData, ...rest };
       this.trustDataRetrieved = true;
     } catch (error) {
       console.error('Error fetching trust data', error);

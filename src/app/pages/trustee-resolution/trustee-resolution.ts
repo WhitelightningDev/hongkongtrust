@@ -119,7 +119,22 @@ export class TrusteeResolution {
             const a = document.createElement('a');
             a.href = url;
             a.download = 'Trustee_Resolution.docx';
-            a.click();
+            // Android mobile workaround for download
+            if (navigator.userAgent.toLowerCase().includes('android')) {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                const blobUrl = reader.result as string;
+                const newTab = window.open();
+                if (newTab) {
+                  newTab.document.write('<iframe src="' + blobUrl + '" frameborder="0" style="border:0; top:0; left:0; bottom:0; right:0; width:100%; height:100%;" allowfullscreen></iframe>');
+                } else {
+                  alert('Please allow popups for this site to download the document.');
+                }
+              };
+              reader.readAsDataURL(blob);
+            } else {
+              a.click();
+            }
             window.URL.revokeObjectURL(url);
 
             this.successMessage = 'The resolution was generated and downloaded successfully.';

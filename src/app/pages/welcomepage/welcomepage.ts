@@ -2,12 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { Notice } from '../../components/notice/notice'; // Adjust path if needed
 
 @Component({
   selector: 'app-welcomepage',
   standalone: true,
-  imports: [CommonModule, FormsModule, Notice],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './welcomepage.html',
   styleUrls: ['./welcomepage.css']
 })

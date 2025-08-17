@@ -1,0 +1,104 @@
+<div class="container py-5">
+  <h2 class="mb-4">Generate Lease Agreement</h2>
+
+  <form (ngSubmit)="generateLeaseAgreement()" #leaseForm="ngForm">
+    <p class="text-muted mb-4">
+      Please enter your trust number and user ID to retrieve trust details. Fill in the remaining fields to generate the lease agreement.
+    </p>
+    <fieldset class="mb-4 border p-3">
+      <legend class="w-auto px-2 fw-semibold">Step 1: Trust Lookup</legend>
+      <div class="mb-3">
+        <label for="trustNumber" class="form-label">Trust Number</label>
+        <input
+          type="text"
+          id="trustNumber"
+          class="form-control"
+          required
+          [(ngModel)]="formData.trust_number"
+          name="trust_number"
+          (ngModelChange)="formData.trust_number = $event"
+        />
+        <div class="form-text">Enter the full trust number (e.g., 3234/25).</div>
+      </div>
+      <div class="mb-3">
+        <label for="userId" class="form-label">User ID</label>
+        <input
+          type="text"
+          id="userId"
+          class="form-control"
+          required
+          [(ngModel)]="formData.settlor_id"
+          name="settlor_id"
+          (ngModelChange)="formData.settlor_id = $event"
+        />
+        <div class="form-text">Provide the ID of the trust owner (settlor).</div>
+      </div>
+      <button type="button" class="btn btn-secondary me-2" (click)="fetchTrustData()">Look Up Trust Info</button>
+    </fieldset>
+
+    <div *ngIf="loading" class="mb-3 text-primary">
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      Loading trust data...
+    </div>
+
+    <h5 class="mt-4">Step 2: Confirm or Edit Trust Information</h5>
+
+    <div class="mb-3">
+      <label for="ownerName" class="form-label">Owner Name</label>
+      <input type="text" id="ownerName" class="form-control" required [(ngModel)]="formData.settlor_name" name="settlor_name">
+      <div class="form-text">This is the full legal name of the trust owner.</div>
+    </div>
+
+    <div class="mb-3">
+      <label for="ownerId" class="form-label">Owner ID</label>
+      <input type="text" id="ownerId" class="form-control" required [(ngModel)]="formData.settlor_id" name="settlor_id">
+    </div>
+
+    <div class="mb-3">
+      <label for="signerName" class="form-label">Signer Name (Trustee)</label>
+      <input type="text" id="signerName" class="form-control" required [(ngModel)]="formData.trustee2_name" name="trustee2_name">
+      <div class="form-text">Name of the trustee who will sign the agreement.</div>
+    </div>
+
+    <div class="mb-3">
+      <label for="trustName" class="form-label">Trust Name</label>
+      <input type="text" id="trustName" class="form-control" required [(ngModel)]="formData.trust_name" name="trust_name">
+    </div>
+
+    <div class="mb-3">
+      <label for="propertyAddress" class="form-label">Property Address (One Line)</label>
+      <input type="text" id="propertyAddress" class="form-control" required [(ngModel)]="formData.Property_Address" name="Property_Address">
+      <div class="form-text">Type the complete address of the leased property.</div>
+    </div>
+
+    <div class="mb-3">
+      <label for="witnessName" class="form-label">Witness Name</label>
+      <input type="text" id="witnessName" class="form-control" required [(ngModel)]="formData.trustee1_name" name="trustee1_name">
+      <div class="form-text">Details of the witness to the agreement.</div>
+    </div>
+
+    <div class="mb-3">
+      <label for="witnessId" class="form-label">Witness ID</label>
+      <input type="text" id="witnessId" class="form-control" required [(ngModel)]="formData.trustee1_id" name="trustee1_id">
+      <div class="form-text">Details of the witness to the agreement.</div>
+    </div>
+
+    <div class="mb-3">
+      <label for="witnessId" class="form-label">Establishment Date 1 </label>
+      <input type="text" id="witnessId" class="form-control" required [(ngModel)]="formData.establishment_date_1" name="establishment_date_1">
+      <div class="form-text">Format of establishment date 1 </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="witnessId" class="form-label">Establishment Date 2</label>
+      <input type="text" id="witnessId" class="form-control" required [(ngModel)]="formData.establishment_date_2" name="establishment_date_2">
+      <div class="form-text">Format of establishment date 2</div>
+    </div>
+
+    <h5 class="mt-4">Step 3: Generate Lease Agreement</h5>
+    <p class="text-muted">Once all fields are complete, click "Generate Agreement" to download your lease agreement document.</p>
+
+    <button class="btn btn-primary" type="submit">Generate Agreement</button>
+    <button type="button" class="btn btn-outline-danger ms-2" (click)="resetForm()">Reset</button>
+  </form>
+</div>

@@ -12,6 +12,8 @@ import { SaleAndCedeAgreement } from './pages/sale-and-cede-agreement/sale-and-c
 import { SaleAndCedeAgreementSuccessComponent } from './pages/sale-and-cede-agreement-success/sale-and-cede-agreement-success';
 import { TestingPage } from './pages/testing-page/testing-page';
 import { LoanAgreement } from './pages/loan-agreement/loan-agreement';
+import { LeaseAgreement } from './pages/lease-agreement/lease-agreement';
+
 
 
 export const routes: Routes = [
@@ -31,6 +33,9 @@ export const routes: Routes = [
   {
     path: 'success',
     component: SuccessComponent,
+  },
+  {
+    path: 'lease-agreement', component: LeaseAgreement
   },
   {
     path: 'loan-agreement', component: LoanAgreement
@@ -61,5 +66,6 @@ export const routes: Routes = [
     path: 'sale-cede/success', component: SaleAndCedeAgreementSuccessComponent
   },
   { path: 'agreements/sale-cede/success', component: SaleAndCedeAgreementSuccessComponent },
-  { path: '**', redirectTo: '' }
+  { path: '**', redirectTo: '' },
+  
 ];

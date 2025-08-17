@@ -112,14 +112,25 @@ export class TrusteeResolution {
         };
 
         this.http.post('https://hongkongbackend.onrender.com/generate-resolution', resolutionPayload, {
-          responseType: 'blob'
+          responseType: 'blob',
+          observe: 'response'
         }).subscribe({
-          next: (blob: Blob) => {
+          next: (response) => {
+            const blob: Blob = response.body!;
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let filename = 'Trustee_Resolution.docx';
+            if (contentDisposition) {
+              const match = contentDisposition.match(/filename="(.+)"/);
+              if (match) {
+                filename = match[1];
+              }
+            }
+
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'Trustee_Resolution.docx';
-            // Android mobile workaround for download
+            a.download = filename;
+
             if (navigator.userAgent.toLowerCase().includes('android')) {
               const reader = new FileReader();
               reader.onloadend = () => {
@@ -135,6 +146,7 @@ export class TrusteeResolution {
             } else {
               a.click();
             }
+
             window.URL.revokeObjectURL(url);
 
             this.successMessage = 'The resolution was generated and downloaded successfully.';

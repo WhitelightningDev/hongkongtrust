@@ -14,6 +14,7 @@ import { TestingPage } from './pages/testing-page/testing-page';
 import { LoanAgreement } from './pages/loan-agreement/loan-agreement';
 import { LeaseAgreement } from './pages/lease-agreement/lease-agreement';
 import { TrusteeResolution } from './pages/trustee-resolution/trustee-resolution';
+import { PrivacyPolicy } from './components/privacy-policy/privacy-policy';
 
 
 
@@ -34,6 +35,9 @@ export const routes: Routes = [
   {
     path: 'success',
     component: SuccessComponent,
+  },
+  {
+path: 'privacy-policy', component: PrivacyPolicy
   },
   {
     path: 'lease-agreement', component: LeaseAgreement

@@ -1,10 +1,10 @@
 <div class="container py-5">
   <div class="d-flex align-items-center mb-4">
-  <button class="btn btn-dark rounded-circle" (click)="goBackToHome()">
-    <i class="bi bi-arrow-left fs-5"></i>
-  </button>
-  <h4 class="fw-bold ms-3 mb-0">Trustee Resolution</h4>
-</div>
+    <button class="btn btn-dark rounded-circle" (click)="goBackToHome()">
+      <i class="bi bi-arrow-left fs-5"></i>
+    </button>
+    <h4 class="fw-bold ms-3 mb-0">Trustee Resolution</h4>
+  </div>
 
   <h3 class="mb-4 text-center text-primary fw-bold">Appoint a Trustee Representative</h3>
 
@@ -14,6 +14,11 @@
 
   <div class="card shadow-sm border-0">
     <div class="card-body">
+      <div class="d-flex justify-content-center my-4" *ngIf="isLoading">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
       <form (ngSubmit)="generateResolution()" #resolutionForm="ngForm" class="row g-4">
         <div class="col-12">
           <label for="trustNumber" class="form-label">Trust Number</label>
@@ -24,7 +29,7 @@
             name="trustNumber"
             [(ngModel)]="trustNumber"
             required
-            placeholder="e.g., 3234/25"
+            placeholder="e.g., 1234/25"
           />
         </div>
 
@@ -37,24 +42,14 @@
             name="userName"
             [(ngModel)]="userName"
             required
-            placeholder="e.g., Willem Abraham Pretorius"
+            placeholder="e.g., Joe Soap"
           />
         </div>
 
         <div class="col-12 mt-4">
-          <h5 class="text-muted border-bottom pb-2">Step 1: Lookup Trust</h5>
           <div class="d-flex justify-content-center">
-            <button class="btn btn-outline-primary rounded-pill px-4" type="button" (click)="lookupTrust()">
-              <i class="bi bi-search"></i> Lookup Trust Details
-            </button>
-          </div>
-        </div>
-
-        <div class="col-12 mt-4">
-          <h5 class="text-muted border-bottom pb-2">Step 2: Generate Resolution</h5>
-          <div class="d-flex justify-content-center">
-            <button class="btn btn-primary rounded-pill px-4" type="submit" [disabled]="!resolutionForm.form.valid">
-              <i class="bi bi-file-earmark-text"></i> Generate Resolution
+            <button class="btn btn-success rounded-pill px-4" type="submit" [disabled]="!resolutionForm.form.valid">
+              <i class="bi bi-file-earmark-text"></i> Get Resolution Document
             </button>
           </div>
         </div>
@@ -62,51 +57,30 @@
     </div>
   </div>
 
-  <section class="mt-5">
-    <div *ngIf="trustData" class="card shadow-sm">
+  <section class="mt-5" *ngIf="trustData">
+    <div class="card shadow-sm">
       <div class="card-header bg-secondary text-white fw-semibold fs-5">Trust Details Retrieved</div>
       <div class="card-body">
-        <!-- Trust Information -->
-        <div class="mb-3">
-          <h6 class="fw-bold text-primary border-bottom pb-1 mb-3">Trust Information</h6>
-          <div class="row mb-2">
-            <div class="col-md-6 mb-2"><strong>Trust Name:</strong> {{ trustData.trust_name }}</div>
-            <div class="col-md-6 mb-2"><strong>Trust Number:</strong> {{ trustData.trust_number }}</div>
-            <div class="col-md-6 mb-2"><strong>Establishment Date 1:</strong> {{ trustData.establishment_date_1 }}</div>
-            <div class="col-md-6 mb-2"><strong>Establishment Date 2:</strong> {{ trustData.establishment_date_2 }}</div>
-            <div class="col-md-6 mb-2"><strong>Beneficiaries:</strong> {{ trustData.beneficiaries }}</div>
-            <div class="col-md-6 mb-2"><strong>Settlor Name:</strong> {{ trustData.settlor_name }}</div>
-          </div>
+        <h6 class="fw-bold text-primary border-bottom pb-1 mb-3">Trust Information</h6>
+        <div class="row">
+          <div class="col-md-6 mb-2"><strong>Trust Name:</strong> {{ trustData.trust_name }}</div>
+          <div class="col-md-6 mb-2"><strong>Trust Number:</strong> {{ trustData.trust_number }}</div>
+          <div class="col-md-6 mb-2"><strong>Full Name:</strong> {{ trustData.full_name }}</div>
+          <div class="col-md-6 mb-2"><strong>ID Number:</strong> {{ trustData.id_number }}</div>
+          <div class="col-md-6 mb-2"><strong>Email:</strong> {{ trustData.email }}</div>
+          <div class="col-md-6 mb-2"><strong>Phone:</strong> {{ trustData.phone_number }}</div>
+          <div class="col-md-6 mb-2"><strong>Establishment Date 1:</strong> {{ trustData.establishment_date_1 }}</div>
+          <div class="col-md-6 mb-2"><strong>Establishment Date 2:</strong> {{ trustData.establishment_date_2 }}</div>
+          <div class="col-md-6 mb-2"><strong>Beneficiaries:</strong> {{ trustData.beneficiaries }}</div>
+          <div class="col-md-6 mb-2"><strong>Settlor Name:</strong> {{ trustData.settlor_name }}</div>
         </div>
-        <!-- Contact Information -->
-        <div class="mb-3">
-          <h6 class="fw-bold text-primary border-bottom pb-1 mb-3">Contact Information</h6>
-          <div class="row mb-2">
-            <div class="col-md-6 mb-2"><strong>Full Name:</strong> {{ trustData.full_name }}</div>
-            <div class="col-md-6 mb-2"><strong>ID Number:</strong> {{ trustData.id_number }}</div>
-            <div class="col-md-6 mb-2"><strong>Email:</strong> {{ trustData.email }}</div>
-            <div class="col-md-6 mb-2"><strong>Phone:</strong> {{ trustData.phone_number }}</div>
-          </div>
-        </div>
-        <!-- Membership and Payment -->
-        <div class="mb-3">
-          <h6 class="fw-bold text-primary border-bottom pb-1 mb-3">Membership & Payment</h6>
-          <div class="row mb-2">
-            <div class="col-md-6 mb-2"><strong>Member Number:</strong> {{ trustData.member_number }}</div>
-            <div class="col-md-6 mb-2"><strong>Is Bullion Member:</strong> {{ trustData.is_bullion_member ? 'Yes' : 'No' }}</div>
-            <div class="col-md-6 mb-2"><strong>Payment Method:</strong> {{ trustData.payment_method }}</div>
-            <div class="col-md-6 mb-2"><strong>XRP Payment Quantity:</strong> {{ trustData.payment_xrp_qty }}</div>
-          </div>
-        </div>
-        <!-- Trustees -->
-        <div>
-          <h6 class="fw-bold text-primary border-bottom pb-1 mb-3">Trustees</h6>
-          <div class="row mb-2">
-            <div class="col-md-6 mb-2"><strong>Trustee 1:</strong> {{ trustData.trustee1_name }}</div>
-            <div class="col-md-6 mb-2"><strong>Trustee 2:</strong> {{ trustData.trustee2_name }}</div>
-            <div class="col-md-6 mb-2"><strong>Trustee 3:</strong> {{ trustData.trustee3_name || 'N/A' }}</div>
-            <div class="col-md-6 mb-2"><strong>Trustee 4:</strong> {{ trustData.trustee4_name || 'N/A' }}</div>
-          </div>
+
+        <h6 class="fw-bold text-primary border-bottom pt-3 pb-1 mb-3">Trustee Details</h6>
+        <div class="row">
+          <div class="col-md-6 mb-2"><strong>Trustee 1:</strong> {{ trustData.trustee1_name }}</div>
+          <div class="col-md-6 mb-2"><strong>Trustee 2:</strong> {{ trustData.trustee2_name }}</div>
+          <div class="col-md-6 mb-2" *ngIf="trustData.trustee3_name"><strong>Trustee 3:</strong> {{ trustData.trustee3_name }}</div>
+          <div class="col-md-6 mb-2" *ngIf="trustData.trustee4_name"><strong>Trustee 4:</strong> {{ trustData.trustee4_name }}</div>
         </div>
       </div>
     </div>

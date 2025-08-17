@@ -377,7 +377,13 @@ export class SaleAndCedeAgreement implements OnInit {
     const pendingRaw = (this.cessionForm.get('propertyPending')?.value || '').toString().trim();
     const propertyArrMerged = pendingRaw ? [...propertyArr, pendingRaw] : propertyArr;
 
-    const nowISO = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
+    const now = new Date();
+    const dateSignFormatted = now.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+    const nowISO = now.toISOString().slice(0, 10); // keep ISO for trust_date
     // --- Trimmed helpers ---
     const signaturePlaceTrim = (v.signaturePlace || '').trim();
     const witnessNameTrim = (v.witnessName || '').trim();
@@ -423,7 +429,7 @@ export class SaleAndCedeAgreement implements OnInit {
       witness_name: witness_name,
       witness_id: witness_id,
       place_of_signature: place_of_signature,
-      date_sign: nowISO,
+      date_sign: dateSignFormatted,
       created_at: new Date().toISOString(),
       settlor_id: v.settlorId,
       client_email: (this.lookupRecord?.email || ''),

@@ -258,14 +258,16 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
     const place_of_signature = (cedeCtx.place_of_signature ?? trustData.place_of_signature ?? '').toString().trim();
 
     // Dates
-    const trust_date = (
+    const rawTrustDate = (
       cedeCtx.trust_date ||
       trustData.establishment_date_2 ||
       trustData.establishment_date_1 ||
       trustData.trust_date ||
       today
     );
-    const date_sign  = cedeCtx.date_sign || today;
+    const trust_date = new Date(rawTrustDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    const rawDateSign = cedeCtx.date_sign || today;
+    const date_sign = new Date(rawDateSign).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     const created_at = cedeCtx.created_at || nowISO;
 
     // Settlor/email

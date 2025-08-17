@@ -81,13 +81,13 @@
 
     <div class="mb-3">
       <label for="witnessName" class="form-label">Witness Name (Not the trustee of beneficiary)</label>
-      <input type="text" id="witnessName" class="form-control" required [(ngModel)]="formData.trustee1_name" name="trustee1_name">
+      <input type="text" id="witnessName" class="form-control" required [ngModel]="formData.trustee1_name" (ngModelChange)="formData.trustee1_name = $event" name="trustee1_name">
       <div class="form-text">Details of the witness to the agreement.</div>
     </div>
 
     <div class="mb-3">
       <label for="witnessId" class="form-label">Witness ID</label>
-      <input type="text" id="witnessId" class="form-control" required [(ngModel)]="formData.trustee1_id" name="trustee1_id">
+      <input type="text" id="witnessId" class="form-control" required [ngModel]="formData.trustee1_id" (ngModelChange)="formData.trustee1_id = $event" name="trustee1_id">
       <div class="form-text">Details of the witness to the agreement.</div>
     </div>
 

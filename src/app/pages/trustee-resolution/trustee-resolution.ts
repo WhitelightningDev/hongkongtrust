@@ -120,9 +120,9 @@ export class TrusteeResolution {
             const contentDisposition = response.headers.get('Content-Disposition');
             let filename = 'Trustee_Resolution.docx';
             if (contentDisposition) {
-              const match = contentDisposition.match(/filename="(.+)"/);
-              if (match) {
-                filename = match[1];
+              const match = contentDisposition.match(/filename="?([^"]+)"?/);
+              if (match && match[1]) {
+                filename = decodeURIComponent(match[1]);
               }
             }
 

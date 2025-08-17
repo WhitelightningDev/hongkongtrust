@@ -48,23 +48,24 @@
       Loading trust data...
     </div>
 
-    <h5 class="mt-4">Step 2: Confirm or Edit Trust Information</h5>
+    <h5 class="mt-4">Step 2: Confirm the owner or lessor information</h5>
 
     <div class="mb-3">
       <label for="ownerName" class="form-label">Owner Name</label>
       <input type="text" id="ownerName" class="form-control" required [(ngModel)]="formData.settlor_name" name="settlor_name">
-      <div class="form-text">This is the full legal name of the trust owner.</div>
+      <div class="form-text">This is the name of the owner / lessor </div>
     </div>
 
     <div class="mb-3">
       <label for="ownerId" class="form-label">Owner ID</label>
       <input type="text" id="ownerId" class="form-control" required [(ngModel)]="formData.settlor_id" name="settlor_id">
+      <div class="form-text">The owner / lessor ID or Registration Number</div>
     </div>
 
     <div class="mb-3">
       <label for="signerName" class="form-label">Signer Name (Trustee)</label>
       <input type="text" id="signerName" class="form-control" required [(ngModel)]="formData.trustee2_name" name="trustee2_name">
-      <div class="form-text">Name of the trustee who will sign the agreement.</div>
+      <div class="form-text">Name of the trustee who will sign on behalf of the trust.</div>
     </div>
 
     <div class="mb-3">
@@ -75,11 +76,11 @@
     <div class="mb-3">
       <label for="propertyAddress" class="form-label">Property Address (One Line)</label>
       <input type="text" id="propertyAddress" class="form-control" required [(ngModel)]="formData.Property_Address" name="Property_Address">
-      <div class="form-text">Type the complete address of the leased property.</div>
+      <div class="form-text">Type the complete address of the leased property. EG 187 Kameeldrift Weg, Roodepoort, Pretoria, Gauteng, South Africa</div>
     </div>
 
     <div class="mb-3">
-      <label for="witnessName" class="form-label">Witness Name</label>
+      <label for="witnessName" class="form-label">Witness Name (Not the trustee of beneficiary)</label>
       <input type="text" id="witnessName" class="form-control" required [(ngModel)]="formData.trustee1_name" name="trustee1_name">
       <div class="form-text">Details of the witness to the agreement.</div>
     </div>
@@ -90,17 +91,17 @@
       <div class="form-text">Details of the witness to the agreement.</div>
     </div>
 
-    <div class="mb-3">
-      <label for="witnessId" class="form-label">Establishment Date 1 </label>
+    <!-- <div class="mb-3">
+      <label for="witnessId" class="form-label">Lease Date</label>
       <input type="text" id="witnessId" class="form-control" required [(ngModel)]="formData.establishment_date_1" name="establishment_date_1">
-      <div class="form-text">Format of establishment date 1 </div>
-    </div>
+      <div class="form-text">Start of lease date</div>
+    </div> -->
 
-    <div class="mb-3">
+    <!-- <div class="mb-3">
       <label for="witnessId" class="form-label">Establishment Date 2</label>
       <input type="text" id="witnessId" class="form-control" required [(ngModel)]="formData.establishment_date_2" name="establishment_date_2">
       <div class="form-text">Format of establishment date 2</div>
-    </div>
+    </div> -->
 
     <h5 class="mt-4">Step 3: Generate Lease Agreement</h5>
     <p class="text-muted">Once all fields are complete, click "Generate Agreement" to download your lease agreement document.</p>

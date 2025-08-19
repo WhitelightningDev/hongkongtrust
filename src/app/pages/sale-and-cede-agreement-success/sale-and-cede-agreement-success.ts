@@ -258,16 +258,9 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
     const place_of_signature = (cedeCtx.place_of_signature ?? trustData.place_of_signature ?? '').toString().trim();
 
     // Dates
-    const rawTrustDate = (
-      cedeCtx.trust_date ||
-      trustData.establishment_date_2 ||
-      trustData.establishment_date_1 ||
-      trustData.trust_date ||
-      today
-    );
-    const trust_date = new Date(rawTrustDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-    const rawDateSign = cedeCtx.date_sign || today;
-    const date_sign = new Date(rawDateSign).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    const establishment_date_1 = trustData.establishment_date_1 || '';
+    const establishment_date_2 = trustData.establishment_date_2 || '';
+    const date_sign = cedeCtx.date_sign || today;
     const created_at = cedeCtx.created_at || nowISO;
 
     // Settlor/email
@@ -306,7 +299,8 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
     const payload = {
       trust_number,
       trust_name,
-      trust_date,
+      establishment_date_1,
+      establishment_date_2,
       owner_name,
       owner_id,
       signer_name,

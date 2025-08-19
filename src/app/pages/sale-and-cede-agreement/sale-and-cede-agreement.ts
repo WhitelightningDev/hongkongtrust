@@ -174,21 +174,25 @@ export class SaleAndCedeAgreement implements OnInit {
     const id_or_passport = idCtrl.value;
 
     const API_BASE = 'https://hongkongbackend.onrender.com';
-    const url = `${API_BASE}/trusts/edit-trust/lookup`;
+    // Use GET request per new API
+    const url = `${API_BASE}/trusts/${encodeURIComponent(trust_number)}?user_id=${encodeURIComponent(id_or_passport)}&_ts=${Date.now()}`;
 
     this.lookupLoading = true;
     try {
-      const record: any = await this.http.post(url, { trust_number, id_or_passport }).toPromise();
+      const record: any = await this.http.get(url).toPromise();
 
       console.log('Trust lookup raw record:', record);
 
       this.lookupRecord = record;
 
-      // Normalize trust number from lookup and patch into the form
-      const lookedUpTrustNumber = record?.trust_number || record?.trustNumber || null;
-      if (lookedUpTrustNumber) {
-        this.cessionForm.patchValue({ trustNumber: lookedUpTrustNumber }, { emitEvent: false });
-      }
+      // Patch values from API response into the form
+      this.cessionForm.patchValue({
+        settlorId: record?.settlor_id || '',
+        trustNumber: record?.trust_number || '',
+        signaturePlace: record?.place_of_signature || '',
+        witnessName: record?.witness_name || '',
+        witnessId: record?.witness_id || '',
+      }, { emitEvent: false });
 
       // Defensive: promote common email field to top-level for payment-session schema, if present nested
       if (!this.lookupRecord.email) {
@@ -196,10 +200,12 @@ export class SaleAndCedeAgreement implements OnInit {
       }
 
       this.trustNameLoaded = record?.trust_name ?? null;
-      this.trustDateLoaded = record?.trust_date || record?.trustDate || record?.trust_created_at || null;
+      this.trustDateLoaded = record?.establishment_date_2 || record?.establishment_date_1 || null;
 
-      // Update Settlor inputs and local model, but only patch settlorId if backend value is non-empty and different from the form
-      this.settlorName = record?.settlor?.name ?? this.settlorName;
+      // Update Settlor name from API if present, else keep current
+      this.settlorName = record?.settlor_name ?? this.settlorName;
+
+      // Update Settlor ID logic (keep as before)
       const backendSettlorId = record?.settlor?.id ?? '';
       const currentSettlorId = idCtrl.value ?? '';
       if (backendSettlorId && backendSettlorId !== currentSettlorId) {
@@ -210,14 +216,37 @@ export class SaleAndCedeAgreement implements OnInit {
         // Do not patch settlorId if user has entered it and backend is empty or same
       }
 
-      // Normalise trustees list
-      const apiTrustees = Array.isArray(record?.trustees) ? record.trustees : [];
-      this.trustees = apiTrustees
-        .filter((t: any) => t && (t.name || t.full_name))
-        .map((t: any, idx: number) => ({
-          name: t.name ?? t.full_name ?? `Trustee ${idx + 1}`,
-          id: t.id ?? t.passport ?? t.id_or_passport ?? `T-${idx + 1}`,
-        }));
+      // Build trustees directly from record fields
+      const trusteeFields = [
+        { name: record.trustee1_name, id: record.trustee1_id },
+        { name: record.trustee2_name, id: record.trustee2_id },
+        { name: record.trustee3_name, id: record.trustee3_id },
+        { name: record.trustee4_name, id: record.trustee4_id }
+      ].filter(t => t.name?.trim() && t.id?.trim());
+
+      this.trustees = trusteeFields.map((t, idx) => ({
+        name: t.name,
+        id: t.id
+      }));
+
+      this.signerOptions = this.trustees.map((t, idx) => ({
+        key: `trustee${idx + 1}`,
+        role: 'Trustee',
+        name: t.name,
+        id: t.id,
+        label: `${t.name}`
+      }));
+
+      this.ownerOptions = [
+        {
+          key: 'settlor',
+          role: 'Settlor',
+          name: this.settlorName,
+          id: this.settlorId,
+          label: `Settlor : ${this.settlorName}`,
+        },
+        ...this.signerOptions
+      ];
 
       // Rebuild party options with the fetched data
       this.rebuildOptions();
@@ -420,6 +449,8 @@ export class SaleAndCedeAgreement implements OnInit {
       trust_number: resolvedTrustNumber,
       trust_name: this.trustNameLoaded ?? '',
       trust_date: this.trustDateLoaded ?? nowISO,
+      establishment_date_1: this.lookupRecord?.establishment_date_1 || '',
+      establishment_date_2: this.lookupRecord?.establishment_date_2 || '',
       owner_name: v.owner?.name ?? '',
       owner_id: v.owner?.id ?? '',
       signer_name: v.signer?.name ?? '',

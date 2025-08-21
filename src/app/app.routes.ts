@@ -15,6 +15,7 @@ import { LoanAgreement } from './pages/loan-agreement/loan-agreement';
 import { LeaseAgreement } from './pages/lease-agreement/lease-agreement';
 import { TrusteeResolution } from './pages/trustee-resolution/trustee-resolution';
 import { PrivacyPolicy } from './components/privacy-policy/privacy-policy';
+import { EditTrust } from './pages/edit-trust/edit-trust';
 
 
 
@@ -26,7 +27,9 @@ export const routes: Routes = [
     path: '',
     component: Welcomepage,
   },
-
+  {
+    path: 'edit-trust',component: EditTrust
+  },
   {
     path: 'homepage',
     component: Homepage,

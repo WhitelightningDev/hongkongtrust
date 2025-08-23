@@ -86,12 +86,11 @@ export class Homepage implements OnInit, AfterViewInit {
       memberNumber: [''],
       wasReferredByMember: [false],
       referrerNumber: [''],
-      settlor: this.createTrustee(false, true, true),   // Settlor group with required validators and email
-      trustee1: this.createTrustee(false, true, true),
-      trustee2: this.createTrustee(false, true, true),  // Trustee 2 required
-      trustee3: this.createTrustee(false, false, true), // Trustee 3 optional with email, not required
-      ownerName: ['', Validators.required],
-      propertyAddress: ['', Validators.required],
+      settlor: this.createTrustee(false, true),   // Settlor group with required validators
+      trustee1: this.createTrustee(false, true),
+      trustee2: this.createTrustee(false, true),  // Trustee 2 required
+      trustee3: this.createTrustee(false),
+      trustee4: this.createTrustee(false),
       paymentMethod: [null]  // No Validators.required here
     });
 
@@ -167,6 +166,7 @@ export class Homepage implements OnInit, AfterViewInit {
         keyboard: false
       });
     }
+    
 
     // Prefill settlor and first trustee from fullName and idNumber if empty
     setTimeout(() => {
@@ -191,16 +191,7 @@ export class Homepage implements OnInit, AfterViewInit {
           this.firstTrustee.get('id')?.setValue(idNumber, { emitEvent: false });
         }
       }
-      // Email autofill for settlor/trustee1 is now handled only in onTrusteeCheckboxChange
     }, 100);
-
-    // Keep ownerName synced with Trustee 1's name if blank, but allow user override
-    this.firstTrustee.get('name')?.valueChanges.subscribe(name => {
-      const currentOwner = this.trustForm.get('ownerName')?.value;
-      if (!currentOwner || currentOwner.trim() === '') {
-        this.trustForm.get('ownerName')?.setValue(name || '', { emitEvent: false });
-      }
-    });
   }
 
    goBackToHome(): void {
@@ -220,17 +211,16 @@ export class Homepage implements OnInit, AfterViewInit {
   get thirdTrustee(): FormGroup {
     return this.trustForm.get('trustee3') as FormGroup;
   }
+  get fourthTrustee(): FormGroup {
+    return this.trustForm.get('trustee4') as FormGroup;
+  }
 
-  // Create trustee/settlors with dynamic required validation and optional email
-  createTrustee(isReadonly = false, required = false, withEmail = false): FormGroup {
-    const group: any = {
+  // Create trustee/settlors with dynamic required validation
+  createTrustee(isReadonly = false, required = false): FormGroup {
+    return this.fb.group({
       name: [{ value: '', disabled: isReadonly }, required ? Validators.required : []],
       id: [{ value: '', disabled: isReadonly }, required ? Validators.required : []]
-    };
-    if (withEmail) {
-      group.email = ['', required ? [Validators.required, Validators.email] : [Validators.email]];
-    }
-    return this.fb.group(group);
+    });
   }
 
   onFileUpload(role: string, event: Event): void {
@@ -261,6 +251,7 @@ export class Homepage implements OnInit, AfterViewInit {
       this.firstTrustee.get('name')?.value,
       this.secondTrustee.get('name')?.value,
       this.thirdTrustee.get('name')?.value,
+      this.fourthTrustee.get('name')?.value,
     ];
 
     names.forEach(name => {
@@ -308,28 +299,22 @@ export class Homepage implements OnInit, AfterViewInit {
     const checked = (event.target as HTMLInputElement).checked;
     this.trustForm.patchValue({ isTrustee: checked });
 
-    const settlorName = this.settlor.get('name')?.value || '';
-    const settlorId = this.settlor.get('id')?.value || '';
-    const settlorEmail = this.settlor.get('email')?.value || '';
+    const fullName = this.trustForm.get('fullName')?.value || '';
+    const idNumber = this.trustForm.get('idNumber')?.value || '';
 
     const nameControl = this.firstTrustee.get('name');
     const idControl = this.firstTrustee.get('id');
-    const emailControl = this.firstTrustee.get('email');
 
     if (checked) {
-      nameControl?.setValue(settlorName);
-      idControl?.setValue(settlorId);
-      emailControl?.setValue(settlorEmail);
+      nameControl?.setValue(fullName);
+      idControl?.setValue(idNumber);
       nameControl?.disable();
       idControl?.disable();
-      emailControl?.disable();
     } else {
       nameControl?.enable();
       idControl?.enable();
-      emailControl?.enable();
       nameControl?.reset();
       idControl?.reset();
-      emailControl?.reset();
     }
   }
 
@@ -337,7 +322,8 @@ export class Homepage implements OnInit, AfterViewInit {
     const trusteeNames = [
       this.firstTrustee.get('name')?.value?.toLowerCase(),
       this.secondTrustee.get('name')?.value?.toLowerCase(),
-      this.thirdTrustee.get('name')?.value?.toLowerCase()
+      this.thirdTrustee.get('name')?.value?.toLowerCase(),
+      this.fourthTrustee.get('name')?.value?.toLowerCase()
     ].filter(Boolean);
 
     const beneficiaries = this.trustForm.get('beneficiaries')?.value?.toLowerCase() || '';
@@ -364,20 +350,10 @@ export class Homepage implements OnInit, AfterViewInit {
 
     this.paymentMethodModalInstance.hide();
 
-    // Map frontend fields to backend/database field names before posting
     const rawForm = {
       ...this.trustForm.getRawValue(),
       establishment_date_1: this.trustForm.get('establishmentDate')?.value || '',
-      establishment_date_2: this.trustForm.get('establishmentDate')?.value || '',
-      signer_name: this.secondTrustee.get('name')?.value || '',
-      signer_id: this.secondTrustee.get('id')?.value || '',
-      signer_email: this.secondTrustee.get('email')?.value || '',
-      trustee4_name: '',
-      trustee4_id: '',
-      owner_name: this.trustForm.get('ownerName')?.value || this.firstTrustee.get('name')?.value || '',
-      owner_id: this.firstTrustee.get('id')?.value || '',
-      owner_email: this.firstTrustee.get('email')?.value || '',
-      Property_Address: this.trustForm.get('propertyAddress')?.value || ''
+      establishment_date_2: this.trustForm.get('establishmentDate')?.value || ''
     };
 
     if (selectedMethod === 'cardEFT') {
@@ -655,17 +631,21 @@ export class Homepage implements OnInit, AfterViewInit {
 
     // Trustees (array in response)
     const trustees: any[] = Array.isArray(rec.trustees) ? rec.trustees : [];
-    const [t1, t2, t3] = [
+    const [t1, t2, t3, t4] = [
       trustees[0] || { name: '', id: '' },
       trustees[1] || { name: '', id: '' },
-      trustees[2] || { name: '', id: '' }
+      trustees[2] || { name: '', id: '' },
+      trustees[3] || { name: '', id: '' },
     ];
     this.firstTrustee.enable();
     this.secondTrustee.enable();
     this.thirdTrustee.enable();
+    this.fourthTrustee.enable();
+
     this.firstTrustee.patchValue({ name: t1.name || '', id: t1.id || '' }, { emitEvent: false });
     this.secondTrustee.patchValue({ name: t2.name || '', id: t2.id || '' }, { emitEvent: false });
     this.thirdTrustee.patchValue({ name: t3.name || '', id: t3.id || '' }, { emitEvent: false });
+    this.fourthTrustee.patchValue({ name: t4.name || '', id: t4.id || '' }, { emitEvent: false });
 
     // Ensure trustName input (if present) is disabled in edit mode
     const trustNameControl = this.trustForm.get('trustName');
@@ -682,7 +662,8 @@ export class Homepage implements OnInit, AfterViewInit {
     const trustees = [
       this.firstTrustee.value,
       this.secondTrustee.value,
-      this.thirdTrustee.value
+      this.thirdTrustee.value,
+      this.fourthTrustee.value
     ].filter(t => (t?.name && String(t.name).trim()) || (t?.id && String(t.id).trim()));
 
     return {

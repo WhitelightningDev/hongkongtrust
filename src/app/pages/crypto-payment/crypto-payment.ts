@@ -91,6 +91,13 @@ export class CryptoPayment implements OnInit {
   trustData.payment_method = 'xrp';
   trustData.has_paid = 'true'; // ✅ Corrected value for backend
 
+  trustData.settlor_email = trustData.settlor?.email || '';
+  trustData.trustee1_email = trustData.trustee1?.email || '';
+  trustData.trustee2_email = trustData.trustee2?.email || '';
+  trustData.trustee3_email = trustData.trustee3?.email || '';
+  trustData.property_owner = trustData.propertyOwner || '';
+  trustData.property_address = trustData.propertyAddress || '';
+
   sessionStorage.setItem('trustFormData', JSON.stringify(trustData));
   this.router.navigate(['/crypto-success']);
 }

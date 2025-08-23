@@ -184,6 +184,12 @@
             Settlor ID/Passport is required.
           </div>
 
+          <label>Email *</label>
+          <input type="email" formControlName="email" class="form-control mb-2" placeholder="settlor@example.com" />
+          <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('settlor.email')?.invalid && trustForm.get('settlor.email')?.touched">
+            Settlor email is required.
+          </div>
+
         </div>
       </div>
 
@@ -215,6 +221,11 @@
                 Trustee 1 ID/Passport is required.
               </div>
 
+              <label>Email *</label>
+              <input type="email" formControlName="email" class="form-control mb-2" placeholder="trustee1@example.com" />
+              <div class="text-danger mt-1 fst-italic" *ngIf="firstTrustee.get('email')?.invalid && firstTrustee.get('email')?.touched">
+                Trustee 1 email is required.
+              </div>
             </div>
           </div>
         </div>
@@ -235,6 +246,12 @@
               <div class="text-danger mt-1 fst-italic" *ngIf="secondTrustee.get('id')?.invalid && secondTrustee.get('id')?.touched">
                 Trustee 2 ID is required.
               </div>
+
+              <label>Email *</label>
+              <input type="email" formControlName="email" class="form-control mb-2" placeholder="trustee2@example.com" />
+              <div class="text-danger mt-1 fst-italic" *ngIf="secondTrustee.get('email')?.invalid && secondTrustee.get('email')?.touched">
+                Trustee 2 email is required.
+              </div>
             </div>
           </div>
         </div>
@@ -248,22 +265,12 @@
               <input type="text" formControlName="name" class="form-control mb-2" placeholder="Full name" />
               <label>ID / Passport No</label>
               <input type="text" formControlName="id" class="form-control mb-2" placeholder="ID/Passport" />
+              <label>Email</label>
+              <input type="email" formControlName="email" class="form-control mb-2" placeholder="trustee3@example.com" />
             </div>
           </div>
         </div>
 
-        <!-- Trustee 4 -->
-        <div class="col-12 col-md-6">
-          <div class="mb-4" [formGroup]="fourthTrustee">
-            <label class="form-label fw-semibold text-danger fs-5">Trustee 4 (Optional)</label>
-            <div class="card border shadow bg-light-subtle p-3">
-              <label>Full Name</label>
-              <input type="text" formControlName="name" class="form-control mb-2" placeholder="Full name" />
-              <label>ID / Passport No</label>
-              <input type="text" formControlName="id" class="form-control mb-2" placeholder="ID/Passport" />
-            </div>
-          </div>
-        </div>
 
       </div>
 
@@ -373,6 +380,40 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- Lease Agreement Details Section -->
+  <div class="card border-info-subtle shadow mb-4">
+    <div class="card-header bg-info text-white fs-5">
+      🏠 Lease Agreement Details
+    </div>
+    <div class="card-body">
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Property Address (One Line) *</label>
+        <input formControlName="propertyAddress" type="text" class="form-control" placeholder="e.g. 187 Kameeldrift Weg, Roodepoort, Pretoria, Gauteng, South Africa, 0182" />
+        <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('propertyAddress')?.invalid && trustForm.get('propertyAddress')?.touched">
+          Please enter the property address.
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Property Owner (Whose name the property is in) *</label>
+        <input formControlName="propertyOwner" type="text" class="form-control"
+               placeholder="Defaults to Trustee 1" />
+        <div class="form-text">By default, this will use Trustee 1's details (name, ID, email).</div>
+        <div class="mb-3">
+          <label class="form-label">Owner ID</label>
+          <input type="text" class="form-control" [value]="firstTrustee.get('id')?.value" readonly />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Owner Email</label>
+          <input type="text" class="form-control" [value]="firstTrustee.get('email')?.value" readonly />
+        </div>
+        <div class="text-danger mt-1 fst-italic"
+             *ngIf="trustForm.get('propertyOwner')?.invalid && trustForm.get('propertyOwner')?.touched">
+          Please specify whose name the property is in.
+        </div>
+      </div>
     </div>
   </div>
 

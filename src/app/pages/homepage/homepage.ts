@@ -86,11 +86,12 @@ export class Homepage implements OnInit, AfterViewInit {
       memberNumber: [''],
       wasReferredByMember: [false],
       referrerNumber: [''],
-      settlor: this.createTrustee(false, true),   // Settlor group with required validators
-      trustee1: this.createTrustee(false, true),
-      trustee2: this.createTrustee(false, true),  // Trustee 2 required
-      trustee3: this.createTrustee(false),
-      trustee4: this.createTrustee(false),
+      settlor: this.createTrustee(false, true, true),   // Settlor group with required validators and email
+      trustee1: this.createTrustee(false, true, true),
+      trustee2: this.createTrustee(false, true, true),  // Trustee 2 required
+      trustee3: this.createTrustee(false, false, true),
+      propertyOwner: ['', Validators.required],
+      propertyAddress: ['', Validators.required],
       paymentMethod: [null]  // No Validators.required here
     });
 
@@ -166,7 +167,6 @@ export class Homepage implements OnInit, AfterViewInit {
         keyboard: false
       });
     }
-    
 
     // Prefill settlor and first trustee from fullName and idNumber if empty
     setTimeout(() => {
@@ -191,7 +191,16 @@ export class Homepage implements OnInit, AfterViewInit {
           this.firstTrustee.get('id')?.setValue(idNumber, { emitEvent: false });
         }
       }
+      // Email autofill for settlor/trustee1 is now handled only in onTrusteeCheckboxChange
     }, 100);
+
+    // Keep propertyOwner synced with Trustee 1's name if blank, but allow user override
+    this.firstTrustee.get('name')?.valueChanges.subscribe(name => {
+      const currentOwner = this.trustForm.get('propertyOwner')?.value;
+      if (!currentOwner || currentOwner.trim() === '') {
+        this.trustForm.get('propertyOwner')?.setValue(name || '', { emitEvent: false });
+      }
+    });
   }
 
    goBackToHome(): void {
@@ -211,16 +220,17 @@ export class Homepage implements OnInit, AfterViewInit {
   get thirdTrustee(): FormGroup {
     return this.trustForm.get('trustee3') as FormGroup;
   }
-  get fourthTrustee(): FormGroup {
-    return this.trustForm.get('trustee4') as FormGroup;
-  }
 
-  // Create trustee/settlors with dynamic required validation
-  createTrustee(isReadonly = false, required = false): FormGroup {
-    return this.fb.group({
+  // Create trustee/settlors with dynamic required validation and optional email
+  createTrustee(isReadonly = false, required = false, withEmail = false): FormGroup {
+    const group: any = {
       name: [{ value: '', disabled: isReadonly }, required ? Validators.required : []],
       id: [{ value: '', disabled: isReadonly }, required ? Validators.required : []]
-    });
+    };
+    if (withEmail) {
+      group.email = ['', [Validators.required, Validators.email]];
+    }
+    return this.fb.group(group);
   }
 
   onFileUpload(role: string, event: Event): void {
@@ -251,7 +261,6 @@ export class Homepage implements OnInit, AfterViewInit {
       this.firstTrustee.get('name')?.value,
       this.secondTrustee.get('name')?.value,
       this.thirdTrustee.get('name')?.value,
-      this.fourthTrustee.get('name')?.value,
     ];
 
     names.forEach(name => {
@@ -299,22 +308,28 @@ export class Homepage implements OnInit, AfterViewInit {
     const checked = (event.target as HTMLInputElement).checked;
     this.trustForm.patchValue({ isTrustee: checked });
 
-    const fullName = this.trustForm.get('fullName')?.value || '';
-    const idNumber = this.trustForm.get('idNumber')?.value || '';
+    const settlorName = this.settlor.get('name')?.value || '';
+    const settlorId = this.settlor.get('id')?.value || '';
+    const settlorEmail = this.settlor.get('email')?.value || '';
 
     const nameControl = this.firstTrustee.get('name');
     const idControl = this.firstTrustee.get('id');
+    const emailControl = this.firstTrustee.get('email');
 
     if (checked) {
-      nameControl?.setValue(fullName);
-      idControl?.setValue(idNumber);
+      nameControl?.setValue(settlorName);
+      idControl?.setValue(settlorId);
+      emailControl?.setValue(settlorEmail);
       nameControl?.disable();
       idControl?.disable();
+      emailControl?.disable();
     } else {
       nameControl?.enable();
       idControl?.enable();
+      emailControl?.enable();
       nameControl?.reset();
       idControl?.reset();
+      emailControl?.reset();
     }
   }
 
@@ -322,8 +337,7 @@ export class Homepage implements OnInit, AfterViewInit {
     const trusteeNames = [
       this.firstTrustee.get('name')?.value?.toLowerCase(),
       this.secondTrustee.get('name')?.value?.toLowerCase(),
-      this.thirdTrustee.get('name')?.value?.toLowerCase(),
-      this.fourthTrustee.get('name')?.value?.toLowerCase()
+      this.thirdTrustee.get('name')?.value?.toLowerCase()
     ].filter(Boolean);
 
     const beneficiaries = this.trustForm.get('beneficiaries')?.value?.toLowerCase() || '';
@@ -627,21 +641,17 @@ export class Homepage implements OnInit, AfterViewInit {
 
     // Trustees (array in response)
     const trustees: any[] = Array.isArray(rec.trustees) ? rec.trustees : [];
-    const [t1, t2, t3, t4] = [
+    const [t1, t2, t3] = [
       trustees[0] || { name: '', id: '' },
       trustees[1] || { name: '', id: '' },
-      trustees[2] || { name: '', id: '' },
-      trustees[3] || { name: '', id: '' },
+      trustees[2] || { name: '', id: '' }
     ];
     this.firstTrustee.enable();
     this.secondTrustee.enable();
     this.thirdTrustee.enable();
-    this.fourthTrustee.enable();
-
     this.firstTrustee.patchValue({ name: t1.name || '', id: t1.id || '' }, { emitEvent: false });
     this.secondTrustee.patchValue({ name: t2.name || '', id: t2.id || '' }, { emitEvent: false });
     this.thirdTrustee.patchValue({ name: t3.name || '', id: t3.id || '' }, { emitEvent: false });
-    this.fourthTrustee.patchValue({ name: t4.name || '', id: t4.id || '' }, { emitEvent: false });
 
     // Ensure trustName input (if present) is disabled in edit mode
     const trustNameControl = this.trustForm.get('trustName');
@@ -658,8 +668,7 @@ export class Homepage implements OnInit, AfterViewInit {
     const trustees = [
       this.firstTrustee.value,
       this.secondTrustee.value,
-      this.thirdTrustee.value,
-      this.fourthTrustee.value
+      this.thirdTrustee.value
     ].filter(t => (t?.name && String(t.name).trim()) || (t?.id && String(t.id).trim()));
 
     return {

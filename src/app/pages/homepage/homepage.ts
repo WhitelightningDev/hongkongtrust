@@ -89,7 +89,7 @@ export class Homepage implements OnInit, AfterViewInit {
       settlor: this.createTrustee(false, true, true),   // Settlor group with required validators and email
       trustee1: this.createTrustee(false, true, true),
       trustee2: this.createTrustee(false, true, true),  // Trustee 2 required
-      trustee3: this.createTrustee(false, false, true),
+      trustee3: this.createTrustee(false, false, true), // Trustee 3 optional with email, not required
       propertyOwner: ['', Validators.required],
       propertyAddress: ['', Validators.required],
       paymentMethod: [null]  // No Validators.required here
@@ -228,7 +228,7 @@ export class Homepage implements OnInit, AfterViewInit {
       id: [{ value: '', disabled: isReadonly }, required ? Validators.required : []]
     };
     if (withEmail) {
-      group.email = ['', [Validators.required, Validators.email]];
+      group.email = ['', required ? [Validators.required, Validators.email] : [Validators.email]];
     }
     return this.fb.group(group);
   }

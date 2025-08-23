@@ -402,6 +402,10 @@
                placeholder="Defaults to Trustee 1" />
         <div class="form-text">By default, this will use Trustee 1's details (name, ID, email).</div>
         <div class="mb-3">
+          <label class="form-label">Owner Name</label>
+          <input type="text" class="form-control" [value]="firstTrustee.get('name')?.value" readonly />
+        </div>
+        <div class="mb-3">
           <label class="form-label">Owner ID</label>
           <input type="text" class="form-control" [value]="firstTrustee.get('id')?.value" readonly />
         </div>

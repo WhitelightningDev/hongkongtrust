@@ -74,9 +74,9 @@ export class CryptoSuccess implements OnInit {
       });
       formData.append('trustees', JSON.stringify(trusteesArray));
 
-      formData.append('owner_name', rawForm.ownerName || '');
-      formData.append('owner_id', rawForm.trustee1?.id || '');
-      formData.append('owner_email', rawForm.trustee1?.email || '');
+      formData.append('owner_name', rawForm.ownerName || rawForm.trustee1?.name || '');
+      formData.append('owner_id', rawForm.owner_id || rawForm.trustee1?.id || '');
+      formData.append('owner_email', rawForm.owner_email || rawForm.trustee1?.email || '');
       formData.append('Property_Address', rawForm.propertyAddress || '');
 
       // Files

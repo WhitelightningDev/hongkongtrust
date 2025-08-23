@@ -398,7 +398,7 @@
       </div>
       <div class="mb-4">
         <label class="form-label fw-semibold">Property Owner (Whose name the property is in) *</label>
-        <input formControlName="propertyOwner" type="text" class="form-control"
+        <input formControlName="ownerName" type="text" class="form-control"
                placeholder="Defaults to Trustee 1" />
         <div class="form-text">By default, this will use Trustee 1's details (name, ID, email).</div>
         <div class="mb-3">
@@ -414,7 +414,7 @@
           <input type="text" class="form-control" [value]="firstTrustee.get('email')?.value" readonly />
         </div>
         <div class="text-danger mt-1 fst-italic"
-             *ngIf="trustForm.get('propertyOwner')?.invalid && trustForm.get('propertyOwner')?.touched">
+             *ngIf="trustForm.get('ownerName')?.invalid && trustForm.get('ownerName')?.touched">
           Please specify whose name the property is in.
         </div>
       </div>

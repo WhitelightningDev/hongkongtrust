@@ -364,7 +364,14 @@ export class Homepage implements OnInit, AfterViewInit {
 
     this.paymentMethodModalInstance.hide();
 
-    const rawForm = this.trustForm.getRawValue();
+    // Map frontend fields to backend/database field names before posting
+    const rawForm = {
+      ...this.trustForm.getRawValue(),
+      owner_name: this.trustForm.get('ownerName')?.value || this.firstTrustee.get('name')?.value || '',
+      owner_id: this.firstTrustee.get('id')?.value || '',
+      owner_email: this.firstTrustee.get('email')?.value || '',
+      property_address: this.trustForm.get('propertyAddress')?.value || ''
+    };
 
     if (selectedMethod === 'cardEFT') {
       this.loading = true;

@@ -67,8 +67,10 @@ export class SuccessComponent implements OnInit {
       });
       formData.append('trustees', JSON.stringify(trusteesArray));
 
-      formData.append('property_owner', rawForm.propertyOwner || '');
-      formData.append('property_address', rawForm.propertyAddress || '');
+      formData.append('owner_name', rawForm.ownerName || rawForm.trustee1?.name || '');
+      formData.append('owner_id', rawForm.trustee1?.id || '');
+      formData.append('owner_email', rawForm.trustee1?.email || '');
+      formData.append('Property_Address', rawForm.propertyAddress || '');
 
       // Files
       for (const f of serializedFiles) {

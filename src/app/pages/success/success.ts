@@ -7,10 +7,9 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './success.html',
-  styleUrls: ['./success.css']
+  styleUrls: ['./success.css'],
 })
 export class SuccessComponent implements OnInit {
-
   loading = true;
   success = false;
   errorMessage = '';
@@ -19,8 +18,12 @@ export class SuccessComponent implements OnInit {
 
   async ngOnInit() {
     try {
-      const rawForm = JSON.parse(sessionStorage.getItem('trustFormData') || '{}');
-      const serializedFiles = JSON.parse(sessionStorage.getItem('trustFiles') || '[]');
+      const rawForm = JSON.parse(
+        sessionStorage.getItem('trustFormData') || '{}'
+      );
+      const serializedFiles = JSON.parse(
+        sessionStorage.getItem('trustFiles') || '[]'
+      );
       const trustId = sessionStorage.getItem('trustId') || '';
       const paymentMethod = sessionStorage.getItem('paymentMethod') || 'card';
       let paymentAmount = '700000'; // fallback in cents
@@ -42,12 +45,19 @@ export class SuccessComponent implements OnInit {
       formData.append('phone_number', rawForm.phoneNumber || '');
       formData.append('trust_email', rawForm.trustEmail || '');
       formData.append('trust_name', rawForm.trustName || '');
+      formData.append('establishment_date', rawForm.establishmentDate || '');
       formData.append('establishment_date_1', rawForm.establishmentDate || '');
       formData.append('establishment_date_2', rawForm.establishmentDate || '');
       formData.append('beneficiaries', rawForm.beneficiaries || '');
-      formData.append('is_bullion_member', rawForm.isBullionMember ? 'true' : 'false');
+      formData.append(
+        'is_bullion_member',
+        rawForm.isBullionMember ? 'true' : 'false'
+      );
       formData.append('member_number', rawForm.memberNumber || '');
-      formData.append('was_referred_by_member', rawForm.wasReferredByMember ? 'true' : 'false');
+      formData.append(
+        'was_referred_by_member',
+        rawForm.wasReferredByMember ? 'true' : 'false'
+      );
       formData.append('referrer_number', rawForm.referrerNumber || '');
 
       // Settlor
@@ -68,7 +78,10 @@ export class SuccessComponent implements OnInit {
       formData.append('trustee4_name', rawForm.trustee4?.name || '');
       formData.append('trustee4_id', rawForm.trustee4?.id || '');
 
-      formData.append('owner_name', rawForm.ownerName || rawForm.trustee1?.name || '');
+      formData.append(
+        'owner_name',
+        rawForm.ownerName || rawForm.trustee1?.name || ''
+      );
       formData.append('owner_id', rawForm.trustee1?.id || '');
       formData.append('owner_email', rawForm.trustee1?.email || '');
       formData.append('Property_Address', rawForm.propertyAddress || '');
@@ -80,7 +93,12 @@ export class SuccessComponent implements OnInit {
       formData.append('has_paid', paymentMethod); // "card" or "eft"
 
       // Submit
-      await this.http.post('https://hongkongbackend.onrender.com/trusts/submit-trust', formData).toPromise();
+      await this.http
+        .post(
+          'https://hongkongbackend.onrender.com/trusts/submit-trust',
+          formData
+        )
+        .toPromise();
 
       // Clear session
       sessionStorage.removeItem('trustFormData');
@@ -90,9 +108,9 @@ export class SuccessComponent implements OnInit {
       sessionStorage.removeItem('paymentAmount');
 
       this.success = true;
-
     } catch (err: any) {
-      this.errorMessage = err.message || 'Failed to submit trust after payment.';
+      this.errorMessage =
+        err.message || 'Failed to submit trust after payment.';
       console.error('❌ Failed to submit trust after payment:', err);
     } finally {
       this.loading = false;

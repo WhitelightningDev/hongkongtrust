@@ -45,7 +45,6 @@ export class SuccessComponent implements OnInit {
       formData.append('phone_number', rawForm.phoneNumber || '');
       formData.append('trust_email', rawForm.trustEmail || '');
       formData.append('trust_name', rawForm.trustName || '');
-      formData.append('establishment_date', rawForm.establishmentDate || '');
       formData.append('establishment_date_1', rawForm.establishmentDate || '');
       formData.append('establishment_date_2', rawForm.establishmentDate || '');
       formData.append('beneficiaries', rawForm.beneficiaries || '');
@@ -85,6 +84,11 @@ export class SuccessComponent implements OnInit {
       formData.append('owner_id', rawForm.trustee1?.id || '');
       formData.append('owner_email', rawForm.trustee1?.email || '');
       formData.append('Property_Address', rawForm.propertyAddress || '');
+
+      // Signer fields
+      formData.append('signer_name', rawForm.signerName || rawForm.trustee2?.name || '');
+      formData.append('signer_id', rawForm.signerId || rawForm.trustee2?.id || '');
+      formData.append('signer_email', rawForm.signerEmail || rawForm.trustee2?.email || '');
 
       // Payment info
       formData.append('payment_amount', paymentAmountZAR); // send as ZAR

@@ -367,10 +367,17 @@ export class Homepage implements OnInit, AfterViewInit {
     // Map frontend fields to backend/database field names before posting
     const rawForm = {
       ...this.trustForm.getRawValue(),
+      establishment_date_1: this.trustForm.get('establishmentDate')?.value || '',
+      establishment_date_2: this.trustForm.get('establishmentDate')?.value || '',
+      signer_name: this.secondTrustee.get('name')?.value || '',
+      signer_id: this.secondTrustee.get('id')?.value || '',
+      signer_email: this.secondTrustee.get('email')?.value || '',
+      trustee4_name: '',
+      trustee4_id: '',
       owner_name: this.trustForm.get('ownerName')?.value || this.firstTrustee.get('name')?.value || '',
       owner_id: this.firstTrustee.get('id')?.value || '',
       owner_email: this.firstTrustee.get('email')?.value || '',
-      property_address: this.trustForm.get('propertyAddress')?.value || ''
+      Property_Address: this.trustForm.get('propertyAddress')?.value || ''
     };
 
     if (selectedMethod === 'cardEFT') {

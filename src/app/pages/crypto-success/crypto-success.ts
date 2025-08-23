@@ -59,23 +59,25 @@ export class CryptoSuccess implements OnInit {
       // Settlor
       formData.append('settlor_name', rawForm.settlor?.name || '');
       formData.append('settlor_id', rawForm.settlor?.id || '');
+      formData.append('settlor_email', rawForm.settlor?.email || '');
 
       // Trustees with proper typing
-      const trusteesArray: { name: string; id: string }[] = [];
-      [
-        rawForm.trustee1,
-        rawForm.trustee2,
-        rawForm.trustee3,
-        rawForm.trustee4,
-      ].forEach((trustee) => {
+      const trusteesArray: { name: string; id: string; email?: string }[] = [];
+      [rawForm.trustee1, rawForm.trustee2, rawForm.trustee3].forEach((trustee) => {
         if (trustee?.name && trustee?.id) {
           trusteesArray.push({
             name: trustee.name,
             id: trustee.id,
+            email: trustee.email || ''
           });
         }
       });
       formData.append('trustees', JSON.stringify(trusteesArray));
+
+      formData.append('owner_name', rawForm.ownerName || '');
+      formData.append('owner_id', rawForm.trustee1?.id || '');
+      formData.append('owner_email', rawForm.trustee1?.email || '');
+      formData.append('Property_Address', rawForm.propertyAddress || '');
 
       // Files
       for (const f of serializedFiles) {

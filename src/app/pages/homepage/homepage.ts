@@ -90,7 +90,7 @@ export class Homepage implements OnInit, AfterViewInit {
       trustee1: this.createTrustee(false, true, true),
       trustee2: this.createTrustee(false, true, true),  // Trustee 2 required
       trustee3: this.createTrustee(false, false, true), // Trustee 3 optional with email, not required
-      propertyOwner: ['', Validators.required],
+      ownerName: ['', Validators.required],
       propertyAddress: ['', Validators.required],
       paymentMethod: [null]  // No Validators.required here
     });
@@ -194,11 +194,11 @@ export class Homepage implements OnInit, AfterViewInit {
       // Email autofill for settlor/trustee1 is now handled only in onTrusteeCheckboxChange
     }, 100);
 
-    // Keep propertyOwner synced with Trustee 1's name if blank, but allow user override
+    // Keep ownerName synced with Trustee 1's name if blank, but allow user override
     this.firstTrustee.get('name')?.valueChanges.subscribe(name => {
-      const currentOwner = this.trustForm.get('propertyOwner')?.value;
+      const currentOwner = this.trustForm.get('ownerName')?.value;
       if (!currentOwner || currentOwner.trim() === '') {
-        this.trustForm.get('propertyOwner')?.setValue(name || '', { emitEvent: false });
+        this.trustForm.get('ownerName')?.setValue(name || '', { emitEvent: false });
       }
     });
   }

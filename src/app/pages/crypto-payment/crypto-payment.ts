@@ -95,7 +95,9 @@ export class CryptoPayment implements OnInit {
   trustData.trustee1_email = trustData.trustee1?.email || '';
   trustData.trustee2_email = trustData.trustee2?.email || '';
   trustData.trustee3_email = trustData.trustee3?.email || '';
-  trustData.property_owner = trustData.propertyOwner || '';
+  trustData.owner_name = trustData.ownerName || trustData.trustee1?.name || '';
+  trustData.owner_id = trustData.trustee1?.id || '';
+  trustData.owner_email = trustData.trustee1?.email || '';
   trustData.property_address = trustData.propertyAddress || '';
 
   sessionStorage.setItem('trustFormData', JSON.stringify(trustData));

@@ -43,7 +43,8 @@ export class CryptoSuccess implements OnInit {
       formData.append('phone_number', rawForm.phoneNumber || '');
       formData.append('trust_email', rawForm.trustEmail || '');
       formData.append('trust_name', rawForm.trustName || '');
-      formData.append('establishment_date', rawForm.establishmentDate || '');
+      formData.append('establishment_date_1', rawForm.establishmentDate || '');
+      formData.append('establishment_date_2', rawForm.establishmentDate || '');
       formData.append('beneficiaries', rawForm.beneficiaries || '');
       formData.append(
         'is_bullion_member',
@@ -61,31 +62,25 @@ export class CryptoSuccess implements OnInit {
       formData.append('settlor_id', rawForm.settlor?.id || '');
       formData.append('settlor_email', rawForm.settlor?.email || '');
 
-      // Trustees with proper typing
-      const trusteesArray: { name: string; id: string; email?: string }[] = [];
-      [rawForm.trustee1, rawForm.trustee2, rawForm.trustee3].forEach((trustee) => {
-        if (trustee?.name && trustee?.id) {
-          trusteesArray.push({
-            name: trustee.name,
-            id: trustee.id,
-            email: trustee.email || ''
-          });
-        }
-      });
-      formData.append('trustees', JSON.stringify(trusteesArray));
+      // Trustees flattened
+      formData.append('trustee1_name', rawForm.trustee1?.name || '');
+      formData.append('trustee1_id', rawForm.trustee1?.id || '');
+      formData.append('trustee1_email', rawForm.trustee1?.email || '');
+      formData.append('trustee2_name', rawForm.trustee2?.name || '');
+      formData.append('trustee2_id', rawForm.trustee2?.id || '');
+      formData.append('trustee2_email', rawForm.trustee2?.email || '');
+      formData.append('trustee3_name', rawForm.trustee3?.name || '');
+      formData.append('trustee3_id', rawForm.trustee3?.id || '');
+      formData.append('trustee3_email', rawForm.trustee3?.email || '');
+      formData.append('trustee4_name', rawForm.trustee4?.name || '');
+      formData.append('trustee4_id', rawForm.trustee4?.id || '');
 
       formData.append('owner_name', rawForm.ownerName || rawForm.trustee1?.name || '');
       formData.append('owner_id', rawForm.owner_id || rawForm.trustee1?.id || '');
       formData.append('owner_email', rawForm.owner_email || rawForm.trustee1?.email || '');
       formData.append('Property_Address', rawForm.propertyAddress || '');
 
-      // Files
-      for (const f of serializedFiles) {
-        const byteArray = new Uint8Array(f.buffer);
-        const blob = new Blob([byteArray], { type: f.type });
-        const file = new File([blob], f.name, { type: f.type });
-        formData.append('documents', file, file.name);
-      }
+      // Removed appending documents loop as per instructions
 
       // Payment info
       formData.append(
@@ -99,7 +94,7 @@ export class CryptoSuccess implements OnInit {
       );
       formData.append('payment_currency', 'ZAR');
       formData.append('payment_method', 'xrp');
-      formData.append('has_paid', 'xrp');
+      formData.append('has_paid', 'crypto');
 
       // Submit
       await this.http

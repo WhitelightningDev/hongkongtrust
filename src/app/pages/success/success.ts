@@ -54,18 +54,16 @@ export class SuccessComponent implements OnInit {
       formData.append('settlor_id', rawForm.settlor?.id || '');
       formData.append('settlor_email', rawForm.settlor?.email || '');
 
-      // Trustees with proper typing
-      const trusteesArray: { name: string; id: string; email?: string }[] = [];
-      [rawForm.trustee1, rawForm.trustee2, rawForm.trustee3].forEach((trustee) => {
-        if (trustee?.name && trustee?.id) {
-          trusteesArray.push({
-            name: trustee.name,
-            id: trustee.id,
-            email: trustee.email || ''
-          });
-        }
-      });
-      formData.append('trustees', JSON.stringify(trusteesArray));
+      // Trustees: append each trustee's fields individually (backend expects trustee1_name, trustee1_id, trustee1_email, etc.)
+      formData.append('trustee1_name', rawForm.trustee1?.name || '');
+      formData.append('trustee1_id', rawForm.trustee1?.id || '');
+      formData.append('trustee1_email', rawForm.trustee1?.email || '');
+      formData.append('trustee2_name', rawForm.trustee2?.name || '');
+      formData.append('trustee2_id', rawForm.trustee2?.id || '');
+      formData.append('trustee2_email', rawForm.trustee2?.email || '');
+      formData.append('trustee3_name', rawForm.trustee3?.name || '');
+      formData.append('trustee3_id', rawForm.trustee3?.id || '');
+      formData.append('trustee3_email', rawForm.trustee3?.email || '');
 
       formData.append('owner_name', rawForm.ownerName || rawForm.trustee1?.name || '');
       formData.append('owner_id', rawForm.trustee1?.id || '');

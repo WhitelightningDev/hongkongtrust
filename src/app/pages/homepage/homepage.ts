@@ -92,6 +92,9 @@ export class Homepage implements OnInit, AfterViewInit {
       trustee3: this.createTrustee(false),
       trustee4: this.createTrustee(false),
       propertyOwner: [''],
+      signer_name: ['', [Validators.required]],
+      signer_id: ['', [Validators.required]],
+      signer_email: ['', [Validators.required, Validators.email]],
       paymentMethod: [null]  // No Validators.required here
     });
 
@@ -211,6 +214,33 @@ export class Homepage implements OnInit, AfterViewInit {
     // Keep propertyOwner in sync with Trustee 1 name unless the user has edited it
     this.firstTrustee.get('name')?.valueChanges.subscribe(() => {
       this.syncPropertyOwnerFromTrustee1(false);
+    });
+
+    // --- Signer defaults from Trustee 2 ---
+    // Set initial signer values from Trustee 2 if signer fields are empty
+    const t2init = this.secondTrustee?.value || {};
+    this.trustForm.patchValue({
+      signer_name: this.trustForm.get('signer_name')?.value || t2init.name || '',
+      signer_id: this.trustForm.get('signer_id')?.value || t2init.id || '',
+      signer_email: this.trustForm.get('signer_email')?.value || t2init.email || '',
+    }, { emitEvent: false });
+
+    // Keep signer fields synced from Trustee 2 unless user has typed something
+    this.secondTrustee.valueChanges.subscribe(v => {
+      if (!v) return;
+      const signerNameCtrl  = this.trustForm.get('signer_name');
+      const signerIdCtrl    = this.trustForm.get('signer_id');
+      const signerEmailCtrl = this.trustForm.get('signer_email');
+
+      if (signerNameCtrl && !String(signerNameCtrl.value || '').trim()) {
+        signerNameCtrl.setValue(v.name || '', { emitEvent: false });
+      }
+      if (signerIdCtrl && !String(signerIdCtrl.value || '').trim()) {
+        signerIdCtrl.setValue(v.id || '', { emitEvent: false });
+      }
+      if (signerEmailCtrl && !String(signerEmailCtrl.value || '').trim()) {
+        signerEmailCtrl.setValue(v.email || '', { emitEvent: false });
+      }
     });
   }
 
@@ -718,6 +748,21 @@ createTrustee(isReadonly = false, required = false): FormGroup {
     // Sync propertyOwner from Trustee 1 after patching trustees
     this.syncPropertyOwnerFromTrustee1(true);
 
+    // Populate signer fields from record or default to Trustee 2
+    const signerFromRecName  = rec.signer_name  || '';
+    const signerFromRecId    = rec.signer_id    || '';
+    const signerFromRecEmail = rec.signer_email || '';
+
+    const fallbackSignerName  = signerFromRecName  || (this.secondTrustee.get('name')?.value || '');
+    const fallbackSignerId    = signerFromRecId    || (this.secondTrustee.get('id')?.value   || '');
+    const fallbackSignerEmail = signerFromRecEmail || (this.secondTrustee.get('email')?.value|| '');
+
+    this.trustForm.patchValue({
+      signer_name: fallbackSignerName,
+      signer_id: fallbackSignerId,
+      signer_email: fallbackSignerEmail,
+    }, { emitEvent: false });
+
     // Ensure trustName input (if present) is disabled in edit mode
     const trustNameControl = this.trustForm.get('trustName');
     if (trustNameControl && !trustNameControl.disabled) {
@@ -749,7 +794,10 @@ createTrustee(isReadonly = false, required = false): FormGroup {
       referrer_number: this.trustForm.get('referrerNumber')?.value || null,
       settlor_name: this.settlor.get('name')?.value,
       settlor_id: this.settlor.get('id')?.value,
-      trustees
+      trustees,
+      signer_name: this.trustForm.get('signer_name')?.value,
+      signer_id: this.trustForm.get('signer_id')?.value,
+      signer_email: this.trustForm.get('signer_email')?.value,
     };
   }
 

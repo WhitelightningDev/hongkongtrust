@@ -68,8 +68,8 @@ export class SuccessComponent implements OnInit {
 
       // Signer fields
       formData.append('signer_name', rawForm.signer_name || rawForm.trustee2?.name || '');
-      formData.append('signer_id', rawForm.trustee2?.id || '');
-      formData.append('signer_email', rawForm.trustee2?.email || '');
+      formData.append('signer_id', rawForm.signer_id || rawForm.trustee2?.id || '');
+      formData.append('signer_email', rawForm.signer_email || rawForm.trustee2?.email || '');
 
       formData.append('owner_name', rawForm.ownerName || rawForm.trustee1?.name || '');
       formData.append('owner_id', rawForm.trustee1?.id || '');

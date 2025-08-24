@@ -683,7 +683,7 @@ export class EditTrust {
   
     /**
      * Perform lookup to authenticate settlor/applicant and pull existing trust data.
-     * Expects backend route: POST {API_BASE}/trusts/edit-trust/lookup
+     * Expects backend route: GET {API_BASE}/edit-trust/lookup
      */
     async performEditLookup(): Promise<void> {
       if (this.editLookupForm.invalid) {
@@ -691,13 +691,13 @@ export class EditTrust {
         return;
       }
       const { trust_number, id_or_passport } = this.editLookupForm.value;
-  
+
       const API_BASE = 'https://hongkongbackend.onrender.com';
-      const url = `${API_BASE}/trusts/edit-trust/lookup`;
-  
+      const url = `${API_BASE}/edit-trust/lookup?trust_number=${encodeURIComponent(trust_number)}&id_or_passport=${encodeURIComponent(id_or_passport)}`;
+
       this.lookupLoading = true;
       try {
-        const record: any = await this.http.post(url, { trust_number, id_or_passport }).toPromise();
+        const record: any = await this.http.get(url).toPromise();
   
         // Store immutable display values
         this.editTrustNumber = record.trust_number;
@@ -736,7 +736,7 @@ export class EditTrust {
       // Toggle member flags first so validators attach before patching values
       this.trustForm.get('isBullionMember')?.setValue(!!rec.is_bullion_member, { emitEvent: true });
       this.trustForm.get('wasReferredByMember')?.setValue(!!rec.referrer_number, { emitEvent: true });
-  
+
       // Basic fields
       this.trustForm.patchValue({
         fullName: rec.full_name || '',
@@ -751,7 +751,7 @@ export class EditTrust {
         referrerNumber: rec.referrer_number || '',
         propertyAddress: rec.property_address || rec.Property_Address || '',
       }, { emitEvent: false });
-  
+
       // Settlor block
       this.settlor.get('name')?.enable();
       this.settlor.get('id')?.enable();
@@ -759,7 +759,7 @@ export class EditTrust {
         name: rec.settlor_name || '',
         id: rec.settlor_id || ''
       }, { emitEvent: false });
-  
+
       // Trustees (array in response)
       const trustees: any[] = Array.isArray(rec.trustees) ? rec.trustees : [];
       const [t1, t2, t3, t4] = [
@@ -772,30 +772,44 @@ export class EditTrust {
       this.secondTrustee.enable();
       this.thirdTrustee.enable();
       this.fourthTrustee.enable();
-  
+
       this.firstTrustee.patchValue({ name: t1.name || '', id: t1.id || '' }, { emitEvent: false });
       this.secondTrustee.patchValue({ name: t2.name || '', id: t2.id || '' }, { emitEvent: false });
       this.thirdTrustee.patchValue({ name: t3.name || '', id: t3.id || '' }, { emitEvent: false });
       this.fourthTrustee.patchValue({ name: t4.name || '', id: t4.id || '' }, { emitEvent: false });
-  
+
+      // Extra fields from backend
+      this.settlor.get('email')?.setValue(rec.settlor_email || '', { emitEvent: false });
+      this.firstTrustee.get('email')?.setValue(rec.trustee1_email || '', { emitEvent: false });
+      this.secondTrustee.get('email')?.setValue(rec.trustee2_email || '', { emitEvent: false });
+      this.thirdTrustee.get('email')?.setValue(rec.trustee3_email || '', { emitEvent: false });
+
+      this.trustForm.patchValue({
+        propertyOwner: rec.owner_name || '',
+        signer_name: rec.signer_name || '',
+        signer_id: rec.signer_id || '',
+        signer_email: rec.signer_email || '',
+        propertyAddress: rec.Property_Address || ''
+      }, { emitEvent: false });
+
       // Sync propertyOwner from Trustee 1 after patching trustees
       this.syncPropertyOwnerFromTrustee1(true);
-  
+
       // Populate signer fields from record or default to Trustee 2
       const signerFromRecName  = rec.signer_name  || '';
       const signerFromRecId    = rec.signer_id    || '';
       const signerFromRecEmail = rec.signer_email || '';
-  
+
       const fallbackSignerName  = signerFromRecName  || (this.secondTrustee.get('name')?.value || '');
       const fallbackSignerId    = signerFromRecId    || (this.secondTrustee.get('id')?.value   || '');
       const fallbackSignerEmail = signerFromRecEmail || (this.secondTrustee.get('email')?.value|| '');
-  
+
       this.trustForm.patchValue({
         signer_name: fallbackSignerName,
         signer_id: fallbackSignerId,
         signer_email: fallbackSignerEmail,
       }, { emitEvent: false });
-  
+
       // Ensure trustName input (if present) is disabled in edit mode
       const trustNameControl = this.trustForm.get('trustName');
       if (trustNameControl && !trustNameControl.disabled) {
@@ -814,7 +828,7 @@ export class EditTrust {
         this.thirdTrustee.value,
         this.fourthTrustee.value
       ].filter(t => (t?.name && String(t.name).trim()) || (t?.id && String(t.id).trim()));
-  
+
       return {
         id_number: this.trustForm.get('idNumber')?.value,
         email: this.trustForm.get('email')?.value,
@@ -828,6 +842,14 @@ export class EditTrust {
         settlor_name: this.settlor.get('name')?.value,
         settlor_id: this.settlor.get('id')?.value,
         trustees,
+        // Extra fields to send back
+        settlor_email: this.settlor.get('email')?.value,
+        trustee1_email: this.firstTrustee.get('email')?.value,
+        trustee2_email: this.secondTrustee.get('email')?.value,
+        trustee3_email: this.thirdTrustee.get('email')?.value,
+        owner_name: this.trustForm.get('propertyOwner')?.value,
+        owner_id: this.firstTrustee.get('id')?.value, // adjust logic if owner_id is separate field
+        owner_email: this.firstTrustee.get('email')?.value, // adjust logic if different
         signer_name: this.trustForm.get('signer_name')?.value,
         signer_id: this.trustForm.get('signer_id')?.value,
         signer_email: this.trustForm.get('signer_email')?.value,
@@ -854,7 +876,7 @@ export class EditTrust {
       }
   
       const API_BASE = 'https://hongkongbackend.onrender.com';
-      const url = `${API_BASE}/trusts/edit-trust/${encodeURIComponent(this.editTrustNumber)}`;
+      const url = `${API_BASE}/edit-trust/${encodeURIComponent(this.editTrustNumber)}`;
       const payload = this.buildEditPayload();
   
       this.editSaving = true;

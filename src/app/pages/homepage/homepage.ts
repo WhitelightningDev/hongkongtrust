@@ -92,6 +92,7 @@ export class Homepage implements OnInit, AfterViewInit {
       trustee3: this.createTrustee(false),
       trustee4: this.createTrustee(false),
       propertyOwner: [''],
+      propertyAddress: ['', [Validators.required]],
       signer_name: ['', [Validators.required]],
       signer_id: ['', [Validators.required]],
       signer_email: ['', [Validators.required, Validators.email]],
@@ -458,6 +459,8 @@ createTrustee(isReadonly = false, required = false): FormGroup {
     this.paymentMethodModalInstance.hide();
 
     const rawForm = this.trustForm.getRawValue();
+    // Map UI `propertyAddress` -> backend `Property_Address`
+    const trustDataForBackend = { ...rawForm, Property_Address: rawForm.propertyAddress || '' };
 
     if (selectedMethod === 'cardEFT') {
       this.loading = true;
@@ -474,7 +477,7 @@ createTrustee(isReadonly = false, required = false): FormGroup {
           'https://hongkongbackend.onrender.com/api/payment-session',
           {
             amount_cents: amountInCents,
-            trust_data: rawForm
+            trust_data: trustDataForBackend
           }
         ).toPromise();
 
@@ -484,7 +487,7 @@ createTrustee(isReadonly = false, required = false): FormGroup {
 
         const trustId = paymentInit.trust_id;
 
-        sessionStorage.setItem('trustFormData', JSON.stringify(rawForm));
+        sessionStorage.setItem('trustFormData', JSON.stringify(trustDataForBackend));
         sessionStorage.setItem('trustId', trustId);
 
         const serializedFiles = await Promise.all(
@@ -514,7 +517,7 @@ createTrustee(isReadonly = false, required = false): FormGroup {
       }
     } else if (selectedMethod === 'crypto') {
       // Store form data for crypto payment page to read
-      sessionStorage.setItem('trustFormData', JSON.stringify(rawForm));
+      sessionStorage.setItem('trustFormData', JSON.stringify(trustDataForBackend));
       this.router.navigate(['/crypto-payment']);
     }
   }
@@ -721,7 +724,8 @@ createTrustee(isReadonly = false, required = false): FormGroup {
       establishmentDate: this.normalizeToISODate(rec.establishment_date) || '',
       beneficiaries: rec.beneficiaries || '',
       memberNumber: rec.member_number || '',
-      referrerNumber: rec.referrer_number || ''
+      referrerNumber: rec.referrer_number || '',
+      propertyAddress: rec.property_address || rec.Property_Address || '',
     }, { emitEvent: false });
 
     // Settlor block
@@ -803,6 +807,7 @@ createTrustee(isReadonly = false, required = false): FormGroup {
       signer_name: this.trustForm.get('signer_name')?.value,
       signer_id: this.trustForm.get('signer_id')?.value,
       signer_email: this.trustForm.get('signer_email')?.value,
+      Property_Address: this.trustForm.get('propertyAddress')?.value || null,
     };
   }
 

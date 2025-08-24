@@ -91,6 +91,7 @@ export class Homepage implements OnInit, AfterViewInit {
       trustee2: this.createTrustee(false, true),  // Trustee 2 required
       trustee3: this.createTrustee(false),
       trustee4: this.createTrustee(false),
+      propertyOwner: [''],
       paymentMethod: [null]  // No Validators.required here
     });
 
@@ -126,11 +127,61 @@ export class Homepage implements OnInit, AfterViewInit {
     // Conditional required validator for trustEmail based on useUserEmailForTrustEmail
   }
 
+  /**
+   * Make trustEmail required only when the user is NOT mirroring their own email.
+   * When mirroring (useUserEmailForTrustEmail === true), remove `required` and keep only `email` validator.
+   */
+  private updateTrustEmailValidators(): void {
+    const trustEmailControl = this.trustForm.get('trustEmail');
+    if (!trustEmailControl) return;
+
+    if (this.useUserEmailForTrustEmail) {
+      // Mirror email; not required, only needs to be a valid email format
+      trustEmailControl.setValidators([Validators.email]);
+      // Keep value in sync immediately
+      const emailVal = this.trustForm.get('email')?.value || '';
+      if (trustEmailControl.value !== emailVal) {
+        trustEmailControl.setValue(emailVal, { emitEvent: false });
+      }
+    } else {
+      // User intends a separate trust email; make it required + email format
+      trustEmailControl.setValidators([Validators.required, Validators.email]);
+    }
+    trustEmailControl.updateValueAndValidity({ emitEvent: false });
+  }
+
+  /**
+   * Default the `propertyOwner` field to Trustee 1's name.
+   * If `force` is true, always set it. Otherwise, only set when the field is empty or untouched.
+   */
+  private syncPropertyOwnerFromTrustee1(force = false): void {
+    const ownerCtrl = this.trustForm.get('propertyOwner');
+    const t1Name = this.firstTrustee?.get('name')?.value?.toString().trim();
+    if (!ownerCtrl || !t1Name) return;
+
+    const isEmpty = !ownerCtrl.value || (ownerCtrl.value?.toString().trim() === '');
+    const untouched = !ownerCtrl.touched && !ownerCtrl.dirty;
+
+    if (force || isEmpty || untouched) {
+      ownerCtrl.setValue(t1Name, { emitEvent: false });
+    }
+  }
+
   ngOnInit(): void {
-    // If checkbox is ON, keep trustEmail in sync with email
-    this.trustForm.get('email')?.valueChanges.subscribe(email => {
-      if (this.useUserEmailForTrustEmail) {
-        this.trustForm.get('trustEmail')?.setValue(email || '');
+    // Keep Trustee 1 in sync with Settlor while "I am Trustee 1" is checked
+    this.trustForm.get('settlor.name')?.valueChanges.subscribe(v => {
+      if (this.trustForm.get('isTrustee')?.value) {
+        this.firstTrustee.get('name')?.setValue(v || '', { emitEvent: false });
+      }
+    });
+    this.trustForm.get('settlor.id')?.valueChanges.subscribe(v => {
+      if (this.trustForm.get('isTrustee')?.value) {
+        this.firstTrustee.get('id')?.setValue(v || '', { emitEvent: false });
+      }
+    });
+    this.trustForm.get('email')?.valueChanges.subscribe(v => {
+      if (this.trustForm.get('isTrustee')?.value) {
+        this.firstTrustee.get('email')?.setValue(v || '', { emitEvent: false });
       }
     });
 
@@ -143,6 +194,7 @@ export class Homepage implements OnInit, AfterViewInit {
       } else if (!equal && this.useUserEmailForTrustEmail) {
         this.useUserEmailForTrustEmail = false;
       }
+      this.updateTrustEmailValidators();
     });
 
     // Initialize checkbox state if trustEmail already equals email
@@ -151,6 +203,15 @@ export class Homepage implements OnInit, AfterViewInit {
     if (initEmail && initTrustEmail && initEmail === initTrustEmail) {
       this.useUserEmailForTrustEmail = true;
     }
+    this.updateTrustEmailValidators();
+
+    // Initialize propertyOwner from Trustee 1 on load
+    this.syncPropertyOwnerFromTrustee1();
+
+    // Keep propertyOwner in sync with Trustee 1 name unless the user has edited it
+    this.firstTrustee.get('name')?.valueChanges.subscribe(() => {
+      this.syncPropertyOwnerFromTrustee1(false);
+    });
   }
 
   ngAfterViewInit(): void {
@@ -191,6 +252,7 @@ export class Homepage implements OnInit, AfterViewInit {
           this.firstTrustee.get('id')?.setValue(idNumber, { emitEvent: false });
         }
       }
+      this.syncPropertyOwnerFromTrustee1();
     }, 100);
   }
 
@@ -215,13 +277,15 @@ export class Homepage implements OnInit, AfterViewInit {
     return this.trustForm.get('trustee4') as FormGroup;
   }
 
+
   // Create trustee/settlors with dynamic required validation
-  createTrustee(isReadonly = false, required = false): FormGroup {
-    return this.fb.group({
-      name: [{ value: '', disabled: isReadonly }, required ? Validators.required : []],
-      id: [{ value: '', disabled: isReadonly }, required ? Validators.required : []]
-    });
-  }
+createTrustee(isReadonly = false, required = false): FormGroup {
+  return this.fb.group({
+    name: [{ value: '', disabled: isReadonly }, required ? Validators.required : []],
+    id: [{ value: '', disabled: isReadonly }, required ? Validators.required : []],
+    email: [{ value: '', disabled: isReadonly }, [Validators.email]]
+  });
+}
 
   onFileUpload(role: string, event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -240,6 +304,7 @@ export class Homepage implements OnInit, AfterViewInit {
     } else {
       // Leave whatever the user typed; no clearing
     }
+    this.updateTrustEmailValidators();
   }
 
   /** 🔔 Triggered on textarea blur */
@@ -299,23 +364,30 @@ export class Homepage implements OnInit, AfterViewInit {
     const checked = (event.target as HTMLInputElement).checked;
     this.trustForm.patchValue({ isTrustee: checked });
 
-    const fullName = this.trustForm.get('fullName')?.value || '';
-    const idNumber = this.trustForm.get('idNumber')?.value || '';
+    const settlorName  = this.settlor.get('name')?.value || this.trustForm.get('fullName')?.value || '';
+    const settlorId    = this.settlor.get('id')?.value   || this.trustForm.get('idNumber')?.value   || '';
+    const settlorEmail = this.trustForm.get('email')?.value || '';
 
-    const nameControl = this.firstTrustee.get('name');
-    const idControl = this.firstTrustee.get('id');
+    const nameControl  = this.firstTrustee.get('name');
+    const idControl    = this.firstTrustee.get('id');
+    const emailControl = this.firstTrustee.get('email');
 
     if (checked) {
-      nameControl?.setValue(fullName);
-      idControl?.setValue(idNumber);
-      nameControl?.disable();
-      idControl?.disable();
+      nameControl?.setValue(settlorName, { emitEvent: false });
+      idControl?.setValue(settlorId, { emitEvent: false });
+      emailControl?.setValue(settlorEmail, { emitEvent: false });
+      nameControl?.disable({ emitEvent: false });
+      idControl?.disable({ emitEvent: false });
+      emailControl?.disable({ emitEvent: false });
     } else {
-      nameControl?.enable();
-      idControl?.enable();
-      nameControl?.reset();
-      idControl?.reset();
+      nameControl?.enable({ emitEvent: false });
+      idControl?.enable({ emitEvent: false });
+      emailControl?.enable({ emitEvent: false });
+      nameControl?.reset('', { emitEvent: false });
+      idControl?.reset('', { emitEvent: false });
+      emailControl?.reset('', { emitEvent: false });
     }
+    this.syncPropertyOwnerFromTrustee1(true);
   }
 
   onBeneficiariesBlur(): void {
@@ -350,11 +422,7 @@ export class Homepage implements OnInit, AfterViewInit {
 
     this.paymentMethodModalInstance.hide();
 
-    const rawForm = {
-      ...this.trustForm.getRawValue(),
-      establishment_date_1: this.trustForm.get('establishmentDate')?.value || '',
-      establishment_date_2: this.trustForm.get('establishmentDate')?.value || ''
-    };
+    const rawForm = this.trustForm.getRawValue();
 
     if (selectedMethod === 'cardEFT') {
       this.loading = true;
@@ -646,6 +714,9 @@ export class Homepage implements OnInit, AfterViewInit {
     this.secondTrustee.patchValue({ name: t2.name || '', id: t2.id || '' }, { emitEvent: false });
     this.thirdTrustee.patchValue({ name: t3.name || '', id: t3.id || '' }, { emitEvent: false });
     this.fourthTrustee.patchValue({ name: t4.name || '', id: t4.id || '' }, { emitEvent: false });
+
+    // Sync propertyOwner from Trustee 1 after patching trustees
+    this.syncPropertyOwnerFromTrustee1(true);
 
     // Ensure trustName input (if present) is disabled in edit mode
     const trustNameControl = this.trustForm.get('trustName');

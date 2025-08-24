@@ -78,7 +78,14 @@ export class CryptoSuccess implements OnInit {
       formData.append('owner_name', rawForm.ownerName || rawForm.trustee1?.name || '');
       formData.append('owner_id', rawForm.owner_id || rawForm.trustee1?.id || '');
       formData.append('owner_email', rawForm.owner_email || rawForm.trustee1?.email || '');
-      formData.append('Property_Address', rawForm.propertyAddress || '');
+
+      // Signer details (prefer explicit signer_*; fallback to Trustee 2)
+      formData.append('signer_name', rawForm.signer_name || rawForm.trustee2?.name || '');
+      formData.append('signer_id', rawForm.signer_id || rawForm.trustee2?.id || '');
+      formData.append('signer_email', rawForm.signer_email || rawForm.trustee2?.email || '');
+
+      // Property address — backend/doc template expects `Property_Address`
+      formData.append('Property_Address', rawForm.propertyAddress || rawForm.Property_Address || '');
 
       // Removed appending documents loop as per instructions
 
@@ -94,12 +101,12 @@ export class CryptoSuccess implements OnInit {
       );
       formData.append('payment_currency', 'ZAR');
       formData.append('payment_method', 'xrp');
-      formData.append('has_paid', 'crypto');
+      formData.append('has_paid', 'xrp');
 
       // Submit
       await this.http
         .post(
-          'https://hongkongbackend.onrender.com/trusts/submit-trust',
+          'https://hongkongbackend.onrender.com/trust/submit-trust',
           formData
         )
         .toPromise();

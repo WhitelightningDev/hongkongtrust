@@ -98,7 +98,15 @@ export class CryptoPayment implements OnInit {
   trustData.owner_name = trustData.ownerName || trustData.trustee1?.name || '';
   trustData.owner_id = trustData.owner_id || trustData.trustee1?.id || '';
   trustData.owner_email = trustData.owner_email || trustData.trustee1?.email || '';
-  trustData.property_address = trustData.propertyAddress || '';
+
+  // New signer fields (prefer explicit signer_*; fallback to Trustee 2)
+  trustData.signer_name = trustData.signer_name || trustData.trustee2?.name || '';
+  trustData.signer_id = trustData.signer_id || trustData.trustee2?.id || '';
+  trustData.signer_email = trustData.signer_email || trustData.trustee2?.email || '';
+
+  // Map UI propertyAddress to both shapes for backend compatibility
+  trustData.Property_Address = trustData.propertyAddress || trustData.Property_Address || '';
+  trustData.property_address = trustData.propertyAddress || trustData.property_address || '';
 
   sessionStorage.setItem('trustFormData', JSON.stringify(trustData));
   this.router.navigate(['/crypto-success']);

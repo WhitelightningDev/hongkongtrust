@@ -225,20 +225,25 @@ export class Homepage implements OnInit, AfterViewInit {
       signer_email: this.trustForm.get('signer_email')?.value || t2init.email || '',
     }, { emitEvent: false });
 
-    // Keep signer fields synced from Trustee 2 unless user has typed something
+    // Keep signer fields pristine so they continue mirroring until user edits
+    this.trustForm.get('signer_name')?.markAsPristine();
+    this.trustForm.get('signer_id')?.markAsPristine();
+    this.trustForm.get('signer_email')?.markAsPristine();
+
+    // Mirror Trustee 2 into signer fields UNTIL the user edits those signer fields (controls remain pristine/not dirty)
     this.secondTrustee.valueChanges.subscribe(v => {
       if (!v) return;
       const signerNameCtrl  = this.trustForm.get('signer_name');
       const signerIdCtrl    = this.trustForm.get('signer_id');
       const signerEmailCtrl = this.trustForm.get('signer_email');
 
-      if (signerNameCtrl && !String(signerNameCtrl.value || '').trim()) {
+      if (signerNameCtrl && !signerNameCtrl.dirty) {
         signerNameCtrl.setValue(v.name || '', { emitEvent: false });
       }
-      if (signerIdCtrl && !String(signerIdCtrl.value || '').trim()) {
+      if (signerIdCtrl && !signerIdCtrl.dirty) {
         signerIdCtrl.setValue(v.id || '', { emitEvent: false });
       }
-      if (signerEmailCtrl && !String(signerEmailCtrl.value || '').trim()) {
+      if (signerEmailCtrl && !signerEmailCtrl.dirty) {
         signerEmailCtrl.setValue(v.email || '', { emitEvent: false });
       }
     });

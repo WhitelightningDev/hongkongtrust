@@ -506,7 +506,7 @@
 
     <!-- Member Number Input -->
     <div class="mt-3" *ngIf="trustForm.get('isBullionMember')?.value">
-      <label for="memberNumber" class="form-label fw-semibold">Enter your Member Number *</label>
+      <label for="memberNumber" class="form-label fw-semibold">Your Member Number</label>
       <input type="text" id="memberNumber" class="form-control form-control-lg border-secondary-subtle"
         formControlName="memberNumber" placeholder="e.g. CB000077" />
       <div class="text-danger mt-1 fst-italic"
@@ -515,24 +515,8 @@
       </div>
     </div>
 
-    <!-- Referrer Checkbox -->
-    <div class="form-check mt-4">
-      <input type="checkbox" id="wasReferred" class="form-check-input" formControlName="wasReferredByMember" />
-      <label class="form-check-label" for="wasReferred">
-        Were you referred by  another Member?
-      </label>
-    </div>
-
-    <!-- Referrer Number Input -->
-    <div class="mt-3" *ngIf="trustForm.get('wasReferredByMember')?.value">
-      <label for="referrerNumber" class="form-label fw-semibold">Enter the Referrer’s Member Number</label>
-      <input type="text" id="referrerNumber" class="form-control form-control-lg border-secondary-subtle"
-        formControlName="referrerNumber" placeholder="e.g. CB000077" />
-      <div class="text-danger mt-1 fst-italic"
-        *ngIf="trustForm.get('referrerNumber')?.invalid && trustForm.get('referrerNumber')?.touched">
-        Please enter a valid referrer number (e.g. CB000077).
-      </div>
-    </div>
+   
+   
   </div>
 
   <!-- Save Changes Button for Edit Mode -->

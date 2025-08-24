@@ -252,7 +252,7 @@ export class EditTrust {
         const signerNameCtrl  = this.trustForm.get('signer_name');
         const signerIdCtrl    = this.trustForm.get('signer_id');
         const signerEmailCtrl = this.trustForm.get('signer_email');
-  
+
         if (signerNameCtrl && !signerNameCtrl.dirty) {
           signerNameCtrl.setValue(v.name || '', { emitEvent: false });
         }
@@ -263,6 +263,23 @@ export class EditTrust {
           signerEmailCtrl.setValue(v.email || '', { emitEvent: false });
         }
       });
+
+      // --- Check for trust_number in query string and resume edit flow if present ---
+      const params = new URLSearchParams(window.location.search);
+      const trustNumberInUrl = params.get('trust_number');
+      const editPayloadStr = sessionStorage.getItem('editPayload');
+      if (trustNumberInUrl && editPayloadStr) {
+        this.editTrustNumber = trustNumberInUrl;
+        try {
+          const parsedPayload = JSON.parse(editPayloadStr);
+          this.isEditMode = true;
+          // Automatically submit edits with the payload from sessionStorage
+          this.submitEdits(parsedPayload);
+        } catch (e) {
+          // If payload parse fails, just ignore and proceed
+          sessionStorage.removeItem('editPayload');
+        }
+      }
     }
   
     ngAfterViewInit(): void {
@@ -863,8 +880,9 @@ export class EditTrust {
      * Start the fixed R165 payment flow for editing trusts.
      * 1. Checks edit mode and trust number, shows error if not valid.
      * 2. Calls backend POST /edit-trust-payment/{trust_number} with amount and payload.
-     * 3. Redirects user to payment URL.
-     * 4. Shows error toast on failure.
+     * 3. Stores the edit payload in sessionStorage for post-payment use.
+     * 4. Redirects user to payment URL.
+     * 5. Shows error toast on failure.
      */
     async startEditPayment(): Promise<void> {
       if (!this.isEditMode || !this.editTrustNumber) {
@@ -874,19 +892,22 @@ export class EditTrust {
         return;
       }
       const API_BASE = 'https://hongkongbackend.onrender.com';
-      const url = `${API_BASE}/payments/edit-trust-payment/${encodeURIComponent(this.editTrustNumber)}`;
+      const url = `${API_BASE}/payments/edit-trust-payment-session/${encodeURIComponent(this.editTrustNumber)}`;
       try {
         // Initiate payment for R165 (16500 cents) and send payload
+        const editPayload = this.buildEditPayload();
         const paymentInit = await this.http.post<any>(
           url,
           {
             amount_cents: 16500,
-            payload: this.buildEditPayload()
+            payload: editPayload
           }
         ).toPromise();
         if (!paymentInit || !paymentInit.redirectUrl) {
           throw new Error('No payment redirect URL returned.');
         }
+        // Store the edit payload in sessionStorage for post-payment use
+        sessionStorage.setItem('editPayload', JSON.stringify(editPayload));
         // Redirect to payment URL
         window.location.href = paymentInit.redirectUrl;
       } catch (err: any) {
@@ -899,14 +920,15 @@ export class EditTrust {
   
     /**
      * Save edits (PUT). On success, backend regenerates deed and emails PDF.
+     * Accepts an optional overridePayload for post-payment auto-submit.
      */
-    async submitEdits(): Promise<void> {
+    async submitEdits(overridePayload?: any): Promise<void> {
       if (!this.isEditMode || !this.editTrustNumber) {
         return;
       }
-  
+
       // Validate minimum trustees (first two required in form definition)
-      if (this.firstTrustee.invalid || this.secondTrustee.invalid) {
+      if (!overridePayload && (this.firstTrustee.invalid || this.secondTrustee.invalid)) {
         this.firstTrustee.markAllAsTouched();
         this.secondTrustee.markAllAsTouched();
         this.toastr.error('Trust requires at least two trustees with name and ID.', 'Validation', {
@@ -914,18 +936,19 @@ export class EditTrust {
         });
         return;
       }
-  
+
       const API_BASE = 'https://hongkongbackend.onrender.com';
       const url = `${API_BASE}/trusts/edit-trust/${encodeURIComponent(this.editTrustNumber)}`;
-      const payload = this.buildEditPayload();
-  
+      const payload = overridePayload || this.buildEditPayload();
+
       this.editSaving = true;
       try {
         await this.http.put(url, payload).toPromise();
         this.toastr.success('Amended deed generated and sent to admin.', 'Trust updated', {
           timeOut: 6000, closeButton: true, progressBar: true
         });
-  
+        // Remove editPayload from sessionStorage after successful update
+        sessionStorage.removeItem('editPayload');
         // Leave the page in edit mode but scroll to top / provide visual confirmation if needed
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } catch (err: any) {

@@ -424,11 +424,11 @@
             <div class="form-text">By default, this will use Trustee 1's details (name, ID, email).</div>
             <div class="mb-3">
               <label class="form-label">Owner ID</label>
-              <input type="text" class="form-control" [value]="firstTrustee.get('id')?.value" readonly />
+              <input type="text" class="form-control" [value]="firstTrustee.get('id')?.value" />
             </div>
             <div class="mb-3">
               <label class="form-label">Owner Email</label>
-              <input type="text" class="form-control" [value]="firstTrustee.get('email')?.value" readonly />
+              <input type="text" class="form-control" [value]="firstTrustee.get('email')?.value" />
             </div>
             <div class="text-danger mt-1 fst-italic"
                  *ngIf="trustForm.get('propertyOwner')?.invalid && trustForm.get('propertyOwner')?.touched">

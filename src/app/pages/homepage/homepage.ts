@@ -189,6 +189,24 @@ export class Homepage implements OnInit, AfterViewInit {
       }
     });
 
+    // If the user is the Settlor on load, default Settlor email from applicant email (once)
+    if (this.trustForm.get('isSettlor')?.value) {
+      const applicantEmailInit = this.trustForm.get('email')?.value || '';
+      const settlorEmailCtrl = this.settlor.get('email');
+      if (settlorEmailCtrl && !settlorEmailCtrl.value) {
+        settlorEmailCtrl.setValue(applicantEmailInit, { emitEvent: false });
+      }
+    }
+
+    // Keep Settlor email mirrored to applicant email UNTIL user edits Settlor email
+    this.trustForm.get('email')?.valueChanges.subscribe(v => {
+      if (!this.trustForm.get('isSettlor')?.value) return;
+      const settlorEmailCtrl = this.settlor.get('email');
+      if (settlorEmailCtrl && !settlorEmailCtrl.dirty) {
+        settlorEmailCtrl.setValue(v || '', { emitEvent: false });
+      }
+    });
+
     // Auto-toggle the checkbox when user types a trustEmail equal to email
     this.trustForm.get('trustEmail')?.valueChanges.subscribe(trustEmail => {
       const email = this.trustForm.get('email')?.value || '';
@@ -387,11 +405,20 @@ createTrustee(isReadonly = false, required = false): FormGroup {
       idControl?.setValue(idNumber);
       nameControl?.disable();
       idControl?.disable();
+      // Mirror and lock Settlor email from applicant email
+      const emailControl = this.settlor.get('email');
+      const applicantEmail = this.trustForm.get('email')?.value || '';
+      emailControl?.setValue(applicantEmail);
+      emailControl?.disable();
     } else {
       nameControl?.enable();
       idControl?.enable();
       nameControl?.reset();
       idControl?.reset();
+      // Enable and reset Settlor email
+      const emailControl = this.settlor.get('email');
+      emailControl?.enable();
+      emailControl?.reset();
     }
   }
 

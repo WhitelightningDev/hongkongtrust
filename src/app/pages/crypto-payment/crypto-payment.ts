@@ -21,7 +21,7 @@ export class CryptoPayment implements OnInit {
   isMember: boolean = false;
   memberNumberValid: boolean = false;
 
-  priceZAR: number = 7000; // Default non-member price
+  priceZAR: number = 7150; // Default non-member price
   xrpAmount: number = 0;
   paymentAddress = 'rMuStHBy5N17ysmiQjUj4QQv5DTk8ovWDS';
 

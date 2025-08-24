@@ -493,7 +493,7 @@ createTrustee(isReadonly = false, required = false): FormGroup {
       this.loading = true;
 
       try {
-        const amount = rawForm.isBullionMember ? 1500 : 7000;
+        const amount = rawForm.isBullionMember ? 1650 : 7150;
         const amountInCents = amount * 100;
 
         // Store payment method and amount in sessionStorage

@@ -874,7 +874,7 @@ export class EditTrust {
         return;
       }
       const API_BASE = 'https://hongkongbackend.onrender.com';
-      const url = `${API_BASE}/edit-trust-payment/${encodeURIComponent(this.editTrustNumber)}`;
+      const url = `${API_BASE}/payments/edit-trust-payment/${encodeURIComponent(this.editTrustNumber)}`;
       try {
         // Initiate payment for R165 (16500 cents) and send payload
         const paymentInit = await this.http.post<any>(

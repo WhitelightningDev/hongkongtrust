@@ -20,13 +20,13 @@ import { EditTrust } from './pages/edit-trust/edit-trust';
 
 
 export const routes: Routes = [
-  // {
-  //   path: '', component: TestingPage
-  // },
   {
-    path: '',
-    component: Welcomepage,
+    path: '', component: TestingPage
   },
+  // {
+  //   path: '',
+  //   component: Welcomepage,
+  // },
   {
     path: 'edit-trust',component: EditTrust
   },

@@ -6,20 +6,20 @@
 </div>
 
 
-
-
-<form [formGroup]="trustForm" (ngSubmit)="onSubmit()" enctype="multipart/form-data"
-  class="p-4 p-md-5 m-3 m-md-4 shadow-lg rounded-4 bg-light border border-2 border-danger-subtle">
-  <!-- Edit Existing Trust action -->
-  <div class="d-flex justify-content-end mb-3">
+<div class="d-flex justify-content-end mb-3">
     <button type="button" class="btn btn-dark btn-lg rounded-pill d-flex align-items-center gap-2 px-5 py-2" (click)="openEditModal()">
       <i class="bi bi-pencil-square"></i>
       EDIT EXISTING TRUST
     </button>
   </div>
+
+
+<form [formGroup]="trustForm" (ngSubmit)="onSubmit()" enctype="multipart/form-data"
+  class="p-4 p-md-5 m-3 m-md-4 shadow-lg rounded-4 bg-light border border-2 border-danger-subtle">
+
   <!-- Back Button -->
   <div class="mb-4">
-    <button type="button" class="btn btn-outline-dark btn-lg rounded-pill px-3 py-2" (click)="goBackToHome()">
+    <button type="button" class="btn btn-dark rounded-circle" (click)="goBackToHome()">
       <i class="bi bi-arrow-left fs-5"></i>
     </button>
   </div>
@@ -38,7 +38,7 @@
         <span>Trust Name: <span class="badge bg-secondary-subtle text-dark border">{{ editTrustName }}</span></span>
       </div>
     </div>
-    <button type="button" class="btn btn-outline-secondary rounded-pill px-3 py-1" (click)="exitEditMode()">Exit</button>
+    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="exitEditMode()">Exit</button>
   </div>
 
   <!-- General Information -->
@@ -96,69 +96,75 @@
     </div>
     <div class="card-body">
 
-      <!-- Trust Email -->
-<!-- Trust Email -->
-<div class="mb-4">
-  <label class="form-label">Trust Email (Optional)</label>
-  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
-    <input formControlName="trustEmail" type="email" class="form-control w-100 w-md-auto" [ngClass]="{ 'bg-body-tertiary': useUserEmailForTrustEmail }"
-      placeholder="trust@example.com" [readonly]="useUserEmailForTrustEmail" style="max-width: 300px;" />
-    <div class="form-check">
-      <input class="form-check-input" type="checkbox" id="useUserEmailCheckbox"
-        [checked]="useUserEmailForTrustEmail" (change)="toggleUseUserEmailForTrustEmail($event)" />
-      <label class="form-check-label" for="useUserEmailCheckbox">
-        Use my email
-      </label>
-    </div>
-  </div>
- 
-  <div class="text-danger mt-1 fst-italic"
-    *ngIf="trustForm.get('trustEmail')?.invalid && trustForm.get('trustEmail')?.touched">
-    Please enter a valid trust email.
-  </div>
-</div>
 
-      <!-- Trust Name -->
-      <div class="mb-4">
-        <label class="form-label">Name of Trust *</label>
-        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
-          <input formControlName="trustName" type="text" class="form-control w-100 w-md-auto" style="max-width: 300px;" [readonly]="isEditMode" [ngClass]="{ 'bg-body-tertiary': isEditMode }" />
-
-          <div *ngIf="trustForm.get('trustName')?.value && !isEditMode" class="mt-2">
-            <!-- Message shown after user enters trust name -->
-            <div class="mb-1 text-primary bold">
-              THIS IS YOUR TRUST FULL NAME
-            </div>
-
-            <span class="badge rounded-pill bg-primary text-light fw-bold px-4 py-2">
-              The {{ trustForm.get('trustName')?.value }} Hong Kong Foreign Trust
-            </span>
-          </div>
-        </div>
-
-        <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('trustName')?.invalid && trustForm.get('trustName')?.touched">
-          Please enter a trust name.
-        </div>
-
-        <!-- Validation message for forbidden words -->
-        <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('trustName')?.errors?.['forbiddenWords'] && trustForm.get('trustName')?.touched">
-          Do not include the words "The", "Trust", "Hong", "Kong" and "Foreign" in the trust name — they are automatically added.
+      <!-- Important Notice (centered at top) -->
+      <div class="d-flex justify-content-center my-3">
+        <div class="alert alert-danger border-2 shadow-sm text-center mb-0" role="note" aria-label="Electronic signing requirements" style="max-width: 90%;">
+          <div class="text-uppercase fw-bold small mb-2">Important</div>
+          <ul class="mb-0 ps-3 text-start">
+            <li>The deed and supporting documents (including the resolution and lease agreement as proof of address) will be signed <strong>ELECTRONICALLY</strong> together in a single bundle by each required party. One by One</li>
+            <li>Each party must provide a valid email address.</li>
+            <li>Two parties may share the same email — for example, spouses who are both trustees.</li>
+            <li>There is a R150 payable fee for electronic signatures and any additional documents.</li>
+          </ul>
         </div>
       </div>
 
-      <!-- Establishment Date -->
-      <div class="mb-4">
-        <label class="form-label">Date of Establishment *</label>
-        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
-          <input formControlName="establishmentDate" type="date" class="form-control w-100 w-md-auto" [ngClass]="{ 'bg-body-tertiary': isEditMode }"
-            style="max-width: 300px;" />
-          <div *ngIf="trustForm.get('establishmentDate')?.value" class="text-muted">
-            <em>{{ trustForm.get('establishmentDate')?.value | date: 'd MMMM yyyy' }}</em>
+      <!-- Trust Key Fields Card -->
+      <div class="card border-0 shadow mt-4 mb-4">
+        <div class="card-body">
+          <div class="row g-4">
+            <!-- Trust Email -->
+            <div class="col-12 col-md-4">
+              <label class="form-label">Trust Email (Optional)</label>
+              <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
+                <input formControlName="trustEmail" type="email" class="form-control w-100 w-md-auto"
+                       placeholder="trust@example.com" [readonly]="useUserEmailForTrustEmail" />
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="useUserEmailCheckbox"
+                         [checked]="useUserEmailForTrustEmail" (change)="toggleUseUserEmailForTrustEmail($event)" />
+                  <label class="form-check-label" for="useUserEmailCheckbox">Use my email</label>
+                </div>
+              </div>
+              <div class="text-danger mt-1 fst-italic"
+                   *ngIf="trustForm.get('trustEmail')?.invalid && trustForm.get('trustEmail')?.touched">
+                Please enter a valid trust email.
+              </div>
+            </div>
+
+            <!-- Name of Trust -->
+            <div class="col-12 col-md-4">
+              <label class="form-label">Name of Trust *</label>
+              <input formControlName="trustName" type="text" class="form-control w-100" [readonly]="isEditMode" />
+              <div class="text-danger mt-1 fst-italic"
+                   *ngIf="trustForm.get('trustName')?.invalid && trustForm.get('trustName')?.touched">
+                Please enter a trust name.
+              </div>
+              <div class="text-danger mt-1 fst-italic"
+                   *ngIf="trustForm.get('trustName')?.errors?.['forbiddenWords'] && trustForm.get('trustName')?.touched">
+                Do not include the words "The", "Trust", "Hong", "Kong" and "Foreign" in the trust name — they are automatically added.
+              </div>
+              <div *ngIf="trustForm.get('trustName')?.value && !isEditMode" class="mt-2">
+                <div class="mb-1 text-primary fw-bold small">THIS IS YOUR TRUST FULL NAME</div>
+                <span class="badge rounded-pill bg-primary text-light fw-bold px-3 py-2">
+                  The {{ trustForm.get('trustName')?.value }} Hong Kong Foreign Trust
+                </span>
+              </div>
+            </div>
+
+            <!-- Date of Establishment -->
+            <div class="col-12 col-md-4">
+              <label class="form-label">Date of Establishment *</label>
+              <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
+                <input formControlName="establishmentDate" type="date" class="form-control w-100" />
+                <div *ngIf="trustForm.get('establishmentDate')?.value" class="text-muted"><em>{{ trustForm.get('establishmentDate')?.value | date: 'd MMMM yyyy' }}</em></div>
+              </div>
+              <div class="text-danger mt-1 fst-italic"
+                   *ngIf="trustForm.get('establishmentDate')?.invalid && trustForm.get('establishmentDate')?.touched">
+                Please select a date of establishment.
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="text-danger mt-1 fst-italic"
-          *ngIf="trustForm.get('establishmentDate')?.invalid && trustForm.get('establishmentDate')?.touched">
-          Please select a date of establishment.
         </div>
       </div>
 
@@ -176,7 +182,7 @@
         <div class="card border shadow bg-light-subtle p-3">
           <label>Full Name *</label>
           <input type="text" formControlName="name" [readonly]="trustForm.get('isSettlor')?.value"
-            class="form-control" [ngClass]="{ 'bg-body-tertiary': trustForm.get('isSettlor')?.value }" />
+            class="form-control" />
           <div class="text-danger mt-1 fst-italic"
             *ngIf="trustForm.get('settlor.name')?.invalid && trustForm.get('settlor.name')?.touched">
             Settlor name is required.
@@ -184,10 +190,16 @@
 
           <label>ID / Passport No *</label>
           <input type="text" formControlName="id" [readonly]="trustForm.get('isSettlor')?.value"
-            class="form-control mb-2" [ngClass]="{ 'bg-body-tertiary': trustForm.get('isSettlor')?.value }" />
+            class="form-control mb-2" />
           <div class="text-danger mt-1 fst-italic"
             *ngIf="trustForm.get('settlor.id')?.invalid && trustForm.get('settlor.id')?.touched">
             Settlor ID/Passport is required.
+          </div>
+
+          <label>Email *</label>
+          <input type="email" formControlName="email" class="form-control mb-2" placeholder="settlor@example.com" />
+          <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('settlor.email')?.invalid && trustForm.get('settlor.email')?.touched">
+            Settlor email is required.
           </div>
 
         </div>
@@ -210,17 +222,22 @@
 
             <div [formGroup]="firstTrustee" class="card border shadow bg-light-subtle p-3">
               <label>Full Name *</label>
-              <input type="text" formControlName="name" [readonly]="trustForm.get('isTrustee')?.value" class="form-control" [ngClass]="{ 'bg-body-tertiary': trustForm.get('isTrustee')?.value }" />
+              <input type="text" formControlName="name" [readonly]="trustForm.get('isTrustee')?.value" class="form-control" />
               <div class="text-danger mt-1 fst-italic" *ngIf="firstTrustee.get('name')?.invalid && firstTrustee.get('name')?.touched">
                 Trustee 1 name is required.
               </div>
 
               <label>ID / Passport No *</label>
-              <input type="text" formControlName="id" [readonly]="trustForm.get('isTrustee')?.value" class="form-control mb-2" [ngClass]="{ 'bg-body-tertiary': trustForm.get('isTrustee')?.value }" />
+              <input type="text" formControlName="id" [readonly]="trustForm.get('isTrustee')?.value" class="form-control mb-2" />
               <div class="text-danger mt-1 fst-italic" *ngIf="firstTrustee.get('id')?.invalid && firstTrustee.get('id')?.touched">
                 Trustee 1 ID/Passport is required.
               </div>
 
+              <label>Email *</label>
+              <input type="email" formControlName="email" class="form-control mb-2" placeholder="trustee1@example.com" />
+              <div class="text-danger mt-1 fst-italic" *ngIf="firstTrustee.get('email')?.invalid && firstTrustee.get('email')?.touched">
+                Trustee 1 email is required.
+              </div>
             </div>
           </div>
         </div>
@@ -241,6 +258,12 @@
               <div class="text-danger mt-1 fst-italic" *ngIf="secondTrustee.get('id')?.invalid && secondTrustee.get('id')?.touched">
                 Trustee 2 ID is required.
               </div>
+
+              <label>Email *</label>
+              <input type="email" formControlName="email" class="form-control mb-2" placeholder="trustee2@example.com" />
+              <div class="text-danger mt-1 fst-italic" *ngIf="secondTrustee.get('email')?.invalid && secondTrustee.get('email')?.touched">
+                Trustee 2 email is required.
+              </div>
             </div>
           </div>
         </div>
@@ -254,22 +277,14 @@
               <input type="text" formControlName="name" class="form-control mb-2" placeholder="Full name" />
               <label>ID / Passport No</label>
               <input type="text" formControlName="id" class="form-control mb-2" placeholder="ID/Passport" />
+              <label>Email</label>
+              <input type="email" formControlName="email" class="form-control mb-2" placeholder="trustee3@example.com" />
             </div>
           </div>
         </div>
 
-        <!-- Trustee 4 -->
-        <div class="col-12 col-md-6">
-          <div class="mb-4" [formGroup]="fourthTrustee">
-            <label class="form-label fw-semibold text-danger fs-5">Trustee 4 (Optional)</label>
-            <div class="card border shadow bg-light-subtle p-3">
-              <label>Full Name</label>
-              <input type="text" formControlName="name" class="form-control mb-2" placeholder="Full name" />
-              <label>ID / Passport No</label>
-              <input type="text" formControlName="id" class="form-control mb-2" placeholder="ID/Passport" />
-            </div>
-          </div>
-        </div>
+        
+
 
       </div>
 
@@ -330,8 +345,8 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-outline-danger btn-lg px-4 py-2" data-bs-dismiss="modal">Cancel</button>
-              <button type="button" class="btn btn-danger btn-lg px-4 py-2" (click)="confirmPaymentMethod()">OK</button>
+              <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-danger" (click)="confirmPaymentMethod()">OK</button>
             </div>
           </div>
         </div>
@@ -367,8 +382,8 @@
               </form>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-outline-secondary btn-lg px-4 py-2" data-bs-dismiss="modal">Cancel</button>
-              <button type="button" class="btn btn-dark btn-lg d-inline-flex align-items-center gap-2 px-4 py-2"
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-dark d-inline-flex align-items-center gap-2"
                       (click)="performEditLookup()"
                       [disabled]="editLookupForm.invalid || lookupLoading">
                 <span class="spinner-border spinner-border-sm me-1" *ngIf="lookupLoading" role="status" aria-hidden="true"></span>
@@ -379,6 +394,90 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+
+  <!-- Lease Agreement Details Section -->
+  <div class="card border-info-subtle shadow mb-4">
+    <div class="card-header bg-info text-white fs-5">
+      🏠 Lease Agreement Details
+    </div>
+    <div class="alert alert-warning border-2 shadow-sm mb-4" role="note" aria-label="Lease agreement guidance">
+        <div class="text-uppercase fw-bold small mb-2">Lease Agreement Notes</div>
+        <ul class="mb-0 ps-3">
+          <li>You can use your residential address as administrative office for your trust.</li>
+          <li>The document can be used as Proof of Address for your Trust.</li>
+          <li>The Owner is the Lessor and the Trust is the Lessee.</li>
+          <li>The Signer is different than the owner and generally one of the other trustees who signs on behalf of the Trust.</li>
+        </ul>
+      </div>
+    <div class="card-body">
+      <div class="row g-4 align-items-start">
+        <!-- Left: Lease fields -->
+        <div class="col-12 col-lg-7">
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Property Address (One Line) *</label>
+            <input formControlName="propertyAddress" type="text" class="form-control" placeholder="e.g. 187 Kameeldrift Weg, Roodepoort, Pretoria, Gauteng, South Africa, 0182" />
+            <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('propertyAddress')?.invalid && trustForm.get('propertyAddress')?.touched">
+              Please enter the property address.
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Property Owner (Whose name the property is in) *</label>
+            <input formControlName="propertyOwner" type="text" class="form-control"
+                   placeholder="Defaults to Trustee 1" />
+            <div class="form-text">By default, this will use Trustee 1's details (name, ID, email).</div>
+            <div class="mb-3">
+              <label class="form-label">Owner ID</label>
+              <input type="text" class="form-control" [value]="firstTrustee.get('id')?.value" readonly />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Owner Email</label>
+              <input type="text" class="form-control" [value]="firstTrustee.get('email')?.value" readonly />
+            </div>
+            <div class="text-danger mt-1 fst-italic"
+                 *ngIf="trustForm.get('propertyOwner')?.invalid && trustForm.get('propertyOwner')?.touched">
+              Please specify whose name the property is in.
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Signer Details (Usually Trustee 2) -->
+        <div class="col-12 col-lg-5">
+          <label class="form-label fw-semibold text-danger fs-5 d-flex align-items-center gap-2">
+            Signer Details <span class="badge bg-secondary-subtle text-dark border">Usually Trustee 2</span>
+          </label>
+          <div class="card border shadow bg-light-subtle p-3">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Signer Name *</label>
+                <input type="text" class="form-control" formControlName="signer_name" placeholder="Usually Trustee 2 full name" />
+                <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('signer_name')?.invalid && trustForm.get('signer_name')?.touched">
+                  Signer name is required.
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Signer ID / Passport No *</label>
+                <input type="text" class="form-control" formControlName="signer_id" placeholder="Usually Trustee 2 ID / Passport" />
+                <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('signer_id')?.invalid && trustForm.get('signer_id')?.touched">
+                  Signer ID / Passport is required.
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Signer Email *</label>
+                <input type="email" class="form-control" formControlName="signer_email" placeholder="Usually trustee2@example.com" />
+                <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('signer_email')?.invalid && trustForm.get('signer_email')?.touched">
+                  Please enter a valid signer email.
+                </div>
+              </div>
+            </div>
+            <div class="form-text mt-2">
+              These fields auto-fill from Trustee 2 if left blank.
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -461,7 +560,7 @@
 
   <!-- Submit Button -->
   <div class="d-grid">
-    <button type="submit" class="btn btn-danger btn-lg rounded-pill d-flex align-items-center justify-content-center gap-2" [disabled]="editSaving">
+    <button type="submit" class="btn btn-danger btn-lg d-flex align-items-center justify-content-center gap-2" [disabled]="editSaving">
       <span *ngIf="!isEditMode">📤 Submit Trust Application</span>
       <ng-container *ngIf="isEditMode">
         <span class="spinner-border spinner-border-sm" *ngIf="editSaving" role="status" aria-hidden="true"></span>

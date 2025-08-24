@@ -858,6 +858,44 @@ export class EditTrust {
         Property_Address: this.trustForm.get('propertyAddress')?.value,
       };
     }
+
+    /**
+     * Start the fixed R165 payment flow for editing trusts.
+     * 1. Checks edit mode and trust number, shows error if not valid.
+     * 2. Calls backend POST /edit-trust-payment/{trust_number} with amount and payload.
+     * 3. Redirects user to payment URL.
+     * 4. Shows error toast on failure.
+     */
+    async startEditPayment(): Promise<void> {
+      if (!this.isEditMode || !this.editTrustNumber) {
+        this.toastr.error('Edit mode not active or trust number missing.', 'Edit Payment Error', {
+          timeOut: 5000, closeButton: true, progressBar: true
+        });
+        return;
+      }
+      const API_BASE = 'https://hongkongbackend.onrender.com';
+      const url = `${API_BASE}/payments/edit-trust-payment-session/${encodeURIComponent(this.editTrustNumber)}`;
+      try {
+        // Initiate payment for R165 (16500 cents) and send payload
+        const paymentInit = await this.http.post<any>(
+          url,
+          {
+            amount_cents: 16500,
+            payload: this.buildEditPayload()
+          }
+        ).toPromise();
+        if (!paymentInit || !paymentInit.redirectUrl) {
+          throw new Error('No payment redirect URL returned.');
+        }
+        // Redirect to payment URL
+        window.location.href = paymentInit.redirectUrl;
+      } catch (err: any) {
+        const msg = err?.error?.detail || err?.message || 'Failed to start edit payment';
+        this.toastr.error(msg, 'Edit Payment Error', {
+          timeOut: 7000, closeButton: true, progressBar: true
+        });
+      }
+    }
   
     /**
      * Save edits (PUT). On success, backend regenerates deed and emails PDF.
@@ -884,7 +922,7 @@ export class EditTrust {
       this.editSaving = true;
       try {
         await this.http.put(url, payload).toPromise();
-        this.toastr.success('Amended deed generated and emailed. Check your inbox.', 'Trust updated', {
+        this.toastr.success('Amended deed generated and sent to admin.', 'Trust updated', {
           timeOut: 6000, closeButton: true, progressBar: true
         });
   

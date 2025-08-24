@@ -14,7 +14,7 @@
   </div>
 
 
-<form [formGroup]="trustForm" (ngSubmit)="onSubmit()" enctype="multipart/form-data"
+<form [formGroup]="trustForm" enctype="multipart/form-data"
   class="p-4 p-md-5 m-3 m-md-4 shadow-lg rounded-4 bg-light border border-2 border-danger-subtle">
 
   <!-- Back Button -->
@@ -24,7 +24,7 @@
     </button>
   </div>
   <h2 class="mb-4 text-danger border-bottom pb-2 text-center text-md-start">
-    🇭🇰 Application for <span class="fw-bold">Hong Kong Foreign Trust</span>
+    🇭🇰 <span class="fw-bold">Edit Hong Kong Foreign Trust</span>
   </h2>
   
 
@@ -99,13 +99,13 @@
 
       <!-- Important Notice (centered at top) -->
       <div class="d-flex justify-content-center my-3">
-        <div class="alert alert-danger border-2 shadow-sm text-center mb-0" role="note" aria-label="Electronic signing requirements" style="max-width: 90%;">
+        <div class="alert alert-danger border-2 shadow-sm text-center mb-0" role="note" aria-label="Edit trust form fee notice" style="max-width: 90%;">
           <div class="text-uppercase fw-bold small mb-2">Important</div>
           <ul class="mb-0 ps-3 text-start">
             <li>The deed and supporting documents (including the resolution and lease agreement as proof of address) will be signed <strong>ELECTRONICALLY</strong> together in a single bundle by each required party. One by One</li>
             <li>Each party must provide a valid email address.</li>
             <li>Two parties may share the same email — for example, spouses who are both trustees.</li>
-            <li>There is a R150 payable fee for electronic signatures and any additional documents.</li>
+            <li>There is a R165 fee to edit an existing trust form.</li>
           </ul>
         </div>
       </div>
@@ -535,37 +535,15 @@
     </div>
   </div>
 
-  <!-- Success popup modal -->
-  <div *ngIf="showSuccessPopup"
-    class="position-fixed top-50 start-50 translate-middle bg-white text-success border border-success rounded-4 shadow-lg px-5 py-4"
-    style="z-index: 1050; min-width: 320px; text-align: center;">
-    <div class="mb-2">
-      <i class="bi bi-check-circle-fill fs-1 text-success"></i>
-    </div>
-    <h5 class="fw-bold mb-2">Success!</h5>
-    <p class="mb-1">Your trust application has been submitted successfully.</p>
-    <p class="mb-0">Please check your email shortly for the confirmation and attached documents.</p>
-  </div>
-
-  <!-- Display Price Based on Membership & Valid Member Number -->
-  <div *ngIf="!isEditMode" class="mb-4 p-3 border rounded bg-light-subtle text-center fs-5 fw-semibold">
-    <ng-container
-      *ngIf="trustForm.get('isBullionMember')?.value && trustForm.get('memberNumber')?.valid; else nonMemberPrice">
-      Your member price is: <span class="text-success">R1,500</span>
-    </ng-container>
-    <ng-template #nonMemberPrice>
-      Your price if not a member is: <span class="text-danger">R7,000</span>
-    </ng-template>
-  </div>
-
-  <!-- Submit Button -->
-  <div class="d-grid">
-    <button type="submit" class="btn btn-danger btn-lg d-flex align-items-center justify-content-center gap-2" [disabled]="editSaving">
-      <span *ngIf="!isEditMode">📤 Submit Trust Application</span>
-      <ng-container *ngIf="isEditMode">
-        <span class="spinner-border spinner-border-sm" *ngIf="editSaving" role="status" aria-hidden="true"></span>
-        <span>💾 Save Changes &amp; Email Amended Deed</span>
-      </ng-container>
+  <!-- Save Changes Button for Edit Mode -->
+  <div class="d-flex justify-content-center mt-5">
+    <button type="button"
+      class="btn fw-bold btn-lg px-5 py-3"
+      [disabled]="editSaving"
+      (click)="startEditPayment()"
+      style="background: none; color: #c1121f; border: 2px solid #c1121f; font-size: 1.4rem;">
+      <span class="spinner-border spinner-border-sm me-2" *ngIf="editSaving" role="status" aria-hidden="true"></span>
+      💾 Save Changes (Pay R165)
     </button>
   </div>
 </form>

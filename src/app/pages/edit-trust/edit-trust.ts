@@ -819,6 +819,7 @@ export class EditTrust {
   
     /**
      * Build payload for PUT /trusts/edit-trust/{trust_number}
+     * Includes all fields required by the backend update endpoint.
      */
     private buildEditPayload(): any {
       // Collect trustees in order, omit empty rows at the end
@@ -829,6 +830,7 @@ export class EditTrust {
         this.fourthTrustee.value
       ].filter(t => (t?.name && String(t.name).trim()) || (t?.id && String(t.id).trim()));
 
+      // Build payload with all required fields for backend update endpoint
       return {
         id_number: this.trustForm.get('idNumber')?.value,
         email: this.trustForm.get('email')?.value,
@@ -842,18 +844,18 @@ export class EditTrust {
         settlor_name: this.settlor.get('name')?.value,
         settlor_id: this.settlor.get('id')?.value,
         trustees,
-        // Extra fields to send back
+        // Additional fields required by backend
         settlor_email: this.settlor.get('email')?.value,
         trustee1_email: this.firstTrustee.get('email')?.value,
         trustee2_email: this.secondTrustee.get('email')?.value,
         trustee3_email: this.thirdTrustee.get('email')?.value,
         owner_name: this.trustForm.get('propertyOwner')?.value,
-        owner_id: this.firstTrustee.get('id')?.value, // adjust logic if owner_id is separate field
-        owner_email: this.firstTrustee.get('email')?.value, // adjust logic if different
+        owner_id: this.firstTrustee.get('id')?.value,
+        owner_email: this.firstTrustee.get('email')?.value,
         signer_name: this.trustForm.get('signer_name')?.value,
         signer_id: this.trustForm.get('signer_id')?.value,
         signer_email: this.trustForm.get('signer_email')?.value,
-        Property_Address: this.trustForm.get('propertyAddress')?.value || null,
+        Property_Address: this.trustForm.get('propertyAddress')?.value,
       };
     }
   
@@ -876,7 +878,7 @@ export class EditTrust {
       }
   
       const API_BASE = 'https://hongkongbackend.onrender.com';
-      const url = `${API_BASE}/edit-trust/${encodeURIComponent(this.editTrustNumber)}`;
+      const url = `${API_BASE}/trusts/edit-trust/${encodeURIComponent(this.editTrustNumber)}`;
       const payload = this.buildEditPayload();
   
       this.editSaving = true;

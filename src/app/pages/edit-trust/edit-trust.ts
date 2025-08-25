@@ -287,7 +287,7 @@ export class EditTrust {
         backdrop: 'static',
         keyboard: false
       });
-  
+
       // Modal for "EDIT EXISTING TRUST"
       if (this.editTrustModal?.nativeElement) {
         this.editTrustModalInstance = new bootstrap.Modal(this.editTrustModal.nativeElement, {
@@ -295,13 +295,20 @@ export class EditTrust {
           keyboard: false
         });
       }
-      
-  
+
+      // Auto-open the Edit Existing Trust lookup modal on page load
+      // Only do this when not resuming an in-progress edit via query params
+      queueMicrotask(() => {
+        if (!this.isEditMode && !this.editTrustNumber && this.editTrustModalInstance) {
+          this.openEditModal();
+        }
+      });
+
       // Prefill settlor and first trustee from fullName and idNumber if empty
       setTimeout(() => {
         const fullName = this.trustForm.get('fullName')?.value;
         const idNumber = this.trustForm.get('idNumber')?.value;
-  
+
         if (fullName?.trim()) {
           if (!this.trustForm.get('isSettlor')?.value && !this.settlor.get('name')?.value?.trim()) {
             this.settlor.get('name')?.setValue(fullName, { emitEvent: false });
@@ -311,7 +318,7 @@ export class EditTrust {
           }
           this.trustForm.get('altSettlorName')?.setValue(fullName, { emitEvent: false });
         }
-  
+
         if (idNumber?.trim()) {
           if (!this.trustForm.get('isSettlor')?.value && !this.settlor.get('id')?.value?.trim()) {
             this.settlor.get('id')?.setValue(idNumber, { emitEvent: false });

@@ -430,7 +430,8 @@
       <button type="button"
         class="btn fw-bold btn-lg px-5 py-3"
         [disabled]="editSaving"
-        (click)="startEditPayment()"
+        data-bs-toggle="modal"
+        data-bs-target="#paymentMethodModal"
         style="background: none; color: #c1121f; border: 2px solid #c1121f; font-size: 1.4rem;">
         <span class="spinner-border spinner-border-sm me-2" *ngIf="editSaving" role="status" aria-hidden="true"></span>
         💾 Save Changes (Pay R165)
@@ -468,24 +469,88 @@
               aria-label="Close"></button>
           </div>
           <div class="modal-body" [formGroup]="trustForm">
-            <div class="form-check">
-              <input class="form-check-input" type="radio" id="cardEFT" formControlName="paymentMethod"
-                value="cardEFT" />
-              <label class="form-check-label" for="cardEFT">
-                Card / EFT
-              </label>
+            <div class="d-grid gap-3">
+              <button type="button" class="btn btn-dark btn-lg d-flex align-items-center justify-content-center gap-2"
+                      (click)="trustForm.get('paymentMethod')?.setValue('cardEFT'); confirmPaymentMethod()"
+                      data-bs-dismiss="modal">
+                <i class="bi bi-credit-card"></i>
+                Pay with Card / EFT
+              </button>
+              <button type="button" class="btn btn-outline-dark btn-lg d-flex align-items-center justify-content-center gap-2"
+                      (click)="trustForm.get('paymentMethod')?.setValue('crypto')"
+                      data-bs-target="#customCryptoModal" data-bs-toggle="modal" data-bs-dismiss="modal">
+                <i class="bi bi-currency-bitcoin"></i>
+                Pay with Crypto (XRP)
+              </button>
             </div>
-            <div class="form-check mt-2">
-              <input class="form-check-input" type="radio" id="crypto" formControlName="paymentMethod"
-                value="crypto" />
-              <label class="form-check-label" for="crypto">
-                XRP payments
-              </label>
-            </div>
+            <div class="form-text mt-3 text-center">Choose a payment method to continue.</div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-danger" (click)="confirmPaymentMethod()">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Custom Crypto Payment Modal -->
+    <div class="modal fade" id="customCryptoModal" tabindex="-1" aria-labelledby="customCryptoModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-dark">
+          <div class="modal-header bg-dark text-white">
+            <h5 class="modal-title d-flex align-items-center gap-2" id="customCryptoModalLabel">
+              <i class="bi bi-currency-bitcoin"></i>
+              Crypto Payment (XRP)
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="vstack gap-3">
+              <div class="alert alert-secondary mb-0" role="note">
+                <div class="fw-semibold mb-1">How it works</div>
+                <ol class="mb-0 ps-3">
+                  <li>Pay the edit fee using <strong>XRP</strong> to the address below.</li>
+                  <li>Paste the <strong>64-character XRP transaction ID</strong> (hash) and continue.</li>
+                  <li>We will process your edit once submitted.</li>
+                </ol>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center border rounded p-3">
+                <div>
+                  <div class="text-muted small">Amount</div>
+                  <div class="fs-5 fw-bold">R165</div>
+                  <div class="small text-muted mt-1">≈ {{ xrpAmountDisplay }}</div>
+                </div>
+                <div>
+                  <span class="badge text-bg-dark" *ngIf="!xrpQuoteLoading">XRP Supported</span>
+                  <span class="badge text-bg-secondary" *ngIf="xrpQuoteLoading">Fetching rate…</span>
+                </div>
+              </div>
+
+              <div class="border rounded p-3">
+                <div class="text-muted small mb-1">Pay to this XRP address</div>
+                <div class="input-group">
+                  <input type="text" class="form-control" [value]="'rMuStHBy5N17ysmiQjUj4QQv5DTk8ovWDS'" readonly>
+                  <button type="button" class="btn btn-outline-secondary" (click)="copyToClipboard('rMuStHBy5N17ysmiQjUj4QQv5DTk8ovWDS')">Copy</button>
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label">XRP Transaction ID (64‑character hex) *</label>
+                <input type="text" class="form-control" [(ngModel)]="cryptoTxId" [ngModelOptions]="{standalone: true}" name="cryptoTxId" placeholder="e.g. A3F0... (64 hex chars)" maxlength="64" />
+                <div class="text-danger mt-1 fst-italic" *ngIf="cryptoTxId && !isValidHex64(cryptoTxId)">
+                  Please enter a valid 64-character hexadecimal transaction ID.
+                </div>
+              </div>
+
+              <div class="form-text">We use CoinGecko to estimate the XRP amount in real-time.</div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Back</button>
+            <button type="button" class="btn btn-dark d-inline-flex align-items-center gap-2" (click)="handleCryptoManualConfirm()" data-bs-dismiss="modal">
+              <i class="bi bi-arrow-right-circle"></i>
+              I've Paid — Continue
+            </button>
           </div>
         </div>
       </div>

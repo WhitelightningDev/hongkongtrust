@@ -48,6 +48,15 @@ export class EditTrust {
     isEditMode = false;                // when true, submit flow will call PUT instead of payment
     editTrustNumber: string | null = null;  // immutable, returned from lookup
     editTrustName: string | null = null;    // immutable, returned from lookup
+    EDIT_AMOUNT_CENTS = 16500;
+    EDIT_AMOUNT_ZAR = 165; // convenience mirror of cents / 100
+    xrpPriceZAR: number | null = null; // current XRP price in ZAR
+    xrpAmountForEdit: number | null = null; // how much XRP equals R165
+    xrpQuoteLoading = false;
+    xrpQuoteError: string | null = null;
+  
+    // Manual crypto flow: user-provided XRP transaction id (64 hex chars)
+    cryptoTxId: string = '';
   
     // Small lookup form (inside modal): trust number + ID/Passport
     editLookupForm: FormGroup = this.fb.group({
@@ -65,6 +74,7 @@ export class EditTrust {
   
     private paymentMethodModalInstance: any;
     private editTrustModalInstance: any;
+    private customCryptoModalEl: HTMLElement | null = null;
   
     constructor() {
       this.trustForm = this.fb.group({
@@ -280,6 +290,8 @@ export class EditTrust {
           sessionStorage.removeItem('editPayload');
         }
       }
+      // Prefetch XRP quote for edit crypto path
+      this.updateXrpQuote();
     }
   
     ngAfterViewInit(): void {
@@ -293,6 +305,17 @@ export class EditTrust {
         this.editTrustModalInstance = new bootstrap.Modal(this.editTrustModal.nativeElement, {
           backdrop: 'static',
           keyboard: false
+        });
+      }
+
+      // When the custom crypto modal opens, refresh the XRP quote so the user sees the latest rate
+      this.customCryptoModalEl = document.getElementById('customCryptoModal');
+      if (this.customCryptoModalEl) {
+        this.customCryptoModalEl.addEventListener('show.bs.modal', () => {
+          // Debounce rapid opens by checking if there's already a fetch in flight
+          if (!this.xrpQuoteLoading) {
+            this.updateXrpQuote();
+          }
         });
       }
 
@@ -380,6 +403,54 @@ export class EditTrust {
         // Leave whatever the user typed; no clearing
       }
       this.updateTrustEmailValidators();
+    }
+
+    /**
+     * Fetch the current XRP price (ZAR) and compute how much XRP equals the fixed edit amount (R165).
+     * Uses CoinGecko Simple Price API.
+     */
+    async updateXrpQuote(): Promise<void> {
+      const apiUrl = 'https://api.coingecko.com/api/v3/simple/price?ids=ripple&vs_currencies=usd,zar';
+      this.xrpQuoteLoading = true;
+      this.xrpQuoteError = null;
+      try {
+        const res: any = await this.http.get(apiUrl).toPromise();
+        const priceZar = res?.ripple?.zar;
+        if (typeof priceZar !== 'number' || priceZar <= 0) {
+          throw new Error('Invalid XRP/ZAR price returned');
+        }
+        this.xrpPriceZAR = priceZar;
+        // Compute how many XRP equals R165, round to 6 decimals for display/storage
+        const amt = this.EDIT_AMOUNT_ZAR / priceZar;
+        this.xrpAmountForEdit = Math.round(amt * 1e6) / 1e6;
+      } catch (err: any) {
+        this.xrpQuoteError = err?.message || 'Failed to fetch XRP price';
+        // Keep previous values if any; optionally surface a toast
+        console.error('XRP quote error:', err);
+      } finally {
+        this.xrpQuoteLoading = false;
+      }
+    }
+
+    get xrpAmountDisplay(): string {
+      if (this.xrpQuoteLoading) return 'Fetching…';
+      if (this.xrpQuoteError) return 'Unavailable';
+      if (this.xrpAmountForEdit == null) return '';
+      return `${this.xrpAmountForEdit} XRP`;
+    }
+
+    copyToClipboard(text: string): void {
+      if ((navigator as any)?.clipboard?.writeText) {
+        navigator.clipboard.writeText(text)
+          .then(() => this.toastr?.success?.('Address copied', undefined, { timeOut: 2000 }))
+          .catch(() => this.toastr?.info?.('Select and copy the address manually.'));
+      } else {
+        this.toastr?.info?.('Select and copy the address manually.');
+      }
+    }
+
+    isValidHex64(v: string): boolean {
+      return /^[0-9a-fA-F]{64}$/.test(v || '');
     }
   
     /** 🔔 Triggered on textarea blur */
@@ -498,29 +569,54 @@ export class EditTrust {
   
     async confirmPaymentMethod(): Promise<void> {
       const selectedMethod = this.trustForm.get('paymentMethod')?.value;
-  
+
       if (!selectedMethod) {
         alert('Please select a payment method.');
         return;
       }
-  
+
+      // Close the selector
       this.paymentMethodModalInstance.hide();
-  
+
+      // Gather commonly needed shapes
       const rawForm = this.trustForm.getRawValue();
-      // Map UI `propertyAddress` -> backend `Property_Address`
       const trustDataForBackend = { ...rawForm, Property_Address: rawForm.propertyAddress || '' };
-  
+
+      // ===== EDIT MODE (R165 flat) =====
+      if (this.isEditMode) {
+        const editPayload = this.buildEditPayload();
+
+        if (selectedMethod === 'cardEFT') {
+          // Reuse existing edit card/EFT flow
+          await this.startEditPayment();
+          return;
+        }
+
+        if (selectedMethod === 'crypto') {
+          // Open the custom crypto modal for manual TX entry (stay on this page)
+          const el = document.getElementById('customCryptoModal');
+          if (el) {
+            const modal = new bootstrap.Modal(el);
+            modal.show();
+          }
+          return;
+        }
+
+        // Unknown option in edit mode
+        alert('Unsupported payment method for edits.');
+        return;
+      }
+
+      // ===== NEW SUBMISSION (existing behaviour) =====
       if (selectedMethod === 'cardEFT') {
         this.loading = true;
-  
         try {
           const amount = rawForm.isBullionMember ? 1500 : 7000;
           const amountInCents = amount * 100;
-  
-          // Store payment method and amount in sessionStorage
+
           sessionStorage.setItem('paymentMethod', 'card');
           sessionStorage.setItem('paymentAmount', amountInCents.toString());
-  
+
           const paymentInit = await this.http.post<any>(
             'https://hongkongbackend.onrender.com/api/payment-session',
             {
@@ -528,16 +624,16 @@ export class EditTrust {
               trust_data: trustDataForBackend
             }
           ).toPromise();
-  
+
           if (!paymentInit || !paymentInit.redirectUrl || !paymentInit.trust_id) {
             throw new Error('Invalid response from backend');
           }
-  
+
           const trustId = paymentInit.trust_id;
-  
+
           sessionStorage.setItem('trustFormData', JSON.stringify(trustDataForBackend));
           sessionStorage.setItem('trustId', trustId);
-  
+
           const serializedFiles = await Promise.all(
             Object.entries(this.fileMap).map(async ([role, file]) => {
               const buffer = await file.arrayBuffer();
@@ -549,24 +645,59 @@ export class EditTrust {
               };
             })
           );
-  
+
           sessionStorage.setItem('trustFiles', JSON.stringify(serializedFiles));
-  
+
           await new Promise((res) => setTimeout(res, 500));
-  
+
           this.loading = false;
-  
           window.location.href = paymentInit.redirectUrl;
-  
         } catch (error: any) {
           alert('Error: ' + (error.message || error));
           console.error('🛑 Payment session error:', error);
           this.loading = false;
         }
-      } else if (selectedMethod === 'crypto') {
-        // Store form data for crypto payment page to read
+        return;
+      }
+
+      if (selectedMethod === 'crypto') {
+        // Reuse crypto page for new submissions
         sessionStorage.setItem('trustFormData', JSON.stringify(trustDataForBackend));
         this.router.navigate(['/crypto-payment']);
+        return;
+      }
+
+      alert('Unsupported payment method.');
+    }
+
+    /**
+     * Handler for confirming manual crypto TX for edit mode.
+     * Validates TX id, then submits edits with crypto metadata.
+     */
+    async handleCryptoManualConfirm(): Promise<void> {
+      if (!this.isEditMode) {
+        this.toastr.error('Crypto payment for edits only on this page.', 'Not in Edit Mode');
+        return;
+      }
+      if (!this.cryptoTxId || !this.isValidHex64(this.cryptoTxId)) {
+        this.toastr.error('Enter a valid 64-character hex transaction ID.', 'Invalid TX ID');
+        return;
+      }
+
+      try {
+        const editPayload = this.buildEditPayload();
+        // Attach crypto metadata for backend auditing/verification
+        (editPayload as any).payment_method = 'crypto';
+        (editPayload as any).crypto = {
+          address: 'rMuStHBy5N17ysmiQjUj4QQv5DTk8ovWDS',
+          price_zar: this.xrpPriceZAR ?? null,
+          xrp_amount: this.xrpAmountForEdit ?? null,
+          tx_id: this.cryptoTxId
+        };
+
+        await this.submitEdits(editPayload);
+      } catch (e: any) {
+        this.toastr.error(e?.message || 'Failed to submit edits', 'Error');
       }
     }
   

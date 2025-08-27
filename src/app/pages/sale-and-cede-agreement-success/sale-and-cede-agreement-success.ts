@@ -233,6 +233,7 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       owner_name = owner_name || trustData.settlor.name || trustData.settlor.full_name || '';
       owner_id   = owner_id   || trustData.settlor.id   || trustData.settlor.passport || trustData.settlor.id_or_passport || '';
     }
+    const owner_email = cedeCtx.owner_email || trustData.owner_email || trustData.email || '';
 
     // Signer (trust)
     let signer_name = cedeCtx.signer_name || trustData.signer_name || '';
@@ -242,6 +243,7 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       signer_name = signer_name || t0?.name || t0?.full_name || '';
       signer_id   = signer_id   || t0?.id   || t0?.passport   || t0?.id_or_passport || '';
     }
+    const signer_email = cedeCtx.signer_email || trustData.signer_email || trustData.trustee2_email || '';
 
     // Property / rights
     const coerceList = (v: any) => Array.isArray(v) ? v.map((s: any) => String(s).trim()).filter(Boolean).join('; ') : String(v || '').trim();
@@ -252,6 +254,8 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
     else if (Array.isArray(cedeCtx.propertyList)) list_of_property = coerceList(cedeCtx.propertyList);
     else if (cedeCtx.claim_details) list_of_property = String(cedeCtx.claim_details).trim();
 
+    const property_address = cedeCtx.property_address || trustData.property_address || trustData.Property_Address || '';
+
     // Witness/signing
     const witness_name = (cedeCtx.witness_name ?? trustData.witness_name ?? '').toString().trim();
     const witness_id   = (cedeCtx.witness_id   ?? trustData.witness_id   ?? '').toString().trim();
@@ -260,7 +264,8 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
     // Dates
     const establishment_date_1 = trustData.establishment_date_1 || '';
     const establishment_date_2 = trustData.establishment_date_2 || '';
-    const date_sign = cedeCtx.date_sign || today;
+    const date_sign = (cedeCtx.date_sign || today).toString().trim();
+    const signature_date = cedeCtx.signature_date || null;
     const created_at = cedeCtx.created_at || nowISO;
 
     // Settlor/email
@@ -303,14 +308,15 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       establishment_date_2,
       owner_name,
       owner_id,
+      owner_email,
       signer_name,
       signer_id,
-      list_of_property,
-      witness_name,
-      witness_id,
+      signer_email,
       place_of_signature,
       date_sign,
-      created_at,
+      signature_date,
+      list_of_property,
+      property_address,
       settlor_id,
       client_email,
       payment_method,

@@ -131,6 +131,7 @@ export class SaleAndCedeAgreement implements OnInit {
       propertyList: [[], this.minArrayLength(1)],
       propertyPending: [''],
       signaturePlace: ['', Validators.required],
+      signatureDate: ['', Validators.required],
       witnessName: ['', Validators.required],
       witnessId: ['', Validators.required],
     });
@@ -417,6 +418,7 @@ export class SaleAndCedeAgreement implements OnInit {
       signer: signer ? { name: signer.name, id: signer.id, role: signer.role } : null,
       propertyList: Array.isArray(v.propertyList) ? v.propertyList : (v.propertyList ? [v.propertyList] : []),
       signaturePlace: v.signaturePlace || '',
+      signatureDate: v.signatureDate || '',
       witnessName: v.witnessName || '',
       witnessId: v.witnessId || '',
       // All editable owner/signer details and TrustApplication fields
@@ -474,6 +476,7 @@ export class SaleAndCedeAgreement implements OnInit {
       signer: Party;
       propertyList: string[] | string;
       signaturePlace: string;
+      signatureDate: string;
       witnessName: string;
       witnessId: string;
       ownerName?: string;
@@ -625,6 +628,7 @@ export class SaleAndCedeAgreement implements OnInit {
       witness_name: witness_name,
       witness_id: witness_id,
       place_of_signature: place_of_signature,
+      signature_date: v.signatureDate || nowISO,
       date_sign: dateSignFormatted,
       created_at: new Date().toISOString(),
       settlor_id: v.settlorId,

@@ -89,7 +89,42 @@ export class SaleAndCedeAgreement implements OnInit {
       trustNumber: ['', Validators.required],
       settlorId: ['', Validators.required],
 
-      // NEW: dropdown selections
+      // Backend TrustApplication schema fields (all editable for patch/edit)
+      trustName: [''],
+      fullName: [''],
+      idNumber: [''],
+      email: ['', [Validators.email]],
+      phoneNumber: [''],
+      trustEmail: ['', [Validators.email]],
+      establishmentDate1: [''],
+      establishmentDate2: [''],
+      beneficiaries: [''],
+      isBullionMember: [false],
+      memberNumber: [''],
+      referrerNumber: [''],
+      settlorName: [''],
+      settlorEmail: ['', [Validators.email]],
+      trustee1Name: [''],
+      trustee1Id: [''],
+      trustee1Email: ['', [Validators.email]],
+      trustee2Name: [''],
+      trustee2Id: [''],
+      trustee2Email: ['', [Validators.email]],
+      trustee3Name: [''],
+      trustee3Id: [''],
+      trustee3Email: ['', [Validators.email]],
+      trustee4Name: [''],
+      trustee4Id: [''],
+      trustee4Email: ['', [Validators.email]],
+      ownerName: ['', Validators.required],
+      ownerId: ['', Validators.required],
+      ownerEmail: ['', [Validators.required, Validators.email]],
+      signerName: ['', Validators.required],
+      signerId: ['', Validators.required],
+      signerEmail: ['', [Validators.required, Validators.email]],
+      propertyAddress: [''],
+
+      // Dropdown selections (for reference only)
       owner: [null as Party | null, [Validators.required, this.partyValidator()]],
       signer: [null as Party | null, [Validators.required, this.partyValidator()]],
 
@@ -170,8 +205,8 @@ export class SaleAndCedeAgreement implements OnInit {
       this.cessionForm.markAllAsTouched();
       return;
     }
-    const trust_number = tnCtrl.value;
-    const id_or_passport = idCtrl.value;
+    const trust_number = (tnCtrl.value || '').toString().trim();
+    const id_or_passport = (idCtrl.value || '').toString().trim();
 
     const API_BASE = 'https://hongkongbackend.onrender.com';
     // Use GET request per new API
@@ -192,6 +227,41 @@ export class SaleAndCedeAgreement implements OnInit {
         signaturePlace: record?.place_of_signature || '',
         witnessName: record?.witness_name || '',
         witnessId: record?.witness_id || '',
+        // Patch new editable owner/signer fields from API record if present
+        ownerName: record?.owner_name || record?.settlor_name || '',
+        ownerId: record?.owner_id || record?.settlor_id || '',
+        ownerEmail: record?.owner_email || record?.email || '',
+        signerName: record?.signer_name || record?.trustee1_name || '',
+        signerId: record?.signer_id || record?.trustee1_id || '',
+        signerEmail: record?.signer_email || record?.trustee2_email || '',
+        // Patch all backend TrustApplication fields
+        trustName: record?.trust_name || '',
+        fullName: record?.full_name || '',
+        idNumber: record?.id_number || '',
+        email: record?.email || '',
+        phoneNumber: record?.phone_number || '',
+        trustEmail: record?.trust_email || '',
+        establishmentDate1: record?.establishment_date_1 || '',
+        establishmentDate2: record?.establishment_date_2 || '',
+        beneficiaries: record?.beneficiaries || '',
+        isBullionMember: record?.is_bullion_member || false,
+        memberNumber: record?.member_number || '',
+        referrerNumber: record?.referrer_number || '',
+        settlorName: record?.settlor_name || '',
+        settlorEmail: record?.settlor_email || '',
+        trustee1Name: record?.trustee1_name || '',
+        trustee1Id: record?.trustee1_id || '',
+        trustee1Email: record?.trustee1_email || '',
+        trustee2Name: record?.trustee2_name || '',
+        trustee2Id: record?.trustee2_id || '',
+        trustee2Email: record?.trustee2_email || '',
+        trustee3Name: record?.trustee3_name || '',
+        trustee3Id: record?.trustee3_id || '',
+        trustee3Email: record?.trustee3_email || '',
+        trustee4Name: record?.trustee4_name || '',
+        trustee4Id: record?.trustee4_id || '',
+        trustee4Email: record?.trustee4_email || '',
+        propertyAddress: record?.property_address || '',
       }, { emitEvent: false });
 
       // Defensive: promote common email field to top-level for payment-session schema, if present nested
@@ -340,7 +410,6 @@ export class SaleAndCedeAgreement implements OnInit {
     const v = this.cessionForm.value as any;
     const owner = v.owner as Party | null;
     const signer = v.signer as Party | null;
-
     return {
       trustNumber: v.trustNumber || '',
       settlorId: v.settlorId || '',
@@ -350,6 +419,40 @@ export class SaleAndCedeAgreement implements OnInit {
       signaturePlace: v.signaturePlace || '',
       witnessName: v.witnessName || '',
       witnessId: v.witnessId || '',
+      // All editable owner/signer details and TrustApplication fields
+      trustName: v.trustName || '',
+      fullName: v.fullName || '',
+      idNumber: v.idNumber || '',
+      email: v.email || '',
+      phoneNumber: v.phoneNumber || '',
+      trustEmail: v.trustEmail || '',
+      establishmentDate1: v.establishmentDate1 || '',
+      establishmentDate2: v.establishmentDate2 || '',
+      beneficiaries: v.beneficiaries || '',
+      isBullionMember: v.isBullionMember || false,
+      memberNumber: v.memberNumber || '',
+      referrerNumber: v.referrerNumber || '',
+      settlorName: v.settlorName || '',
+      settlorEmail: v.settlorEmail || '',
+      trustee1Name: v.trustee1Name || '',
+      trustee1Id: v.trustee1Id || '',
+      trustee1Email: v.trustee1Email || '',
+      trustee2Name: v.trustee2Name || '',
+      trustee2Id: v.trustee2Id || '',
+      trustee2Email: v.trustee2Email || '',
+      trustee3Name: v.trustee3Name || '',
+      trustee3Id: v.trustee3Id || '',
+      trustee3Email: v.trustee3Email || '',
+      trustee4Name: v.trustee4Name || '',
+      trustee4Id: v.trustee4Id || '',
+      trustee4Email: v.trustee4Email || '',
+      ownerName: v.ownerName || '',
+      ownerId: v.ownerId || '',
+      ownerEmail: v.ownerEmail || '',
+      signerName: v.signerName || '',
+      signerId: v.signerId || '',
+      signerEmail: v.signerEmail || '',
+      propertyAddress: v.propertyAddress || '',
     };
   }
 
@@ -373,6 +476,40 @@ export class SaleAndCedeAgreement implements OnInit {
       signaturePlace: string;
       witnessName: string;
       witnessId: string;
+      ownerName?: string;
+      ownerId?: string;
+      ownerEmail?: string;
+      signerName?: string;
+      signerId?: string;
+      signerEmail?: string;
+      // All form fields added below
+      trustName?: string;
+      establishmentDate1?: string;
+      establishmentDate2?: string;
+      fullName?: string;
+      idNumber?: string;
+      email?: string;
+      phoneNumber?: string;
+      trustEmail?: string;
+      beneficiaries?: string;
+      isBullionMember?: boolean;
+      memberNumber?: string;
+      referrerNumber?: string;
+      settlorName?: string;
+      settlorEmail?: string;
+      trustee1Name?: string;
+      trustee1Id?: string;
+      trustee1Email?: string;
+      trustee2Name?: string;
+      trustee2Id?: string;
+      trustee2Email?: string;
+      trustee3Name?: string;
+      trustee3Id?: string;
+      trustee3Email?: string;
+      trustee4Name?: string;
+      trustee4Id?: string;
+      trustee4Email?: string;
+      propertyAddress?: string;
     };
 
     // Prevent witness ID being the same as owner or signer, show Bootstrap modal instead of alert
@@ -447,14 +584,42 @@ export class SaleAndCedeAgreement implements OnInit {
 
     const payload = {
       trust_number: resolvedTrustNumber,
-      trust_name: this.trustNameLoaded ?? '',
-      trust_date: this.trustDateLoaded ?? nowISO,
-      establishment_date_1: this.lookupRecord?.establishment_date_1 || '',
-      establishment_date_2: this.lookupRecord?.establishment_date_2 || '',
-      owner_name: v.owner?.name ?? '',
-      owner_id: v.owner?.id ?? '',
-      signer_name: v.signer?.name ?? '',
-      signer_id: v.signer?.id ?? '',
+      trust_name: v.trustName || this.trustNameLoaded || '',
+      trust_date: (this.trustDateLoaded ?? (v.establishmentDate2 || v.establishmentDate1 || nowISO)),
+      establishment_date_1: v.establishmentDate1 || this.lookupRecord?.establishment_date_1 || '',
+      establishment_date_2: v.establishmentDate2 || this.lookupRecord?.establishment_date_2 || '',
+      // Backend TrustApplication fields
+      full_name: v.fullName || '',
+      id_number: v.idNumber || '',
+      email: v.email || '',
+      phone_number: v.phoneNumber || '',
+      trust_email: v.trustEmail || '',
+      beneficiaries: v.beneficiaries || '',
+      is_bullion_member: v.isBullionMember || false,
+      member_number: v.memberNumber || '',
+      referrer_number: v.referrerNumber || '',
+      settlor_name: v.settlorName || '',
+      settlor_email: v.settlorEmail || '',
+      trustee1_name: v.trustee1Name || '',
+      trustee1_id: v.trustee1Id || '',
+      trustee1_email: v.trustee1Email || '',
+      trustee2_name: v.trustee2Name || '',
+      trustee2_id: v.trustee2Id || '',
+      trustee2_email: v.trustee2Email || '',
+      trustee3_name: v.trustee3Name || '',
+      trustee3_id: v.trustee3Id || '',
+      trustee3_email: v.trustee3Email || '',
+      trustee4_name: v.trustee4Name || '',
+      trustee4_id: v.trustee4Id || '',
+      trustee4_email: v.trustee4Email || '',
+      property_address: v.propertyAddress || '',
+      // Prefer editable fields, fallback to dropdown selection
+      owner_name: v.ownerName ?? v.owner?.name ?? '',
+      owner_id: v.ownerId ?? v.owner?.id ?? '',
+      owner_email: v.ownerEmail ?? '',
+      signer_name: v.signerName ?? v.signer?.name ?? '',
+      signer_id: v.signerId ?? v.signer?.id ?? '',
+      signer_email: v.signerEmail ?? '',
       list_of_property: list_of_property,
       list_of_property_text: list_of_property,
       witness_name: witness_name,
@@ -463,7 +628,7 @@ export class SaleAndCedeAgreement implements OnInit {
       date_sign: dateSignFormatted,
       created_at: new Date().toISOString(),
       settlor_id: v.settlorId,
-      client_email: (this.lookupRecord?.email || ''),
+      client_email: (this.lookupRecord?.email || v.email || ''),
       // Payment details for persistence and backend
       payment_method: this.pendingPaymentMethod || localStorage.getItem('paymentMethod') || 'card',
       payment_amount: this.pendingAmountZAR || 500,

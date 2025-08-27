@@ -139,24 +139,46 @@
               <h2 class="h6 text-uppercase text-muted mb-4">Signatories</h2>
               <div class="row g-3 p-3 border rounded-3 bg-body-tertiary shadow-sm">
                 <div class="col-md-6">
-                  <div class="form-floating">
+                  <div class="form-floating mb-2">
                     <select class="form-select" id="owner" formControlName="owner" aria-label="Owner">
                       <option [ngValue]="null" disabled>Select owner</option>
                       <option *ngFor="let p of ownerOptions" [ngValue]="p">{{ p.label }}</option>
                     </select>
                     <label for="owner">Current owner of the property</label>
                   </div>
-                  <small class="text-muted d-block mt-1" *ngIf="owner">Owner ID: {{ owner.id }}</small>
+                  <div class="form-floating mb-2">
+                    <input type="text" class="form-control" id="ownerName" placeholder="Owner Name" formControlName="ownerName" />
+                    <label for="ownerName">Owner Name</label>
+                  </div>
+                  <div class="form-floating mb-2">
+                    <input type="text" class="form-control" id="ownerId" placeholder="Owner ID" formControlName="ownerId" />
+                    <label for="ownerId">Owner ID</label>
+                  </div>
+                  <div class="form-floating mb-2">
+                    <input type="email" class="form-control" id="ownerEmail" placeholder="Owner Email" formControlName="ownerEmail" />
+                    <label for="ownerEmail">Owner Email</label>
+                  </div>
                 </div>
                 <div class="col-md-6">
-                  <div class="form-floating">
+                  <div class="form-floating mb-2">
                     <select class="form-select" id="signer" formControlName="signer" aria-label="Trust signer">
                       <option [ngValue]="null" disabled>Select trustee signer</option>
                       <option *ngFor="let p of signerOptions" [ngValue]="p">{{ p.label }}</option>
                     </select>
                     <label for="signer">Signer on behalf of trust</label>
                   </div>
-                  <small class="text-muted d-block mt-1" *ngIf="signer">Signer ID: {{ signer.id }}</small>
+                  <div class="form-floating mb-2">
+                    <input type="text" class="form-control" id="signerName" placeholder="Signer Name" formControlName="signerName" />
+                    <label for="signerName">Signer Name</label>
+                  </div>
+                  <div class="form-floating mb-2">
+                    <input type="text" class="form-control" id="signerId" placeholder="Signer ID" formControlName="signerId" />
+                    <label for="signerId">Signer ID</label>
+                  </div>
+                  <div class="form-floating mb-2">
+                    <input type="email" class="form-control" id="signerEmail" placeholder="Signer Email" formControlName="signerEmail" [value]="cessionForm.get('signerEmail')?.value || cessionForm.get('trustee2Email')?.value" />
+                    <label for="signerEmail">Signer Email</label>
+                  </div>
                   <div *ngIf="cessionForm.get('owner')?.value?.id === cessionForm.get('signer')?.value?.id" class="alert alert-warning mt-2 small">
                     The owner and the trustee signer must be different people.
                   </div>
@@ -214,26 +236,13 @@
                     <div class="invalid-feedback">Please enter the city/place where the agreement will be signed.</div>
                   </div>
                 </div>
-                <div class="col-md-6"></div>
                 <div class="col-md-6">
                   <div class="form-floating">
-                    <input type="text" class="form-control" id="witnessName" placeholder="Witness full names"
-                           formControlName="witnessName"
-                           [class.is-invalid]="cessionForm.get('witnessName')?.invalid && cessionForm.get('witnessName')?.touched">
-                    <label for="witnessName">Witness Full Names *</label>
-                    <div class="invalid-feedback">Witness full names are required.</div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-person-vcard"></i></span>
-                    <div class="form-floating flex-grow-1">
-                      <input type="text" class="form-control" id="witnessId" placeholder="Witness ID or Passport"
-                             formControlName="witnessId"
-                             [class.is-invalid]="cessionForm.get('witnessId')?.invalid && cessionForm.get('witnessId')?.touched">
-                      <label for="witnessId">Witness ID / Passport No *</label>
-                      <div class="invalid-feedback">Witness ID/Passport number is required.</div>
-                    </div>
+                    <input type="date" class="form-control" id="signatureDate" placeholder="Date of signature"
+                           formControlName="signatureDate"
+                           [class.is-invalid]="cessionForm.get('signatureDate')?.invalid && cessionForm.get('signatureDate')?.touched">
+                    <label for="signatureDate">Date of Signature *</label>
+                    <div class="invalid-feedback">Please select the date of signature.</div>
                   </div>
                 </div>
               </div>

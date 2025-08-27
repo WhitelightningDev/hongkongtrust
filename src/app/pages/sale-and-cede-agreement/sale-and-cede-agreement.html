@@ -32,52 +32,6 @@
               </div>
             </div>
 
-            <!-- Progress Stepper -->
-            <ol class="list-unstyled d-flex align-items-center justify-content-between mb-0 text-uppercase small">
-              <li class="flex-fill">
-                <div class="d-flex align-items-center gap-2">
-                  <span class="badge rounded-pill border px-3 py-2 shadow-sm"
-                        [ngClass]="{
-                          'bg-success-subtle text-success-emphasis border-success-subtle': cessionForm.get('trustNumber')?.valid && cessionForm.get('settlorId')?.valid,
-                          'bg-body-tertiary text-muted border-secondary-subtle': !(cessionForm.get('trustNumber')?.valid && cessionForm.get('settlorId')?.valid)
-                        }">1</span>
-                  <span class="small text-muted">Trust</span>
-                </div>
-              </li>
-              <li class="flex-fill text-center"><div class="border-top opacity-25" style="height:1px"></div></li>
-              <li class="flex-fill">
-                <div class="d-flex align-items-center gap-2 justify-content-center">
-                  <span class="badge rounded-pill border px-3 py-2 shadow-sm"
-                        [ngClass]="{
-                          'bg-success-subtle text-success-emphasis border-success-subtle': cessionForm.get('owner')?.value && cessionForm.get('signer')?.value,
-                          'bg-body-tertiary text-muted border-secondary-subtle': !(cessionForm.get('owner')?.value && cessionForm.get('signer')?.value)
-                        }">2</span>
-                  <span class="small text-muted">Signers</span>
-                </div>
-              </li>
-              <li class="flex-fill text-center"><div class="border-top opacity-25" style="height:1px"></div></li>
-              <li class="flex-fill">
-                <div class="d-flex align-items-center gap-2 justify-content-center">
-                  <span class="badge rounded-pill border px-3 py-2 shadow-sm"
-                        [ngClass]="{
-                          'bg-success-subtle text-success-emphasis border-success-subtle': cessionForm.get('propertyList')?.valid,
-                          'bg-body-tertiary text-muted border-secondary-subtle': !cessionForm.get('propertyList')?.valid
-                        }">3</span>
-                  <span class="small text-muted">Property</span>
-                </div>
-              </li>
-              <li class="flex-fill text-center"><div class="border-top opacity-25" style="height:1px"></div></li>
-              <li class="flex-fill">
-                <div class="d-flex align-items-center gap-2 justify-content-end">
-                  <span class="badge rounded-pill border px-3 py-2 shadow-sm"
-                        [ngClass]="{
-                          'bg-success-subtle text-success-emphasis border-success-subtle': cessionForm.get('signaturePlace')?.valid && cessionForm.get('witnessName')?.valid && cessionForm.get('witnessId')?.valid,
-                          'bg-body-tertiary text-muted border-secondary-subtle': !(cessionForm.get('signaturePlace')?.valid && cessionForm.get('witnessName')?.valid && cessionForm.get('witnessId')?.valid)
-                        }">4</span>
-                  <span class="small text-muted">Sign &amp; Witness</span>
-                </div>
-              </li>
-            </ol>
           </div>
         </div>
         <div class="card-body pt-0 pb-2">
@@ -191,6 +145,33 @@
               <h2 class="h6 text-uppercase text-muted mb-2">Property / Rights</h2>
               <div class="p-3 border rounded-3 bg-body-tertiary shadow-sm">
                 <div class="mb-3">
+                  <div class="mb-3">
+                    <div class="fw-semibold mb-2">What counts as property or rights?</div>
+                    <ul class="small text-muted mb-3 ps-3">
+                      <li>
+                        Banknotes, coins, bonds, and certificates (e.g., SKRs).
+                      </li>
+                      <li>
+                        Shares, units, or member interests in companies.
+                      </li>
+                      <li>
+                        Real property addresses and erf numbers.
+                      </li>
+                      <li>
+                        Future payouts or entitlements, including expected settlements or redemptions that are not a certainty yet (e.g., Zimbabwe Bonds, SKRs).
+                        <br>
+                        <span class="text-primary">Example: 100 x 1 Billion Zim Dollars with MCT.</span>
+                      </li>
+                      <li>
+                        Rights to compensation for any property in South Africa (for example, under land reform, expropriation, or similar claims). List your fixed property.
+                        <br>
+                        <span class="text-primary">Example: Residential Property: 12 Main St, Avondale, 9087</span>
+                      </li>
+                      <li>
+                        Any other claim or right capable of transfer, whether present or future.
+                      </li>
+                    </ul>
+                  </div>
                   <label for="propertyItem" class="form-label">Property or Rights to be Sold *</label>
                   <div class="form-text text-muted mb-2">Please provide a detailed description of the property or rights being transferred.</div>
                   <div class="input-group mb-2 shadow-sm rounded-3 overflow-hidden">
@@ -211,15 +192,6 @@
                     </li>
                   </ul>
                 </div>
-                <details class="mt-2">
-                  <summary class="small text-muted">What counts as property or rights?</summary>
-                  <ul class="small text-muted mb-0 mt-2 ps-3">
-                    <li>Banknotes, coins, bonds, and certificates (e.g., SKRs).</li>
-                    <li>Shares, units, or member interests in companies.</li>
-                    <li>Real property addresses and erf numbers.</li>
-                    <li>Any other claim or right capable of transfer.</li>
-                  </ul>
-                </details>
               </div>
             </section>
 
@@ -271,46 +243,6 @@
       </div>
     </div>
 
-    <!-- Summary Sidebar (Desktop) -->
-    <div class="col-lg-4 col-xxl-4 d-none d-lg-block">
-      <div class="card border-0 shadow-lg position-sticky rounded-4" style="top: 24px;">
-        <div class="card-body">
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <h2 class="h6 mb-0">Summary</h2>
-            <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle">Preview</span>
-          </div>
-          <hr class="mt-2">
-          <div class="small">
-            <div class="mb-3">
-              <div class="text-secondary">Trust</div>
-              <div class="fw-medium"># {{ cessionForm.get('trustNumber')?.value || '—' }}</div>
-              <div class="text-body-secondary">Settlor: {{ cessionForm.get('settlorId')?.value || '—' }}</div>
-            </div>
-            <div class="mb-3">
-              <div class="text-secondary">Owner</div>
-              <div class="fw-medium">{{ cessionForm.get('owner')?.value?.label || '—' }}</div>
-            </div>
-            <div class="mb-3">
-              <div class="text-secondary">Signer</div>
-              <div class="fw-medium">{{ cessionForm.get('signer')?.value?.label || '—' }}</div>
-            </div>
-            <div class="mb-3">
-              <div class="text-secondary">Property / Rights</div>
-              <div class="fw-medium text-break bg-body-tertiary rounded-3 p-2" style="white-space: pre-wrap;">{{ cessionForm.get('propertyList')?.value || '—' }}</div>
-            </div>
-            <div class="mb-3">
-              <div class="text-secondary">Signing Place</div>
-              <div class="fw-medium">{{ cessionForm.get('signaturePlace')?.value || '—' }}</div>
-            </div>
-            <div>
-              <div class="text-secondary">Witness</div>
-              <div class="fw-medium">{{ cessionForm.get('witnessName')?.value || '—' }}</div>
-              <div class="text-body-secondary">{{ cessionForm.get('witnessId')?.value || '—' }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -372,14 +304,14 @@
         <div class="d-flex align-items-center justify-content-between border rounded-3 p-2 bg-body-tertiary shadow-sm">
           <div>
             <div class="fw-semibold">{{ xrpAmountXrp || '—' }} XRP</div>
-            <div class="small text-muted">≈ R{{ pendingAmountZAR || 500 }} (auto‑converted)</div>
+            <div class="small text-muted">≈ R{{ pendingAmountZAR || 650 }} (auto‑converted)</div>
           </div>
           <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" (click)="refreshXrpQuote()" [disabled]="xrpQuoteLoading">
             <span *ngIf="!xrpQuoteLoading"><i class="bi bi-arrow-clockwise"></i> Refresh</span>
             <span *ngIf="xrpQuoteLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
           </button>
         </div>
-        <div class="form-text">We fetch the latest XRP/ZAR from CoinGecko and compute R{{ pendingAmountZAR || 500 }} ÷ price(ZAR).</div>
+        <div class="form-text">We fetch the latest XRP/ZAR from CoinGecko and compute R{{ pendingAmountZAR || 650 }} ÷ price(ZAR).</div>
       </div>
 
       <!-- Optional QR placeholder (can be wired up later) -->

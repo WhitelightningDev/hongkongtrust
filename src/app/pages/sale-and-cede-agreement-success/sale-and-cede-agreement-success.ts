@@ -101,7 +101,7 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
     const required = [
       'trust_number','trust_name','owner_name','owner_id',
       'signer_name','signer_id','list_of_property',
-      'witness_name','witness_id','place_of_signature','date_sign'
+      'place_of_signature','date_sign'
     ];
     const missing = required.filter(k => !payload[k] || (typeof payload[k] === 'string' && payload[k].trim() === ''));
     if (missing.length) {
@@ -168,8 +168,6 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
       payload.list_of_property = coerceList(form.propertyList);
     }
     if (form.signaturePlace) payload.place_of_signature = String(form.signaturePlace).trim() || payload.place_of_signature;
-    if (form.witnessName)    payload.witness_name       = String(form.witnessName).trim()    || payload.witness_name;
-    if (form.witnessId)      payload.witness_id         = String(form.witnessId).trim()      || payload.witness_id;
 
     // Fill settlor/email if missing
     if (!payload.settlor_id && form.settlorId) payload.settlor_id = String(form.settlorId).trim();
@@ -212,7 +210,7 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
   /**
    * Build EXACT payload expected by backend/DB:
    *  trust_number, trust_name, trust_date, owner_name, owner_id, signer_name,
-   *  signer_id, list_of_property, witness_name, witness_id, place_of_signature,
+   *  signer_id, list_of_property, place_of_signature,
    *  date_sign, created_at, settlor_id, client_email, payment_* and optional XRP fields.
    */
   private buildPayloadFromContext(cedeCtx: any, fullCtx: any | null): any {
@@ -257,8 +255,6 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
     const property_address = cedeCtx.property_address || trustData.property_address || trustData.Property_Address || '';
 
     // Witness/signing
-    const witness_name = (cedeCtx.witness_name ?? trustData.witness_name ?? '').toString().trim();
-    const witness_id   = (cedeCtx.witness_id   ?? trustData.witness_id   ?? '').toString().trim();
     const place_of_signature = (cedeCtx.place_of_signature ?? trustData.place_of_signature ?? '').toString().trim();
 
     // Dates

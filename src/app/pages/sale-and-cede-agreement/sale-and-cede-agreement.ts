@@ -132,8 +132,8 @@ export class SaleAndCedeAgreement implements OnInit {
       propertyPending: [''],
       signaturePlace: ['', Validators.required],
       signatureDate: ['', Validators.required],
-      witnessName: ['', Validators.required],
-      witnessId: ['', Validators.required],
+      witnessName: [''],
+      witnessId: [''],
     });
   }
 
@@ -647,8 +647,6 @@ export class SaleAndCedeAgreement implements OnInit {
     if (!payload.signer_name) missing.push('Signer');
     if (!payload.signer_id) missing.push('Signer ID');
     if (!payload.list_of_property) missing.push('List of Property');
-    if (!payload.witness_name) missing.push('Witness Name');
-    if (!payload.witness_id) missing.push('Witness ID');
     if (!payload.place_of_signature) missing.push('Place of Signature');
 
     if (missing.length) {
@@ -663,8 +661,9 @@ export class SaleAndCedeAgreement implements OnInit {
 
     console.log('Sale & Cede Agreement Payload (pending):', payload);
 
-    if (!payload.list_of_property || !payload.witness_name || !payload.witness_id) {
-      alert('Please complete Property list and Witness details before continuing.');
+    // Only require property list; witness details are not required for submission anymore.
+    if (!payload.list_of_property) {
+      alert('Please complete Property list before continuing.');
       return;
     }
 

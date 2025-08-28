@@ -12,7 +12,13 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
 
   if (token) {
     req = req.clone({
-      setHeaders: { Authorization: `Bearer ${token}` }
+      setHeaders: {
+        ...req.headers.keys().reduce((acc, key) => {
+          acc[key] = req.headers.getAll(key) || [];
+          return acc;
+        }, {} as Record<string, string | string[]>),
+        Authorization: `Bearer ${token}`
+      }
     });
   }
 

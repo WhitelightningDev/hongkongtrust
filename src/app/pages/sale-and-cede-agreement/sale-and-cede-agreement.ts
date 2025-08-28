@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, Input, OnInit, ChangeDetectorRef, N
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidatorFn } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { AuthService } from '../../interceptors/auth.service';
 import { Router } from '@angular/router';
 
 interface Party {
@@ -84,6 +85,7 @@ export class SaleAndCedeAgreement implements OnInit {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private ngZone: NgZone,
+    private authService: AuthService,
   ) {
     this.cessionForm = this.fb.group({
       trustNumber: ['', Validators.required],
@@ -215,7 +217,8 @@ export class SaleAndCedeAgreement implements OnInit {
 
     this.lookupLoading = true;
     try {
-      const record: any = await this.http.get(url).toPromise();
+      const headers = { Authorization: `Bearer ${this.authService.getToken()}` };
+      const record: any = await this.http.get(url, { headers }).toPromise();
 
       console.log('Trust lookup raw record:', record);
 
@@ -813,9 +816,11 @@ export class SaleAndCedeAgreement implements OnInit {
     // Try notify backend (best effort)
     this.generating = true;
     try {
+      const headers = { Authorization: `Bearer ${this.authService.getToken()}` };
       const resp = await this.http.post<any>(
         'https://hongkongbackend.onrender.com/api/cede/xrp-payment',
-        { trust_data: { ...(this.lookupRecord || {}), flow: 'sale_cede', sale_cede_context: payload } }
+        { trust_data: { ...(this.lookupRecord || {}), flow: 'sale_cede', sale_cede_context: payload } },
+        { headers }
       ).toPromise();
 
       // Optional: backend may return an acknowledgement
@@ -883,6 +888,7 @@ export class SaleAndCedeAgreement implements OnInit {
       localStorage.setItem('paymentAmount', String(amountInCents));
       localStorage.setItem('saleCedeFlow', 'true');
 
+      const headers = { Authorization: `Bearer ${this.authService.getToken()}` };
       const paymentInit = await this.http.post<any>(
         'https://hongkongbackend.onrender.com/api/cede/payment-session',
         {
@@ -919,7 +925,8 @@ export class SaleAndCedeAgreement implements OnInit {
             payment_amount_cents: amountInCents,
             payment_status: 'pending',
           }
-        }
+        },
+        { headers }
       ).toPromise();
 
       if (!paymentInit || !paymentInit.redirectUrl) {

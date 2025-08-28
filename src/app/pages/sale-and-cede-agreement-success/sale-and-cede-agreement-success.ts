@@ -3,6 +3,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
+import { AuthService } from '../../interceptors/auth.service';
 
 type Method = 'card' | 'xrp';
 
@@ -25,7 +26,7 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
 
   private readonly API_BASE = 'https://hongkongbackend.onrender.com';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   async ngOnInit() {
     this.state = 'init';
@@ -120,8 +121,9 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
 
     this.state = 'working';
     try {
+      const headers = { Authorization: `Bearer ${this.authService.getToken()}` };
       this.result = await firstValueFrom(
-        this.http.post(`${this.API_BASE}/api/agreements/sale-cede/generate`, payload)
+        this.http.post(`${this.API_BASE}/api/agreements/sale-cede/generate`, payload, { headers })
       );
 
       // Cleanup local flags

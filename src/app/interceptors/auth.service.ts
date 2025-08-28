@@ -46,23 +46,18 @@ export class AuthService {
 
   getToken(): string | null {
     if (!this.token) {
-      const storedToken = localStorage.getItem('access_token');
-      if (storedToken) {
-        this.token = storedToken;
-      }
+      this.token = localStorage.getItem('access_token');
     }
     return this.token;
   }
 
-  async withTokenRefresh<T>(promise: Promise<T>): Promise<T> {
-    try {
-      return await promise;
-    } catch (error: any) {
+  withTokenRefresh<T>(promise: Promise<T>): Promise<T> {
+    return promise.catch(async error => {
       if (error?.status === 401) {
         await this.refreshToken();
         return promise;
       }
       throw error;
-    }
+    });
   }
 }

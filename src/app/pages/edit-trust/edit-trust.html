@@ -63,7 +63,7 @@
         <div class="row g-4">
           <div class="col-12 col-md-6">
             <label class="form-label fw-semibold">Full Names and Surname *</label>
-            <input formControlName="fullName" type="text" class="form-control form-control-lg border-secondary-subtle"
+            <input formControlName="fullName" type="text" required minlength="2" class="form-control form-control-lg border-secondary-subtle"
               placeholder="Full name" />
             <div class="text-danger mt-1 fst-italic"
               *ngIf="trustForm.get('fullName')?.invalid && trustForm.get('fullName')?.touched">
@@ -72,7 +72,7 @@
           </div>
           <div class="col-12 col-md-6">
             <label class="form-label fw-semibold">Passport or ID Number *</label>
-            <input formControlName="idNumber" type="text" class="form-control form-control-lg border-secondary-subtle"
+            <input formControlName="idNumber" type="text" required pattern="[0-9]{6,}" class="form-control form-control-lg border-secondary-subtle"
               placeholder="Document number" />
             <div class="text-danger mt-1 fst-italic"
               *ngIf="trustForm.get('idNumber')?.invalid && trustForm.get('idNumber')?.touched">
@@ -93,7 +93,7 @@
         <div class="row g-4">
           <div class="col-12 col-md-6">
             <label class="form-label fw-semibold">Email *</label>
-            <input formControlName="email" type="email" class="form-control form-control-lg border-secondary-subtle"
+            <input formControlName="email" type="email" required email class="form-control form-control-lg border-secondary-subtle"
               placeholder="you@example.com" />
             <div class="text-danger mt-1 fst-italic"
               *ngIf="trustForm.get('email')?.invalid && trustForm.get('email')?.touched">
@@ -102,7 +102,7 @@
           </div>
           <div class="col-12 col-md-6">
             <label class="form-label fw-semibold">Phone Number *</label>
-            <input formControlName="phoneNumber" type="text" class="form-control form-control-lg border-secondary-subtle"
+            <input formControlName="phoneNumber" type="text" required pattern="^(\+?\d{10,15})$" class="form-control form-control-lg border-secondary-subtle"
               placeholder="+27..." />
             <div class="text-danger mt-1 fst-italic"
               *ngIf="trustForm.get('phoneNumber')?.invalid && trustForm.get('phoneNumber')?.touched">
@@ -141,7 +141,7 @@
           <!-- Name of Trust -->
           <div class="col-12 col-md-4">
             <label class="form-label">Name of Trust *</label>
-            <input formControlName="trustName" type="text" class="form-control w-100" [readonly]="isEditMode" />
+            <input formControlName="trustName" type="text" required class="form-control w-100" [readonly]="isEditMode" />
             <div class="text-danger mt-1 fst-italic"
                  *ngIf="trustForm.get('trustName')?.invalid && trustForm.get('trustName')?.touched">
               Please enter a trust name.
@@ -161,7 +161,7 @@
           <div class="col-12 col-md-4">
             <label class="form-label">Date of Establishment *</label>
             <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
-              <input formControlName="establishmentDate" type="date" class="form-control w-100" />
+              <input formControlName="establishmentDate" type="date" required class="form-control w-100" />
               <div *ngIf="trustForm.get('establishmentDate')?.value" class="text-muted"><em>{{ trustForm.get('establishmentDate')?.value | date: 'd MMMM yyyy' }}</em></div>
             </div>
             <div class="text-danger mt-1 fst-italic"
@@ -188,7 +188,7 @@
         <div class="row g-3">
           <div class="col-12 col-md-4">
             <label>Full Name *</label>
-            <input type="text" formControlName="name" [readonly]="trustForm.get('isSettlor')?.value"
+            <input type="text" formControlName="name" required [readonly]="trustForm.get('isSettlor')?.value"
               class="form-control" />
             <div class="text-danger mt-1 fst-italic"
               *ngIf="trustForm.get('settlor.name')?.invalid && trustForm.get('settlor.name')?.touched">
@@ -197,7 +197,7 @@
           </div>
           <div class="col-12 col-md-4">
             <label>ID / Passport No *</label>
-            <input type="text" formControlName="id" [readonly]="trustForm.get('isSettlor')?.value"
+            <input type="text" formControlName="id" required pattern="[0-9]{6,}" [readonly]="trustForm.get('isSettlor')?.value"
               class="form-control" />
             <div class="text-danger mt-1 fst-italic"
               *ngIf="trustForm.get('settlor.id')?.invalid && trustForm.get('settlor.id')?.touched">
@@ -206,7 +206,7 @@
           </div>
           <div class="col-12 col-md-4">
             <label>Email *</label>
-            <input type="email" formControlName="email" class="form-control" placeholder="settlor@example.com" />
+            <input type="email" formControlName="email" required email class="form-control" placeholder="settlor@example.com" />
             <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('settlor.email')?.invalid && trustForm.get('settlor.email')?.touched">
               Settlor email is required.
             </div>
@@ -236,17 +236,17 @@
               </label>
               <div [formGroup]="firstTrustee" class="card border-0 shadow-sm bg-light-subtle p-3">
                 <label>Full Name *</label>
-                <input type="text" formControlName="name" [readonly]="trustForm.get('isTrustee')?.value" class="form-control" />
+                <input type="text" formControlName="name" required [readonly]="trustForm.get('isTrustee')?.value" class="form-control" />
                 <div class="text-danger mt-1 fst-italic" *ngIf="firstTrustee.get('name')?.invalid && firstTrustee.get('name')?.touched">
                   Trustee 1 name is required.
                 </div>
                 <label class="mt-2">ID / Passport No *</label>
-                <input type="text" formControlName="id" [readonly]="trustForm.get('isTrustee')?.value" class="form-control" />
+                <input type="text" formControlName="id" required pattern="[0-9]{6,}" [readonly]="trustForm.get('isTrustee')?.value" class="form-control" />
                 <div class="text-danger mt-1 fst-italic" *ngIf="firstTrustee.get('id')?.invalid && firstTrustee.get('id')?.touched">
                   Trustee 1 ID/Passport is required.
                 </div>
                 <label class="mt-2">Email *</label>
-                <input type="email" formControlName="email" class="form-control" placeholder="trustee1@example.com" />
+                <input type="email" formControlName="email" required email class="form-control" placeholder="trustee1@example.com" />
                 <div class="text-danger mt-1 fst-italic" *ngIf="firstTrustee.get('email')?.invalid && firstTrustee.get('email')?.touched">
                   Trustee 1 email is required.
                 </div>
@@ -259,17 +259,17 @@
               <label class="form-label fw-semibold text-danger">Trustee 2 *</label>
               <div class="card border-0 shadow-sm bg-light-subtle p-3">
                 <label>Full Name *</label>
-                <input type="text" formControlName="name" class="form-control" />
+                <input type="text" formControlName="name" required class="form-control" />
                 <div class="text-danger mt-1 fst-italic" *ngIf="secondTrustee.get('name')?.invalid && secondTrustee.get('name')?.touched">
                   Trustee 2 name is required.
                 </div>
                 <label class="mt-2">ID / Passport No *</label>
-                <input type="text" formControlName="id" class="form-control" />
+                <input type="text" formControlName="id" required pattern="[0-9]{6,}" class="form-control" />
                 <div class="text-danger mt-1 fst-italic" *ngIf="secondTrustee.get('id')?.invalid && secondTrustee.get('id')?.touched">
                   Trustee 2 ID is required.
                 </div>
                 <label class="mt-2">Email *</label>
-                <input type="email" formControlName="email" class="form-control" placeholder="trustee2@example.com" />
+                <input type="email" formControlName="email" required email class="form-control" placeholder="trustee2@example.com" />
                 <div class="text-danger mt-1 fst-italic" *ngIf="secondTrustee.get('email')?.invalid && secondTrustee.get('email')?.touched">
                   Trustee 2 email is required.
                 </div>
@@ -331,14 +331,14 @@
           <div class="col-12 col-lg-7">
             <div class="mb-4">
               <label class="form-label fw-semibold">Property Address (One Line) *</label>
-              <input formControlName="propertyAddress" type="text" class="form-control" placeholder="e.g. 187 Kameeldrift Weg, Roodepoort, Pretoria, Gauteng, South Africa, 0182" />
+              <input formControlName="propertyAddress" type="text" required class="form-control" placeholder="e.g. 187 Kameeldrift Weg, Roodepoort, Pretoria, Gauteng, South Africa, 0182" />
               <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('propertyAddress')?.invalid && trustForm.get('propertyAddress')?.touched">
                 Please enter the property address.
               </div>
             </div>
             <div class="mb-4">
               <label class="form-label fw-semibold">Property Owner (Whose name the property is in) *</label>
-              <input formControlName="propertyOwner" type="text" class="form-control"
+              <input formControlName="propertyOwner" type="text" required class="form-control"
                      placeholder="Defaults to Trustee 1" />
               <div class="form-text">By default, this will use Trustee 1's details (name, ID, email).</div>
               <div class="mb-2">
@@ -364,21 +364,21 @@
               <div class="row g-3">
                 <div class="col-12">
                   <label class="form-label">Signer Name *</label>
-                  <input type="text" class="form-control" formControlName="signer_name" placeholder="Usually Trustee 2 full name" />
+                  <input type="text" class="form-control" required formControlName="signer_name" placeholder="Usually Trustee 2 full name" />
                   <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('signer_name')?.invalid && trustForm.get('signer_name')?.touched">
                     Signer name is required.
                   </div>
                 </div>
                 <div class="col-12">
                   <label class="form-label">Signer ID / Passport No *</label>
-                  <input type="text" class="form-control" formControlName="signer_id" placeholder="Usually Trustee 2 ID / Passport" />
+                  <input type="text" class="form-control" required pattern="[0-9]{6,}" formControlName="signer_id" placeholder="Usually Trustee 2 ID / Passport" />
                   <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('signer_id')?.invalid && trustForm.get('signer_id')?.touched">
                     Signer ID / Passport is required.
                   </div>
                 </div>
                 <div class="col-12">
                   <label class="form-label">Signer Email *</label>
-                  <input type="email" class="form-control" formControlName="signer_email" placeholder="Usually trustee2@example.com" />
+                  <input type="email" class="form-control" required email formControlName="signer_email" placeholder="Usually trustee2@example.com" />
                   <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('signer_email')?.invalid && trustForm.get('signer_email')?.touched">
                     Please enter a valid signer email.
                   </div>
@@ -536,7 +536,7 @@
 
               <div>
                 <label class="form-label">XRP Transaction ID (64‑character hex) *</label>
-                <input type="text" class="form-control" [(ngModel)]="cryptoTxId" [ngModelOptions]="{standalone: true}" name="cryptoTxId" placeholder="e.g. A3F0... (64 hex chars)" maxlength="64" />
+                <input type="text" class="form-control" required pattern="[a-fA-F0-9]{64}" [(ngModel)]="cryptoTxId" [ngModelOptions]="{standalone: true}" name="cryptoTxId" placeholder="e.g. A3F0... (64 hex chars)" maxlength="64" />
                 <div class="text-danger mt-1 fst-italic" *ngIf="cryptoTxId && !isValidHex64(cryptoTxId)">
                   Please enter a valid 64-character hexadecimal transaction ID.
                 </div>

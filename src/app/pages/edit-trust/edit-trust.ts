@@ -1328,10 +1328,13 @@ export class EditTrust {
           progressBar: true,
         }
       );
-      // Remove editPayload from sessionStorage after successful update
       sessionStorage.removeItem('editPayload');
-      // Leave the page in edit mode but scroll to top / provide visual confirmation if needed
       window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // 🔄 Refresh page after a short delay to clear dimmed overlay
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (err: any) {
       const msg = err?.error?.detail || err?.message || 'Failed to save edits';
       this.toastr.error(msg, 'Save Error', {

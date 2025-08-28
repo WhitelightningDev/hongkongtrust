@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { throwError } from 'rxjs';
+import { AuthService } from './interceptors/auth.service';
 
 export interface TrustCore {
   trust_number: string;
@@ -57,6 +58,8 @@ export class LoanAgreementService {
   // Backend lives on Render
   private baseUrl = 'https://hongkongbackend.onrender.com/api';
   private trustsBaseUrl = 'https://hongkongbackend.onrender.com/trusts';
+
+  constructor(private authService: AuthService) {}
 
   /** Ensure exactly 6 items, coerce undefined to null, and coerce Val to number|null */
   private normalizeItems(items: LoanAgreementItem[] | null | undefined): LoanAgreementItem[] {
@@ -156,10 +159,11 @@ export class LoanAgreementService {
       }));
     }
 
+    const token = this.authService.getToken();
     return this.http.post<{ Loan_Agreement_ID: number }>(
       `${this.baseUrl}/loan-agreements`,
       body,
-      { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } }
+      { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': `Bearer ${token}` } }
     );
   }
 
@@ -170,9 +174,10 @@ export class LoanAgreementService {
       Loan_Date: this.toIsoDateOnly(payload.Loan_Date),
       Items
     };
+    const token = this.authService.getToken();
     return this.http.post(`${this.baseUrl}/loan-agreements/docx`, body, {
       responseType: 'blob' as const,
-      headers: { 'Accept': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }
+      headers: { 'Accept': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'Authorization': `Bearer ${token}` }
     });
   }
 }

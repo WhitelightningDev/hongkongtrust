@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { LoanAgreementService, TrustCore, TrusteeRow } from '../../loan-agreement.service';
+import { AuthService } from '../../interceptors/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -13,7 +14,7 @@ import { Router } from '@angular/router';
 })
 export class LoanAgreement implements OnInit {
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   fb = inject(FormBuilder);
   api = inject(LoanAgreementService);

@@ -852,9 +852,7 @@ export class EditTrust {
 
       this.lookupLoading = true;
       try {
-        const token = localStorage.getItem('access_token');
-        const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
-        const record: any = await this.http.get(url, { headers }).toPromise();
+        const record: any = await this.http.get(url).toPromise();
   
         // Store immutable display values
         this.editTrustNumber = record.trust_number;

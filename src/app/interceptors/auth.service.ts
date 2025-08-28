@@ -51,11 +51,11 @@ export class AuthService {
     return this.token;
   }
 
-  withTokenRefresh<T>(promise: Promise<T>): Promise<T> {
-    return promise.catch(async error => {
+  withTokenRefresh<T>(fn: () => Promise<T>): Promise<T> {
+    return fn().catch(async error => {
       if (error?.status === 401) {
         await this.refreshToken();
-        return promise;
+        return fn();
       }
       throw error;
     });

@@ -41,9 +41,9 @@ export class SaleAndCedeAgreement implements OnInit {
   // Payment method modal state
   showPaymentModal = false;
   pendingAgreementPayload: any = null;
-  pendingAmountZAR = 500; // R500 fixed
+  pendingAmountZAR = 650; // R650 fixed
   pendingPaymentMethod: 'card' | 'xrp' | null = null;
-  pendingAmountCents = 500 * 100;
+  pendingAmountCents = 650 * 100;
 
   // XRP modal + flow state
   showXrpModal = false;
@@ -635,8 +635,8 @@ export class SaleAndCedeAgreement implements OnInit {
       client_email: (this.lookupRecord?.email || v.email || ''),
       // Payment details for persistence and backend
       payment_method: this.pendingPaymentMethod || localStorage.getItem('paymentMethod') || 'card',
-      payment_amount: this.pendingAmountZAR || 500,
-      payment_amount_cents: this.pendingAmountCents || 50000,
+      payment_amount: this.pendingAmountZAR || 650,
+      payment_amount_cents: this.pendingAmountCents || 66500,
     };
 
     // Preflight validation to avoid 422 on backend
@@ -669,7 +669,7 @@ export class SaleAndCedeAgreement implements OnInit {
 
     // Open payment method modal instead of starting payment immediately
     this.pendingAgreementPayload = payload;
-    this.pendingAmountZAR = 500;
+    this.pendingAmountZAR = 650;
     this.openPaymentModal();
   }
 
@@ -683,8 +683,8 @@ export class SaleAndCedeAgreement implements OnInit {
 
     // Record selection & amounts
     this.pendingPaymentMethod = method;
-    this.pendingAmountZAR = 500;
-    this.pendingAmountCents = 500 * 100;
+    this.pendingAmountZAR = 650;
+    this.pendingAmountCents = 650 * 100;
 
     // Persist for downstream handlers
     localStorage.setItem('paymentMethod', method);
@@ -700,7 +700,7 @@ export class SaleAndCedeAgreement implements OnInit {
     if (!this.pendingAgreementPayload) return;
 
     this.pendingPaymentMethod = method;
-    this.pendingAmountZAR = 500;
+    this.pendingAmountZAR = 650;
     this.pendingAmountCents = this.pendingAmountZAR * 100;
 
     // Persist common context
@@ -761,7 +761,7 @@ export class SaleAndCedeAgreement implements OnInit {
         if (!isFinite(priceZar) || priceZar <= 0) {
           throw new Error('Invalid price');
         }
-        const amountZar = this.pendingAmountZAR || 500;
+        const amountZar = this.pendingAmountZAR || 650;
         const xrp = amountZar / priceZar;
         // Round to 6 decimals to avoid dust issues and string->number glitches
         this.xrpAmountXrp = Number(xrp.toFixed(6));
@@ -794,8 +794,8 @@ export class SaleAndCedeAgreement implements OnInit {
     const payload = {
       ...this.pendingAgreementPayload,
       payment_method: 'xrp',
-      payment_amount: this.pendingAmountZAR || 500, // ZAR reference
-      payment_amount_cents: (this.pendingAmountZAR || 500) * 100,
+      payment_amount: this.pendingAmountZAR || 650, // ZAR reference
+      payment_amount_cents: (this.pendingAmountZAR || 650) * 100,
       xrp_amount: this.xrpAmountXrp,
       xrp_address: this.xrpAddress,
       xrp_tx_hash: this.xrpTxId,
@@ -852,7 +852,7 @@ export class SaleAndCedeAgreement implements OnInit {
   }
 
   /**
-   * Use the same payment API as other flows. Amount is fixed at R500.
+   * Use the same payment API as other flows. Amount is fixed at R650.
    * On success, we redirect to the returned URL. We also stash the agreement payload
    * in localStorage so the post-payment handler can generate & email the docs.
    */
@@ -870,7 +870,7 @@ export class SaleAndCedeAgreement implements OnInit {
 
       // Ensure payment fields are present in agreementPayload
       const paymentMethod = this.pendingPaymentMethod || (agreementPayload.payment_method) || (localStorage.getItem('paymentMethod') as 'card' | 'xrp' | null) || 'card';
-      const amountInCents = this.pendingAmountCents || agreementPayload.payment_amount_cents || 500 * 100;
+      const amountInCents = this.pendingAmountCents || agreementPayload.payment_amount_cents || 650 * 100;
       const paymentAmount = Math.round(amountInCents / 100);
 
       // Patch agreementPayload if missing payment fields

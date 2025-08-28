@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private API_URL = 'https://hongkongbackend.onrender.com';
   private token: string | null = null;
   private refreshing: Promise<void> | null = null;
 
@@ -11,7 +12,7 @@ export class AuthService {
 
   initAuth(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.http.get<{ access_token: string }>('/auth/bootstrap').subscribe({
+      this.http.get<{ access_token: string }>(`${this.API_URL}/auth/bootstrap`).subscribe({
         next: res => {
           this.token = res.access_token;
           localStorage.setItem('access_token', this.token);
@@ -27,7 +28,7 @@ export class AuthService {
       return this.refreshing;
     }
     this.refreshing = new Promise((resolve, reject) => {
-      this.http.get<{ access_token: string }>('/auth/bootstrap').subscribe({
+      this.http.get<{ access_token: string }>(`${this.API_URL}/auth/bootstrap`).subscribe({
         next: res => {
           this.token = res.access_token;
           localStorage.setItem('access_token', this.token);
@@ -43,13 +44,11 @@ export class AuthService {
     return this.refreshing;
   }
 
-  async getToken(): Promise<string | null> {
+  getToken(): string | null {
     if (!this.token) {
       const storedToken = localStorage.getItem('access_token');
       if (storedToken) {
         this.token = storedToken;
-      } else {
-        await this.refreshToken();
       }
     }
     return this.token;

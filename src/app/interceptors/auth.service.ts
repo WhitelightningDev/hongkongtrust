@@ -6,58 +6,71 @@ import { HttpClient } from '@angular/common/http';
 export class AuthService {
   private API_URL = 'https://hongkongbackend.onrender.com';
   private token: string | null = null;
+  private expiresAt: number | null = null;
   private refreshing: Promise<void> | null = null;
 
   constructor(private http: HttpClient) {}
 
-  initAuth(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.http.get<{ access_token: string }>(`${this.API_URL}/auth/bootstrap`).subscribe({
-        next: res => {
-          this.token = res.access_token;
-          localStorage.setItem('access_token', this.token);
-          resolve();
-        },
-        error: err => reject(err)
-      });
-    });
+  async initAuth(): Promise<void> {
+    try {
+      const res = await this.http.get<{ access_token: string; expires_in?: number }>(`${this.API_URL}/auth/bootstrap`).toPromise();
+      if (res) {
+        this.setToken(res.access_token, res.expires_in);
+      }
+    } catch (err) {
+      return Promise.reject(err);
+    }
   }
 
-  refreshToken(): Promise<void> {
+  async refreshToken(): Promise<void> {
     if (this.refreshing) {
       return this.refreshing;
     }
-    this.refreshing = new Promise((resolve, reject) => {
-      this.http.get<{ access_token: string }>(`${this.API_URL}/auth/bootstrap`).subscribe({
-        next: res => {
-          this.token = res.access_token;
-          localStorage.setItem('access_token', this.token);
-          this.refreshing = null;
-          resolve();
-        },
-        error: err => {
-          this.refreshing = null;
-          reject(err);
+    this.refreshing = (async () => {
+      try {
+        const res = await this.http.get<{ access_token: string; expires_in?: number }>(`${this.API_URL}/auth/bootstrap`).toPromise();
+        if (res) {
+          this.setToken(res.access_token, res.expires_in);
         }
-      });
-    });
+      } finally {
+        this.refreshing = null;
+      }
+    })();
     return this.refreshing;
+  }
+
+  private setToken(token: string, expiresIn?: number) {
+    this.token = token;
+    localStorage.setItem('access_token', token);
+    if (expiresIn) {
+      this.expiresAt = Date.now() + expiresIn * 1000;
+      localStorage.setItem('expires_at', this.expiresAt.toString());
+    }
   }
 
   getToken(): string | null {
     if (!this.token) {
       this.token = localStorage.getItem('access_token');
+      const expires = localStorage.getItem('expires_at');
+      this.expiresAt = expires ? parseInt(expires, 10) : null;
+    }
+    if (this.expiresAt && Date.now() > this.expiresAt) {
+      // token expired, refresh
+      this.refreshToken();
+      return null;
     }
     return this.token;
   }
 
-  withTokenRefresh<T>(fn: () => Promise<T>): Promise<T> {
-    return fn().catch(async error => {
+  async withTokenRefresh<T>(fn: () => Promise<T>): Promise<T> {
+    try {
+      return await fn();
+    } catch (error: any) {
       if (error?.status === 401) {
         await this.refreshToken();
         return fn();
       }
       throw error;
-    });
+    }
   }
 }

@@ -6,6 +6,8 @@ import {
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http'; // 👈 import this
+import { APP_INITIALIZER } from '@angular/core';
+import { AuthService } from './interceptors/auth.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 
@@ -19,6 +21,13 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
 
     provideHttpClient(withInterceptors([authInterceptor])), // 👈 register interceptor here
+
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (authService: AuthService) => () => authService.initAuth(),
+      deps: [AuthService],
+      multi: true
+    },
 
     importProvidersFrom(
       BrowserAnimationsModule,

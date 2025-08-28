@@ -1,25 +1,21 @@
 // auth.interceptor.ts
-import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpErrorResponse } from '@angular/common/http';
+import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpErrorResponse, HttpEvent } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthService } from './auth.service';
 import { catchError, from, switchMap, throwError, EMPTY } from 'rxjs';
 
 let isRefreshing = false;
 
-export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn) => {
+export const authInterceptor: HttpInterceptorFn = (req, next): import("rxjs").Observable<HttpEvent<any>> => {
   const authService = inject(AuthService);
-  const token = localStorage.getItem('access_token');
-
-  if (token) {
-    req = req.clone({
-      setHeaders: {
-        ...req.headers.keys().reduce((acc, key) => {
-          acc[key] = req.headers.getAll(key) || [];
-          return acc;
-        }, {} as Record<string, string | string[]>),
-        Authorization: `Bearer ${token}`
-      }
-    });
+  // Skip adding Authorization for bootstrap requests
+  if (!req.url.includes('/auth/bootstrap')) {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      req = req.clone({
+        setHeaders: { Authorization: `Bearer ${token}` }
+      });
+    }
   }
 
   return next(req).pipe(
@@ -30,10 +26,11 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
           switchMap(() => {
             isRefreshing = false;
             const newToken = authService.getToken();
-            const clonedReq = newToken
-              ? req.clone({ setHeaders: { Authorization: `Bearer ${newToken}` } })
-              : req;
-            return next(clonedReq);
+            if (newToken) {
+              const clonedReq = req.clone({ setHeaders: { Authorization: `Bearer ${newToken}` } });
+              return next(clonedReq);
+            }
+            return throwError(() => error);
           }),
           catchError(refreshError => {
             isRefreshing = false;
@@ -42,8 +39,20 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
         );
       }
       if (error.status === 401 && isRefreshing) {
-        // drop the request if a refresh is already happening
-        return EMPTY;
+        // wait until refreshing is done and retry once
+        return from(
+          new Promise(resolve => {
+            const interval = setInterval(() => {
+              const newToken = authService.getToken();
+              if (newToken) {
+                clearInterval(interval);
+                resolve(
+                  next(req.clone({ setHeaders: { Authorization: `Bearer ${newToken}` } }))
+                );
+              }
+            }, 300);
+          })
+        ).pipe(switchMap(result => result as import("rxjs").Observable<HttpEvent<any>>));
       }
       return throwError(() => error);
     })

@@ -7,6 +7,8 @@ import { Router } from '@angular/router';
 import { ToastrService, ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { AuthService } from '../../interceptors/auth.service';
+
 declare var bootstrap: any;
 
 // Custom validator for trustName
@@ -38,6 +40,7 @@ export class Homepage implements OnInit, AfterViewInit {
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   trustForm: FormGroup;
   minDate = new Date().toISOString().split('T')[0];
@@ -500,12 +503,14 @@ createTrustee(isReadonly = false, required = false): FormGroup {
         sessionStorage.setItem('paymentMethod', 'card');
         sessionStorage.setItem('paymentAmount', amountInCents.toString());
 
+        const headers = { Authorization: `Bearer ${this.authService.getToken()}` };
         const paymentInit = await this.http.post<any>(
           'https://hongkongbackend.onrender.com/api/payment-session',
           {
             amount_cents: amountInCents,
             trust_data: trustDataForBackend
-          }
+          },
+          { headers }
         ).toPromise();
 
         if (!paymentInit || !paymentInit.redirectUrl || !paymentInit.trust_id) {

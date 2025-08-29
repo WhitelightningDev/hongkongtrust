@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../interceptors/auth.service';
 
 @Component({
   selector: 'app-success',
@@ -15,7 +16,7 @@ export class SuccessComponent implements OnInit {
   success = false;
   errorMessage = '';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   async ngOnInit() {
     try {
@@ -91,7 +92,8 @@ export class SuccessComponent implements OnInit {
       formData.append('has_paid', paymentMethod); // "card" or "eft"
 
       // Submit
-      await this.http.post('https://hongkongbackend.onrender.com/trust/submit-trust', formData).toPromise();
+      const headers = { Authorization: `Bearer ${this.authService.getToken()}` };
+      await this.http.post('https://hongkongbackend.onrender.com/trust/submit-trust', formData, { headers }).toPromise();
 
       // Clear session
       sessionStorage.removeItem('trustFormData');

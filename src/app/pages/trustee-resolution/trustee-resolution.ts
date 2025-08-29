@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
+import { AuthService } from '../../interceptors/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -18,7 +19,7 @@ export class TrusteeResolution {
   trustData: any = null;
   isLoading = false;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router, private authService: AuthService) {}
 
   generateResolution() {
     this.successMessage = '';
@@ -33,7 +34,9 @@ export class TrusteeResolution {
 
     const trustUrl = `https://hongkongbackend.onrender.com/trusts/${encodeURIComponent(this.trustNumber)}?user_id=lookup`;
 
-    this.http.get<any>(trustUrl).subscribe({
+    this.http.get<any>(trustUrl, {
+      headers: { Authorization: `Bearer ${this.authService.getToken()}` }
+    }).subscribe({
       next: (trust) => {
         if (trust.full_name?.trim() !== this.userName.trim()) {
           this.errorMessage = 'Trust with the provided trust number and user name not found.';
@@ -111,10 +114,15 @@ export class TrusteeResolution {
           settlor_id
         };
 
-        this.http.post('https://hongkongbackend.onrender.com/generate-resolution', resolutionPayload, {
-          responseType: 'blob',
-          observe: 'response'
-        }).subscribe({
+        this.http.post(
+          'https://hongkongbackend.onrender.com/generate-resolution',
+          resolutionPayload,
+          {
+            responseType: 'blob',
+            observe: 'response',
+            headers: { Authorization: `Bearer ${this.authService.getToken()}` }
+          }
+        ).subscribe({
           next: (response) => {
             const blob: Blob = response.body!;
             const contentDisposition = response.headers.get('Content-Disposition');

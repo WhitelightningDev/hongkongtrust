@@ -34,49 +34,91 @@
 
           <form [formGroup]="cessionForm" (ngSubmit)="submitForm()" novalidate>
 
-            <!-- Step 1: Trust Lookup -->
-            <section class="mb-4">
-              <div class="d-flex align-items-center justify-content-between mb-2">
-                <h2 class="h6 text-uppercase text-muted mb-3">Trust Lookup</h2>
-                <div *ngIf="trustNameLoaded" class="badge bg-success-subtle text-success-emphasis border border-success-subtle">Loaded: {{ trustNameLoaded }}</div>
-              </div>
+            <!-- Re-open Trust Lookup Button -->
+            <div class="mb-3" *ngIf="!showTrustLookupModal">
+              <button type="button" class="btn btn-warning btn-lg w-100 shadow-sm fw-bold" (click)="openTrustLookupModal()">
+                <i class="bi bi-search"></i> Click here to Re‑open Trust Lookup
+              </button>
+            </div>
 
-              <div class="row g-3 p-3 border rounded-3 bg-body-tertiary shadow-sm">
-                <div class="col-md-6">
-                  <div class="form-floating">
-                    <input type="text" class="form-control" id="trustNumber" placeholder="Trust number" autocomplete="off"
-                           formControlName="trustNumber" [attr.readonly]="(lookupLoading || trustNameLoaded) ? '' : null">
-                    <label for="trustNumber">Number of your trust</label>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-passport"></i></span>
-                    <div class="form-floating flex-grow-1">
-                      <input type="text" class="form-control" id="settlorId" placeholder="Settlor ID/Passport" autocomplete="off"
-                             formControlName="settlorId" [attr.readonly]="(lookupLoading || trustNameLoaded) ? '' : null">
-                      <label for="settlorId">Settlor ID / Passport No</label>
-                    </div>
-                    <button class="btn btn-outline-primary rounded-pill shadow-sm p-2 m-2" type="button"
-                            (click)="performTrustLookup()"
-                            [disabled]="lookupLoading || !cessionForm.get('trustNumber')?.value || !cessionForm.get('settlorId')?.value">
-                      <span *ngIf="!lookupLoading"><i class="bi bi-search"></i> Lookup</span>
-                      <span *ngIf="lookupLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                      <span *ngIf="lookupLoading" class="ms-1">Looking…</span>
-                    </button>
-                  </div>
-                  <div *ngIf="trustNameLoaded" class="form-text mt-1">
-                    <span class="text-success">Loaded trust:</span>
-                    <span class="badge bg-success">{{ trustNameLoaded }}</span>
-                    <button type="button" class="btn btn-link btn-sm p-0 ms-2"
-                            (click)="trustNameLoaded = null;"><i class="bi bi-pencil-square me-1"></i>Change</button>
-                    <br>
-                    <span class="text-success">Settlor ID:</span>
-                    <span class="badge bg-secondary">{{ cessionForm.get('settlorId')?.value }}</span>
-                  </div>
-                </div>
-              </div>
-            </section>
+           <!-- Trust Lookup Modal -->
+           <div
+             class="modal fade show d-block"
+             *ngIf="showTrustLookupModal"
+             tabindex="-1"
+             role="dialog"
+             aria-labelledby="trustLookupModalLabel"
+             aria-modal="true"
+             style="background: rgba(0,0,0,0.6);"
+             (click)="closeTrustLookupModal()">
+             <div class="modal-dialog modal-lg modal-dialog-centered" (click)="$event.stopPropagation()">
+               <div class="modal-content">
+                 <div class="modal-header">
+                   <h5 class="modal-title" id="trustLookupModalLabel">Trust Lookup</h5>
+                   <button type="button" class="btn-close" aria-label="Close" (click)="closeTrustLookupModal()"></button>
+                 </div>
+                 <div class="modal-body">
+                   <p class="text-muted">
+                     Please enter your trust number and settlor ID/passport. Then click the <strong>Lookup</strong> button to load your trust.
+                   </p>
+                   <div class="d-flex align-items-center justify-content-between mb-2">
+                     <div *ngIf="trustNameLoaded" class="badge bg-success-subtle text-success-emphasis border border-success-subtle">Loaded: {{ trustNameLoaded }}</div>
+                   </div>
+                   <div class="row g-3">
+                     <div class="col-md-6">
+                       <div class="form-floating">
+                         <input
+                           type="text"
+                           class="form-control"
+                           id="trustNumber"
+                           placeholder="Enter full Trust Number (e.g. 3234/25)"
+                           title="Enter full Trust Number (e.g. 3234/25)"
+                           autocomplete="off"
+                           formControlName="trustNumber"
+                           [attr.readonly]="(lookupLoading || trustNameLoaded) ? '' : null"
+                         >
+                         <label for="trustNumber">Number of your trust</label>
+                       </div>
+                     </div>
+                     <div class="col-md-6">
+                       <div class="input-group">
+                         <span class="input-group-text"><i class="bi bi-passport"></i></span>
+                         <div class="form-floating flex-grow-1">
+                           <input
+                             type="text"
+                             class="form-control"
+                             id="settlorId"
+                             placeholder="Enter Settlor ID or Passport Number"
+                             title="Enter Settlor ID or Passport Number"
+                             autocomplete="off"
+                             formControlName="settlorId"
+                             [attr.readonly]="(lookupLoading || trustNameLoaded) ? '' : null"
+                           >
+                           <label for="settlorId">Settlor ID / Passport No</label>
+                         </div>
+                         <button class="btn btn-outline-primary rounded-pill shadow-sm p-2 m-2" type="button"
+                                 (click)="performTrustLookup()"
+                                 [disabled]="lookupLoading || !cessionForm.get('trustNumber')?.value || !cessionForm.get('settlorId')?.value">
+                           <span *ngIf="!lookupLoading"><i class="bi bi-search"></i> Lookup</span>
+                           <span *ngIf="lookupLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                           <span *ngIf="lookupLoading" class="ms-1">Looking…</span>
+                         </button>
+                       </div>
+                       <div *ngIf="trustNameLoaded" class="form-text mt-1">
+                         <span class="text-success">Loaded trust:</span>
+                         <span class="badge bg-success">{{ trustNameLoaded }}</span>
+                         <button type="button" class="btn btn-link btn-sm p-0 ms-2"
+                                 (click)="trustNameLoaded = null;"><i class="bi bi-pencil-square me-1"></i>Change</button>
+                         <br>
+                         <span class="text-success">Settlor ID:</span>
+                         <span class="badge bg-secondary">{{ cessionForm.get('settlorId')?.value }}</span>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+             </div>
+           </div>
 
             <!-- Step 2: Signatories -->
             <section class="mb-4">

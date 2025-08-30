@@ -39,6 +39,9 @@ export class SaleAndCedeAgreement implements OnInit {
 
   lookupRecord: any = null;
 
+  // Trust Lookup Modal state
+  showTrustLookupModal = true;
+
   // Payment method modal state
   showPaymentModal = false;
   pendingAgreementPayload: any = null;
@@ -55,6 +58,14 @@ export class SaleAndCedeAgreement implements OnInit {
   xrpHashTouched = false;
   xrpNetworkNotice: string | null = 'XRPL mainnet • payments confirm within seconds.';
   xrpQrData: string | null = null; // optional; can be wired to a QR generator later
+
+  closeTrustLookupModal(): void {
+    this.showTrustLookupModal = false;
+  }
+
+  openTrustLookupModal(): void {
+    this.showTrustLookupModal = true;
+  }
 
   // Require at least N items in an array-based FormControl
   private minArrayLength(min: number) {
@@ -340,6 +351,9 @@ export class SaleAndCedeAgreement implements OnInit {
       // Instead of disabling controls, rely on template [readonly] to prevent editing but keep value visible
 
       // No need to patch settlorId again here; it is already handled above
+
+      // Automatically close the modal after successful data fetch and patch
+      this.closeTrustLookupModal();
 
       console.log('Trust lookup success:', record);
     } catch (err: any) {

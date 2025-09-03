@@ -45,7 +45,7 @@ export class CryptoPayment implements OnInit {
       const memberNumber: string = this.trustData.memberNumber || '';
       this.memberNumberValid = /^BB\d{6}$/i.test(memberNumber);
 
-      this.priceZAR = this.isMember && this.memberNumberValid ? 1650 : 7150;
+      this.priceZAR = this.isMember && this.memberNumberValid ? 1950 : 7150;
     } else {
       this.error = 'No trust form data found. Please start your application first.';
       this.loading = false;

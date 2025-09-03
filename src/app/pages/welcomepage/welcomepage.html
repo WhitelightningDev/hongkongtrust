@@ -46,7 +46,7 @@
       <!-- Right column -->
       <div class="col-12 col-lg-6 border-start-lg section-vrule">
         <div class="mb-4">
-          <button type="button" class="btn btn-lg label-pill px-5 py-2 shadow" data-bs-toggle="modal" data-bs-target="#privacyModal">
+          <button type="button" class="btn btn-lg label-pill px-5 py-2 shadow" (click)="openNotice()">
             <i class="bi bi-play-circle me-1"></i> Get Started
           </button>
           <p class="text-muted mt-2 mb-3">Click on the button above to start setting up your trust</p>
@@ -60,7 +60,7 @@
           <button class="btn btn-lg btn-deepgreen rounded-pill d-inline-block px-5 py-2 fw-bold shadow"><i class="bi bi-cash-stack me-1"></i> Pricing</button>
         </div>
         <p class="mb-2 small fw-medium">ZAR 7 150.00 | USD 410.00</p>
-        <p class="text-muted small mt-2 mb-0">* Price to co‑op members until 31 August 2025<br> ZAR 1 950.00 | USD 110.00
+        <p class="text-muted small mt-2 mb-0">* Price to Co-op Members Until Further Notice<br> ZAR 1 950.00 | USD 110.00
         </p>
       </div>
     </div>
@@ -76,24 +76,12 @@
   </div>
 </section>
 
-<!-- Privacy Policy Modal -->
-<div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="privacyModalLabel">Privacy Policy</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
-        <app-privacy-policy></app-privacy-policy>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <a href="/homepage" id="agreeButton" class="btn btn-primary">I Agree</a>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- Terms Notice (Angular component) -->
+<app-notice
+  *ngIf="showNotice"
+  (onAccept)="handleAcceptNotice()"
+  (onClose)="handleCloseNotice()">
+</app-notice>
 
 <!-- Section 2: Generate Cession and Sale Agreement -->
 <section id="sell" class="py-5" style="background: #f3efe5;">
@@ -123,7 +111,7 @@
               <button class="btn btn-lg btn-deepgreen rounded-pill d-inline-block px-5 py-2 fw-bold">Pricing</button>
               <div class="rounded p-3 mt-2">
                 <div class="small">ZAR 1 650.00 | USD 93.00</div>
-                <p class="text-muted small mt-2 mb-0">* Price to co‑op members until 31 August 2025<br> ZAR 950.00 | USD 54.00</p>
+                <p class="text-muted small mt-2 mb-0">* Price to Co-op Members Until Further Notice<br> ZAR 950.00 | USD 54.00</p>
               </div>
             </div>
           </div>

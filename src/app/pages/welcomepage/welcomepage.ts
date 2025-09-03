@@ -4,17 +4,17 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Notice } from '../../components/notice/notice'; // Adjust path if needed
-import { PrivacyPolicy } from '../../components/privacy-policy/privacy-policy'; // Adjust path if needed
+
 
 @Component({
   selector: 'app-welcomepage',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, PrivacyPolicy],
+  imports: [CommonModule, FormsModule, RouterModule, Notice],
   templateUrl: './welcomepage.html',
   styleUrls: ['./welcomepage.css']
 })
 export class Welcomepage implements OnInit {
-  showModal = false;
+  showNotice = false;
 
   fullText = 'Welcome to the future of investments';
   displayText = '';
@@ -24,8 +24,6 @@ export class Welcomepage implements OnInit {
   constructor(private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
-    this.showModal = true; // show modal when page loads
-
     this.route.queryParams.subscribe(params => {
       const status = params['payment'];
       if (status === 'success') this.router.navigate(['/success'], { replaceUrl: true });
@@ -45,14 +43,17 @@ export class Welcomepage implements OnInit {
     }
   }
 
-  openTermsPopup(event: Event): void {
-    event.preventDefault(); // stop href="#"
-    this.showModal = true;  // triggers *ngIf
+  openNotice(): void {
+    this.showNotice = true;
   }
 
-  acceptTerms(): void {
-    this.showModal = false;
+  handleAcceptNotice(): void {
+    this.showNotice = false;
     this.router.navigate(['/homepage']);
+  }
+
+  handleCloseNotice(): void {
+    this.showNotice = false;
   }
 
   downloadPdf(url: string, filename: string): void {

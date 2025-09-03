@@ -21,8 +21,8 @@ export class SaleAndCedeAgreementSuccessComponent implements OnInit {
 
   // handy for UI if you want to show them
   method: Method = 'card';
-  amountZar = 500;
-  amountCents = 50000;
+  amountZar = 950;
+  amountCents = 95000;
 
   private readonly API_BASE = 'https://hongkongbackend.onrender.com';
 

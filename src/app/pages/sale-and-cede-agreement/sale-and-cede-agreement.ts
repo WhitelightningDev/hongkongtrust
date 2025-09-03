@@ -45,9 +45,9 @@ export class SaleAndCedeAgreement implements OnInit {
   // Payment method modal state
   showPaymentModal = false;
   pendingAgreementPayload: any = null;
-  pendingAmountZAR = 650; // R650 fixed
+  pendingAmountZAR = 950; // 950 fixed
   pendingPaymentMethod: 'card' | 'xrp' | null = null;
-  pendingAmountCents = 650 * 100;
+  pendingAmountCents = 950 * 100;
 
   // XRP modal + flow state
   showXrpModal = false;
@@ -652,8 +652,8 @@ export class SaleAndCedeAgreement implements OnInit {
       client_email: (this.lookupRecord?.email || v.email || ''),
       // Payment details for persistence and backend
       payment_method: this.pendingPaymentMethod || localStorage.getItem('paymentMethod') || 'card',
-      payment_amount: this.pendingAmountZAR || 650,
-      payment_amount_cents: this.pendingAmountCents || 66500,
+      payment_amount: this.pendingAmountZAR || 950,
+      payment_amount_cents: this.pendingAmountCents || 95000,
     };
 
     // Preflight validation to avoid 422 on backend
@@ -686,7 +686,7 @@ export class SaleAndCedeAgreement implements OnInit {
 
     // Open payment method modal instead of starting payment immediately
     this.pendingAgreementPayload = payload;
-    this.pendingAmountZAR = 650;
+    this.pendingAmountZAR = 950;
     this.openPaymentModal();
   }
 
@@ -700,8 +700,8 @@ export class SaleAndCedeAgreement implements OnInit {
 
     // Record selection & amounts
     this.pendingPaymentMethod = method;
-    this.pendingAmountZAR = 650;
-    this.pendingAmountCents = 650 * 100;
+    this.pendingAmountZAR = 950;
+    this.pendingAmountCents = 950 * 100;
 
     // Persist for downstream handlers
     localStorage.setItem('paymentMethod', method);
@@ -717,7 +717,7 @@ export class SaleAndCedeAgreement implements OnInit {
     if (!this.pendingAgreementPayload) return;
 
     this.pendingPaymentMethod = method;
-    this.pendingAmountZAR = 650;
+    this.pendingAmountZAR = 950;
     this.pendingAmountCents = this.pendingAmountZAR * 100;
 
     // Persist common context
@@ -778,7 +778,7 @@ export class SaleAndCedeAgreement implements OnInit {
         if (!isFinite(priceZar) || priceZar <= 0) {
           throw new Error('Invalid price');
         }
-        const amountZar = this.pendingAmountZAR || 650;
+        const amountZar = this.pendingAmountZAR || 950;
         const xrp = amountZar / priceZar;
         // Round to 6 decimals to avoid dust issues and string->number glitches
         this.xrpAmountXrp = Number(xrp.toFixed(6));
@@ -811,8 +811,8 @@ export class SaleAndCedeAgreement implements OnInit {
     const payload = {
       ...this.pendingAgreementPayload,
       payment_method: 'xrp',
-      payment_amount: this.pendingAmountZAR || 650, // ZAR reference
-      payment_amount_cents: (this.pendingAmountZAR || 650) * 100,
+      payment_amount: this.pendingAmountZAR || 950, // ZAR reference
+      payment_amount_cents: (this.pendingAmountZAR || 950) * 100,
       xrp_amount: this.xrpAmountXrp,
       xrp_address: this.xrpAddress,
       xrp_tx_hash: this.xrpTxId,
@@ -889,7 +889,7 @@ export class SaleAndCedeAgreement implements OnInit {
 
       // Ensure payment fields are present in agreementPayload
       const paymentMethod = this.pendingPaymentMethod || (agreementPayload.payment_method) || (localStorage.getItem('paymentMethod') as 'card' | 'xrp' | null) || 'card';
-      const amountInCents = this.pendingAmountCents || agreementPayload.payment_amount_cents || 650 * 100;
+      const amountInCents = this.pendingAmountCents || agreementPayload.payment_amount_cents || 950 * 100;
       const paymentAmount = Math.round(amountInCents / 100);
 
       // Patch agreementPayload if missing payment fields

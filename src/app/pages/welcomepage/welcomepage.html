@@ -46,7 +46,9 @@
       <!-- Right column -->
       <div class="col-12 col-lg-6 border-start-lg section-vrule">
         <div class="mb-4">
-          <a href="/homepage"  class="btn btn-lg label-pill px-5 py-2 shadow"><i class="bi bi-play-circle me-1"></i> Get Started</a>
+          <button type="button" class="btn btn-lg label-pill px-5 py-2 shadow" data-bs-toggle="modal" data-bs-target="#privacyModal">
+            <i class="bi bi-play-circle me-1"></i> Get Started
+          </button>
           <p class="text-muted mt-2 mb-3">Click on the button above to start setting up your trust</p>
         </div>
 
@@ -73,6 +75,25 @@
     </div>
   </div>
 </section>
+
+<!-- Privacy Policy Modal -->
+<div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="privacyModalLabel">Privacy Policy</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+        <app-privacy-policy></app-privacy-policy>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <a href="/homepage" id="agreeButton" class="btn btn-primary">I Agree</a>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Section 2: Generate Cession and Sale Agreement -->
 <section id="sell" class="py-5" style="background: #f3efe5;">

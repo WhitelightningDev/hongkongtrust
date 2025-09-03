@@ -4,11 +4,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Notice } from '../../components/notice/notice'; // Adjust path if needed
+import { PrivacyPolicy } from '../../components/privacy-policy/privacy-policy'; // Adjust path if needed
 
 @Component({
   selector: 'app-welcomepage',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, PrivacyPolicy],
   templateUrl: './welcomepage.html',
   styleUrls: ['./welcomepage.css']
 })

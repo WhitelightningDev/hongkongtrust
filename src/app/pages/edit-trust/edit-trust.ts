@@ -14,7 +14,6 @@ import {
   AbstractControl,
   ValidationErrors,
   ValidatorFn,
-  FormControl,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import {
@@ -25,7 +24,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService, ToastrModule } from 'ngx-toastr';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+// Removed BrowserAnimationsModule import (unused here; configured app-wide)
 
 declare var bootstrap: any;
 
@@ -48,6 +47,7 @@ export function trustNameValidator(): ValidatorFn {
 
 @Component({
   selector: 'app-edit-trust',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -58,7 +58,7 @@ export function trustNameValidator(): ValidatorFn {
   templateUrl: './edit-trust.html',
   styleUrl: './edit-trust.css',
 })
-export class EditTrust {
+export class EditTrust implements OnInit, AfterViewInit {
   private toastr = inject(ToastrService);
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
@@ -244,6 +244,16 @@ export class EditTrust {
       const settlorEmailCtrl = this.settlor.get('email');
       if (settlorEmailCtrl && !settlorEmailCtrl.dirty) {
         settlorEmailCtrl.setValue(v || '', { emitEvent: false });
+      }
+    });
+
+    // While mirroring is enabled, keep trustEmail synced to applicant email
+    this.trustForm.get('email')?.valueChanges.subscribe((emailVal) => {
+      if (!this.useUserEmailForTrustEmail) return;
+      const trustEmailCtrl = this.trustForm.get('trustEmail');
+      if (trustEmailCtrl && !trustEmailCtrl.dirty) {
+        trustEmailCtrl.setValue(emailVal || '', { emitEvent: false });
+        trustEmailCtrl.updateValueAndValidity({ emitEvent: false });
       }
     });
 
@@ -680,8 +690,6 @@ export class EditTrust {
 
     // ===== EDIT MODE (R165 flat) =====
     if (this.isEditMode) {
-      const editPayload = this.buildEditPayload();
-
       if (selectedMethod === 'cardEFT') {
         // Reuse existing edit card/EFT flow
         await this.startEditPayment();
@@ -1254,7 +1262,7 @@ export class EditTrust {
         .post<any>(
           url,
           {
-            amount_cents: 16500,
+            amount_cents: this.EDIT_AMOUNT_CENTS,
             payload: editPayload,
           },
           { headers }

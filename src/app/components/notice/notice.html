@@ -1,38 +1,67 @@
 <!-- Terms & Conditions Modal -->
 <div class="modal-overlay">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content p-4 rounded-4 shadow modal-body-wrapper">
-      <div class="modal-header border-0 d-flex justify-content-between align-items-center">
-        <h4 class="modal-title text-danger fw-bold mb-0">
-          <i class="bi bi-exclamation-triangle-fill me-2"></i> Important Notice
-        </h4>
-        <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+    <div class="modal-content notice-card rounded-4 shadow-lg">
+      <!-- Header -->
+      <div class="notice-header d-flex align-items-center justify-content-between px-4 py-3 rounded-top-4">
+        <div class="d-flex align-items-center gap-3">
+          <div class="icon-circle">
+            <i class="bi bi-exclamation-lg"></i>
+          </div>
+          <div>
+            <h4 class="mb-0 fw-bold">Important Notice</h4>
+            <div class="small opacity-75">Please review before continuing</div>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" aria-label="Close" (click)="closeModal()"></button>
       </div>
 
-      <div class="modal-body">
-        <p class="fst-italic text-muted mb-3">
-          Please read the following terms carefully before proceeding. Acceptance of the trust deed is subject to strict legal and intellectual property conditions.
-        </p>
-        <ul class="small text-dark ps-3">
-          <li>All rights, title, and interest in and to the trust deed remain the sole property of Hong Kong Foreign Trust Services.</li>
-          <li>May not be copied, distributed, adapted, or used for any purpose except personal use.</li>
-          <li>Not reusable as a template or billable by third parties.</li>
-          <li>Unauthorized use may result in legal action.</li>
-          <li>No tax or legal advice is provided—consult your advisor.</li>
-          <li>Drafted to protect settlor control and minimize tax exposure.</li>
+      <!-- Body -->
+      <div class="modal-body p-4">
+        <div class="lead-text text-muted mb-3">
+          Acceptance of the trust deed is subject to legal and intellectual property conditions. By proceeding you acknowledge and agree to the following:
+        </div>
+
+        <ul class="notice-list mb-0">
+          <li>
+            <i class="bi bi-shield-lock"></i>
+            <span><strong>Ownership:</strong> All rights, title, and interest in the trust deed remain the sole property of Hong Kong Foreign Trust Services.</span>
+          </li>
+          <li>
+            <i class="bi bi-ban"></i>
+            <span><strong>Restrictions:</strong> You may not copy, distribute, adapt, or use the deed for any purpose other than your personal use.</span>
+          </li>
+          <li>
+            <i class="bi bi-file-earmark-lock"></i>
+            <span><strong>No templating:</strong> The deed may not be reused as a template or billed by third parties.</span>
+          </li>
+          <li>
+            <i class="bi bi-exclamation-octagon"></i>
+            <span><strong>Enforcement:</strong> Unauthorized use may result in legal action.</span>
+          </li>
+          <li>
+            <i class="bi bi-briefcase"></i>
+            <span><strong>No advice:</strong> We do not provide tax or legal advice — please consult your advisor.</span>
+          </li>
+          <li>
+            <i class="bi bi-diagram-3"></i>
+            <span><strong>Drafting intent:</strong> The deed is drafted to protect settlor control and minimize tax exposure.</span>
+          </li>
         </ul>
 
-        <div class="form-check mt-3">
+        <div class="form-check mt-4">
           <input class="form-check-input" type="checkbox" id="acceptCheck" [(ngModel)]="termsAccepted" />
-          <label class="form-check-label fw-bold" for="acceptCheck">
-            I have read and agree to the above terms.
+          <label class="form-check-label fw-semibold" for="acceptCheck">
+            I have read and agree to the above terms
           </label>
         </div>
       </div>
 
-      <div class="modal-footer border-0 justify-content-end">
-        <button class="btn btn-dark rounded-pill px-4" [disabled]="!termsAccepted" (click)="acceptTerms()">
-          Continue <i class="bi bi-arrow-right ms-1"></i>
+      <!-- Footer -->
+      <div class="modal-footer border-0 justify-content-end px-4 pb-4">
+        <button class="btn btn-lg btn-continue rounded-pill px-4 d-flex align-items-center gap-2" [disabled]="!termsAccepted" (click)="acceptTerms()">
+          Continue
+          <i class="bi bi-arrow-right"></i>
         </button>
       </div>
     </div>

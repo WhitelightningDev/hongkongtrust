@@ -68,6 +68,17 @@ form[formGroup] {
   border-radius: 0 0 8px 8px !important;
 }
 
+/* Validation toast specific enhancements */
+.validation-toast .toast-message { white-space: normal; }
+.validation-list {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+.validation-list li {
+  margin: 2px 0;
+  line-height: 1.25rem;
+}
+
 /* Make all inputs/selects/textareas light gray */
 .form-control,
 .form-select,

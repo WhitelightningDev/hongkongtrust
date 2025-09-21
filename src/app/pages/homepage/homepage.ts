@@ -1,11 +1,10 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, inject } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ValidatorFn, FormControl } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ToastrService, ToastrModule } from 'ngx-toastr';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { toast } from 'ngx-sonner';
 
 import { AuthService } from '../../interceptors/auth.service';
 
@@ -30,13 +29,11 @@ export function trustNameValidator(): ValidatorFn {
     ReactiveFormsModule,
     HttpClientModule,
     FormsModule,
-    ToastrModule
   ],
   templateUrl: './homepage.html',
   styleUrls: ['./homepage.css']
 })
 export class Homepage implements OnInit, AfterViewInit {
-  private toastr = inject(ToastrService);
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
   private router = inject(Router);
@@ -207,6 +204,16 @@ export class Homepage implements OnInit, AfterViewInit {
       const settlorEmailCtrl = this.settlor.get('email');
       if (settlorEmailCtrl && !settlorEmailCtrl.dirty) {
         settlorEmailCtrl.setValue(v || '', { emitEvent: false });
+      }
+    });
+
+    // Keep trustEmail mirrored while "Use my email" is enabled (until user edits trustEmail)
+    this.trustForm.get('email')?.valueChanges.subscribe(emailVal => {
+      if (!this.useUserEmailForTrustEmail) return;
+      const trustEmailCtrl = this.trustForm.get('trustEmail');
+      if (trustEmailCtrl && !trustEmailCtrl.dirty) {
+        trustEmailCtrl.setValue(emailVal || '', { emitEvent: false });
+        trustEmailCtrl.updateValueAndValidity({ emitEvent: false });
       }
     });
 
@@ -482,7 +489,11 @@ createTrustee(isReadonly = false, required = false): FormGroup {
     const selectedMethod = this.trustForm.get('paymentMethod')?.value;
 
     if (!selectedMethod) {
-      alert('Please select a payment method.');
+      toast.warning('Select a payment method', {
+        description: 'Choose Card/EFT or Crypto to continue.',
+        duration: 4000,
+        closeButton: true
+      });
       return;
     }
 
@@ -543,7 +554,12 @@ createTrustee(isReadonly = false, required = false): FormGroup {
         window.location.href = paymentInit.redirectUrl;
 
       } catch (error: any) {
-        alert('Error: ' + (error.message || error));
+        const msg = (error?.message || String(error));
+        toast.error('Payment error', {
+          description: msg,
+          duration: 7000,
+          closeButton: true
+        });
         console.error('🛑 Payment session error:', error);
         this.loading = false;
       }
@@ -558,49 +574,48 @@ createTrustee(isReadonly = false, required = false): FormGroup {
     if (this.trustForm.invalid) {
       this.trustForm.markAllAsTouched();
 
-      // Collect invalid fields' keys for top-level and nested controls
-      const invalidFields: string[] = [];
+      // Build user-friendly, actionable list of issues
+      const issues: string[] = [];
 
-      Object.keys(this.trustForm.controls).forEach(key => {
+      const describeErrors = (path: string, ctrl: any) => {
+        if (!ctrl?.errors) return;
+        const label = this.friendlyLabel(path);
+        const msg = this.errorMessage(ctrl);
+        issues.push(`${label} — ${msg}`);
+      };
+
+      // Top-level controls
+      Object.keys(this.trustForm.controls).forEach((key) => {
         const control = this.trustForm.get(key);
-
-        if (control?.invalid) {
-          if (control instanceof FormGroup) {
-            // Nested group: check which child controls are invalid
-            Object.keys(control.controls).forEach(nestedKey => {
-              const nestedControl = control.get(nestedKey);
-              if (nestedControl?.invalid) {
-                invalidFields.push(`${key}.${nestedKey}`);
-              }
-            });
-          } else {
-            invalidFields.push(key);
-          }
+        if (!control) return;
+        if (control instanceof FormGroup) {
+          Object.keys(control.controls).forEach((nestedKey) => {
+            const nested = control.get(nestedKey);
+            if (nested?.invalid) describeErrors(`${key}.${nestedKey}`, nested);
+          });
+        } else if (control.invalid) {
+          describeErrors(key, control);
         }
       });
 
-      // Format the invalid fields nicely for the toast message
-      const formattedFields = invalidFields.length
-        ? invalidFields.map(f => f.replace(/([A-Z])/g, ' $1').toLowerCase()).join(', ')
-        : 'some required fields';
+      const listHtml = issues
+        .map((i) => `<li>${i}</li>`) 
+        .join('');
+      const html = `
+        <div class="mb-1 fw-semibold">Please review these fields:</div>
+        <ul class="validation-list mb-0">${listHtml || '<li>Some required fields are missing.</li>'}</ul>
+      `;
 
-      // Show toast error with the list of invalid fields
-      this.toastr.error(
-        `Please fill in or correct the following fields: ${formattedFields}`,
-        'Validation Error',
-        {
-          timeOut: 6000,
-          closeButton: true,
-          progressBar: true,
-          positionClass: 'toast-top-right',
-          tapToDismiss: false,
-          toastClass: 'ngx-toastr toast-error custom-toast' // your own custom class to hook CSS
-        }
-      );
+      // Sonner toast (shadcn style)
+      toast.error('Form incomplete', {
+        description: html,
+        duration: 8000,
+        closeButton: true
+      });
 
       // Also log for debugging
       console.log('Form valid?', this.trustForm.valid);
-      console.log('Invalid fields:', invalidFields);
+      console.log('Issues:', issues);
 
       return;
     }
@@ -613,6 +628,56 @@ createTrustee(isReadonly = false, required = false): FormGroup {
 
     // If valid and not in edit mode, open payment modal as before
     this.openPaymentMethodModal();
+  }
+
+  // Map control paths to friendly labels
+  private friendlyLabel(path: string): string {
+    const map: Record<string, string> = {
+      email: 'Applicant email',
+      fullName: 'Full name',
+      idNumber: 'ID/Passport number',
+      phoneNumber: 'Phone number',
+      trustEmail: 'Trust email',
+      trustName: 'Trust name',
+      establishmentDate: 'Establishment date',
+      beneficiaries: 'Beneficiaries',
+      isBullionMember: 'Bullion membership',
+      memberNumber: 'Member number',
+      wasReferredByMember: 'Referred by member',
+      referrerNumber: 'Referrer member number',
+      'settlor.name': 'Settlor full name',
+      'settlor.id': 'Settlor ID/Passport',
+      'settlor.email': 'Settlor email',
+      'trustee1.name': 'Trustee 1 full name',
+      'trustee1.id': 'Trustee 1 ID/Passport',
+      'trustee1.email': 'Trustee 1 email',
+      'trustee2.name': 'Trustee 2 full name',
+      'trustee2.id': 'Trustee 2 ID/Passport',
+      'trustee2.email': 'Trustee 2 email',
+      'trustee3.name': 'Trustee 3 full name',
+      'trustee3.id': 'Trustee 3 ID/Passport',
+      'trustee3.email': 'Trustee 3 email',
+      'trustee4.name': 'Trustee 4 full name',
+      'trustee4.id': 'Trustee 4 ID/Passport',
+      'trustee4.email': 'Trustee 4 email',
+      propertyOwner: 'Property owner',
+      propertyAddress: 'Property address',
+      signer_name: 'Signer full name',
+      signer_id: 'Signer ID/Passport',
+      signer_email: 'Signer email'
+    };
+    return map[path] || path.replace(/([A-Z])/g, ' $1').trim();
+  }
+
+  // Translate common validator errors into friendly messages
+  private errorMessage(ctrl: any): string {
+    const e = ctrl.errors || {};
+    if (e['required']) return 'required';
+    if (e['email']) return 'enter a valid email';
+    if (e['pattern']) return 'format looks incorrect';
+    if (e['minlength']) return `minimum ${e['minlength'].requiredLength} characters`;
+    if (e['maxlength']) return `maximum ${e['maxlength'].requiredLength} characters`;
+    return 'invalid value';
   }
 
 
@@ -691,6 +756,7 @@ createTrustee(isReadonly = false, required = false): FormGroup {
 
   /**
    * Perform lookup to authenticate settlor/applicant and pull existing trust data.
+   * Normalizes ID/passport to ignore spaces and separators so lookup works regardless of formatting.
    * Expects backend route: POST {API_BASE}/trusts/edit-trust/lookup
    */
   async performEditLookup(): Promise<void> {
@@ -698,14 +764,26 @@ createTrustee(isReadonly = false, required = false): FormGroup {
       this.editLookupForm.markAllAsTouched();
       return;
     }
-    const { trust_number, id_or_passport } = this.editLookupForm.value;
+    const trust_number = (this.editLookupForm.value.trust_number || '').trim();
+    const id_or_passport_raw = (this.editLookupForm.value.id_or_passport || '').trim();
+    const id_or_passport = this.normalizeIdOrPassport(id_or_passport_raw);
 
     const API_BASE = 'https://hongkongbackend.onrender.com';
     const url = `${API_BASE}/trusts/edit-trust/lookup`;
 
     this.lookupLoading = true;
     try {
-      const record: any = await this.http.post(url, { trust_number, id_or_passport }).toPromise();
+      const token = this.authService.getToken();
+      let record: any;
+      if (token) {
+        record = await this.http
+          .post(url, { trust_number, id_or_passport }, { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) })
+          .toPromise();
+      } else {
+        record = await this.http
+          .post(url, { trust_number, id_or_passport })
+          .toPromise();
+      }
 
       // Store immutable display values
       this.editTrustNumber = record.trust_number;
@@ -725,15 +803,26 @@ createTrustee(isReadonly = false, required = false): FormGroup {
         this.editTrustModalInstance.hide();
       }
 
-      this.toastr.success('Trust loaded. You can now edit and save changes.', 'Edit mode enabled', {
-        timeOut: 4000, closeButton: true, progressBar: true
+      toast.success('Edit mode enabled', {
+        description: 'Trust loaded. You can now edit and save changes.',
+        duration: 4000,
+        closeButton: true
       });
     } catch (err: any) {
       const msg = err?.error?.detail || err?.message || 'Lookup failed';
-      this.toastr.error(msg, 'Lookup Error', { timeOut: 6000, closeButton: true, progressBar: true });
+      toast.error('Lookup error', {
+        description: msg,
+        duration: 6000,
+        closeButton: true
+      });
     } finally {
       this.lookupLoading = false;
     }
+  }
+
+  /** Remove spaces and common separators for consistent lookups */
+  private normalizeIdOrPassport(v: string): string {
+    return (v || '').toString().replace(/[^0-9a-zA-Z]/g, '');
   }
 
   /**
@@ -855,8 +944,10 @@ createTrustee(isReadonly = false, required = false): FormGroup {
     if (this.firstTrustee.invalid || this.secondTrustee.invalid) {
       this.firstTrustee.markAllAsTouched();
       this.secondTrustee.markAllAsTouched();
-      this.toastr.error('Trust requires at least two trustees with name and ID.', 'Validation', {
-        timeOut: 5000, closeButton: true, progressBar: true
+      toast.error('Validation', {
+        description: 'Trust requires at least two trustees with name and ID.',
+        duration: 5000,
+        closeButton: true
       });
       return;
     }
@@ -868,15 +959,21 @@ createTrustee(isReadonly = false, required = false): FormGroup {
     this.editSaving = true;
     try {
       await this.http.put(url, payload).toPromise();
-      this.toastr.success('Amended deed generated and emailed. Check your inbox.', 'Trust updated', {
-        timeOut: 6000, closeButton: true, progressBar: true
+      toast.success('Trust updated', {
+        description: 'Amended deed generated and emailed. Check your inbox.',
+        duration: 6000,
+        closeButton: true
       });
 
       // Leave the page in edit mode but scroll to top / provide visual confirmation if needed
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
       const msg = err?.error?.detail || err?.message || 'Failed to save edits';
-      this.toastr.error(msg, 'Save Error', { timeOut: 7000, closeButton: true, progressBar: true });
+      toast.error('Save error', {
+        description: msg,
+        duration: 7000,
+        closeButton: true
+      });
     } finally {
       this.editSaving = false;
     }

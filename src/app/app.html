@@ -1,2 +1,21 @@
+<ngx-sonner-toaster
+  [position]="'top-center'"
+  [offset]="'35vh'"
+  [richColors]="true"
+  [closeButton]="true"
+  [toastOptions]="{
+    class: 'hk-toast',
+    duration: 6000,
+    classes: {
+      toast: 'hk-toast-item',
+      title: 'hk-toast-title',
+      description: 'hk-toast-desc',
+      success: 'hk-toast-success',
+      error: 'hk-toast-error',
+      warning: 'hk-toast-warn',
+      info: 'hk-toast-info'
+    }
+  }"
+></ngx-sonner-toaster>
 <router-outlet></router-outlet>
 <app-footer></app-footer>

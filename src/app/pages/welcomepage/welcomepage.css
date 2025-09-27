@@ -208,3 +208,14 @@ section.position-relative.text-white > a.btn.btn-light {
   section.position-relative.text-white h1 { font-size: 1.8rem; }
   .card .card-body { padding: 1rem; }
 }
+
+
+  .btn-brand-primary { background-color: #033f63 !important; border-color: #033f63 !important; color: #fff !important; }
+  .btn-brand-primary:hover, .btn-brand-primary:focus { background-color: #022e49 !important; border-color: #022e49 !important; color: #fff !important; }
+  .btn-brand-secondary { background-color: #28666e !important; border-color: #28666e !important; color: #fff !important; }
+  .btn-brand-secondary:hover, .btn-brand-secondary:focus { background-color: #1f5057 !important; border-color: #1f5057 !important; color: #fff !important; }
+  /* Uniform CTA sizing and alignment */
+  .btn-cta { font-size: 0.95rem; padding: 0.55rem 1.25rem; border-radius: 999px; min-width: 180px; display: inline-flex !important; align-items: center; justify-content: center; text-align: center; }
+  @media (min-width: 992px) { .btn-cta { min-width: 200px; } }
+  /* Ensure label-pill variants match CTA sizing */
+  .btn-cta.label-pill, .btn-cta.edit-label-pill { padding: 0.55rem 1.25rem !important; }

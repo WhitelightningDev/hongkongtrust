@@ -1,6 +1,7 @@
 
+
 .learn-more-container {
-  background-color: #f5f0e8;
+  background-color: transparent;
   padding: 2rem;
   text-align: center;
   border-radius: 10px;
@@ -8,7 +9,7 @@
 }
 
 .learn-section {
-  background-color: #f5f0e8;
+  background-color: transparent;
   padding: 2rem 1rem;
   min-height: 100vh;
 }
@@ -33,13 +34,15 @@
 }
 
 .section-title {
-  font-weight: bold;
+  font-weight: 800;
   text-align: center;
   background-color: #fff;
   padding: 0.5rem 1rem;
   margin: 2rem 0 1rem;
   display: inline-block;
-  border-radius: 10px;
+  border-radius: 12px;
+  border-left: 6px solid #033f63;
+  box-shadow: 0 6px 16px rgba(0,0,0,.06);
 }
 
 .card{
@@ -50,10 +53,11 @@
 
 .card-custom {
   background-color: #fff;
-  border-left: 5px solid #d00;
+  border-left: 5px solid #033f63;
   padding: 1rem;
   margin-bottom: 1rem;
-  border-radius: 5px;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.06);
 }
 
 .back-button {
@@ -66,7 +70,7 @@
 
 .card-titles{
     text-align: center;
-    color: #d00;
+    color: #033f63;
 }
 
 .card-text{

@@ -27,7 +27,7 @@
 }
 
 .notice-header {
-  background: linear-gradient(135deg, #c1121f 0%, #8b0f19 100%);
+  background: linear-gradient(135deg, #033f63 0%, #28666e 100%);
   color: #fff;
 }
 
@@ -60,15 +60,20 @@
   font-size: 0.95rem;
 }
 .notice-list i {
-  color: #c1121f;
+  color: #033f63;
   margin-top: 2px;
 }
 
 .btn-continue {
-  background: #111;
+  background: #033f63;
   color: #fff;
   border: none;
-  transition: transform 0.08s ease, opacity 0.2s ease;
+  transition: transform 0.08s ease, opacity 0.2s ease, background-color 0.15s ease, box-shadow 0.2s ease;
+}
+.btn-continue:hover,
+.btn-continue:focus {
+  background: #022e49;
+  box-shadow: 0 0 0 .2rem rgba(3, 63, 99, .2);
 }
 .btn-continue:disabled {
   opacity: 0.6;

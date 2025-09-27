@@ -22,3 +22,94 @@
 .hk-toast :where(ol, ul) {
   max-width: 520px;
 }
+
+/* ----------------------------------------------------
+   Global brand theme (primary/secondary)
+   Colors: Primary #033f63, Secondary #28666e
+   Applies across buttons, links, utilities, and common components
+----------------------------------------------------- */
+:root {
+  --brand-primary: #033f63;
+  --brand-primary-600: #022e49; /* hover/focus darken */
+  --brand-secondary: #28666e;
+  --brand-secondary-600: #1f5057; /* hover/focus darken */
+  --brand-bg-soft: #F0F4F3; /* soft section/card tint */
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--brand-primary) !important;
+  border-color: var(--brand-primary) !important;
+  color: #fff !important;
+}
+.btn-primary:hover,
+.btn-primary:focus { background-color: var(--brand-primary-600) !important; border-color: var(--brand-primary-600) !important; color: #fff !important; }
+.btn-primary:focus { box-shadow: 0 0 0 .25rem rgba(3, 63, 99, .25) !important; }
+
+.btn-secondary {
+  background-color: var(--brand-secondary) !important;
+  border-color: var(--brand-secondary) !important;
+  color: #fff !important;
+}
+.btn-secondary:hover,
+.btn-secondary:focus { background-color: var(--brand-secondary-600) !important; border-color: var(--brand-secondary-600) !important; color: #fff !important; }
+.btn-secondary:focus { box-shadow: 0 0 0 .25rem rgba(40, 102, 110, .25) !important; }
+
+.btn-outline-primary { color: var(--brand-primary) !important; border-color: var(--brand-primary) !important; }
+.btn-outline-primary:hover,
+.btn-outline-primary:focus { background-color: var(--brand-primary) !important; border-color: var(--brand-primary) !important; color: #fff !important; }
+
+.btn-outline-secondary { color: var(--brand-secondary) !important; border-color: var(--brand-secondary) !important; }
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus { background-color: var(--brand-secondary) !important; border-color: var(--brand-secondary) !important; color: #fff !important; }
+
+/* Global brand button helpers (optional, for non-BS usage) */
+.btn-brand-primary { background-color: var(--brand-primary) !important; border-color: var(--brand-primary) !important; color: #fff !important; }
+.btn-brand-primary:hover,
+.btn-brand-primary:focus { background-color: var(--brand-primary-600) !important; border-color: var(--brand-primary-600) !important; }
+
+.btn-brand-secondary { background-color: var(--brand-secondary) !important; border-color: var(--brand-secondary) !important; color: #fff !important; }
+.btn-brand-secondary:hover,
+.btn-brand-secondary:focus { background-color: var(--brand-secondary-600) !important; border-color: var(--brand-secondary-600) !important; }
+
+/* Links and text utilities */
+a { color: var(--brand-primary); }
+a:hover, a:focus { color: var(--brand-primary-600); }
+.link-primary, .text-primary { color: var(--brand-primary) !important; }
+.link-secondary, .text-secondary { color: var(--brand-secondary) !important; }
+
+/* Background and border utilities */
+.bg-primary { background-color: var(--brand-primary) !important; }
+.bg-secondary { background-color: var(--brand-secondary) !important; }
+.bg-soft { background-color: var(--brand-bg-soft) !important; }
+.border-primary { border-color: var(--brand-primary) !important; }
+.border-secondary { border-color: var(--brand-secondary) !important; }
+
+/* Navbar and nav-pills */
+.navbar.bg-primary, .navbar.navbar-primary { background-color: var(--brand-primary) !important; }
+.navbar.bg-secondary, .navbar.navbar-secondary { background-color: var(--brand-secondary) !important; }
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link { background-color: var(--brand-primary) !important; }
+
+/* Pagination */
+.page-item.active .page-link { background-color: var(--brand-primary) !important; border-color: var(--brand-primary) !important; }
+.page-link { color: var(--brand-primary); }
+.page-link:hover { color: var(--brand-primary-600); }
+
+/* Forms */
+.form-control:focus, .form-select:focus {
+  border-color: var(--brand-primary) !important;
+  box-shadow: 0 0 0 .2rem rgba(3, 63, 99, .15) !important;
+}
+.form-check-input:checked { background-color: var(--brand-primary) !important; border-color: var(--brand-primary) !important; }
+.form-range::-webkit-slider-thumb { background-color: var(--brand-primary); }
+.form-range::-moz-range-thumb { background-color: var(--brand-primary); }
+
+/* Badges, alerts, progress */
+.badge.bg-primary { background-color: var(--brand-primary) !important; }
+.badge.bg-secondary { background-color: var(--brand-secondary) !important; }
+.alert-primary { color: #fff; background-color: var(--brand-primary) !important; border-color: var(--brand-primary) !important; }
+.alert-secondary { color: #fff; background-color: var(--brand-secondary) !important; border-color: var(--brand-secondary) !important; }
+.progress-bar { background-color: var(--brand-primary) !important; }
+
+/* Toast info accent to match brand */
+.hk-toast-info { border-left-color: var(--brand-primary); }

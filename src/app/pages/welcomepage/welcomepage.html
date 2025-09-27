@@ -3,15 +3,15 @@
 <!-- Hero Section -->
 <section class="position-relative text-white"
   style="min-height: 400px; background: linear-gradient(rgba(3,63,99,.55), rgba(40,102,110,.55)), url('/hkft-carousel-image.png') center/cover no-repeat;">
-  <div class="container py-2">
-    <div class="d-flex flex-column align-items-center justify-content-start text-center pt-4 pt-lg-5" style="min-height: 500px;">
-      <img src="ColorLogo+Text.png" width="250px" style="border-radius: 20px;">
-      <div class="d-flex justify-content-center align-items-center gap-5 mt-4 flex-wrap">
+  <div class="container py-2 max-w-screen-xl mx-auto px-4 md:px-6">
+    <div class="flex flex-col items-center justify-start text-center pt-6 md:pt-12 min-h-[520px] md:min-h-[600px] space-y-6 md:space-y-8">
+      <img src="ColorLogo+Text.png" width="250px" class="rounded-2xl shadow-xl w-56 md:w-64">
+      <div class="flex justify-center items-center mt-2 md:mt-4 flex-wrap gap-3 md:gap-4">
         <a class="btn btn-cta fw-semibold btn-brand-primary" href="#setup">Set up Your Trust</a>
         <a class="btn btn-cta fw-semibold btn-brand-secondary" href="#sell">Sell Your Rights</a>
         <a class="btn btn-cta fw-semibold btn-brand-secondary" href="#free-docs">Free Contracts</a>
       </div>
-       <div class="mb-4 mt-4">
+       <div class="mt-4">
           <a class="btn btn-cta edit-label-pill btn-brand-primary"
              href="/edit-trust">
             <i class="bi bi-pencil"></i> Edit Trust
@@ -19,33 +19,38 @@
         </div>
     </div>
   </div>
-  <a href="/contact" class="btn btn-cta position-absolute end-0 top-0 m-3 shadow btn-brand-secondary">Contact Us</a>
+  <a href="/contact" aria-label="Contact Us"
+     class="btn btn-brand-secondary position-absolute end-0 top-0 m-3 absolute right-3 top-3 md:right-4 md:top-4 shadow-lg inline-flex items-center justify-center rounded-full w-10 h-10 p-0 md:w-auto md:h-auto md:px-5 md:py-2.5 md:gap-2">
+    <i class="bi bi-telephone-fill md:hidden"></i>
+    <i class="bi bi-telephone-fill hidden md:inline"></i>
+    <span class="hidden md:inline">Contact Us</span>
+  </a>
 </section>
 
 <!-- Section 1: Set Up Your Own Trust -->
-<section id="setup" class="py-5 bg-white">
-  <div class="container">
-    <div class="row g-4 align-items-start">
+<section id="setup" class="py-5 md:py-16 bg-white">
+  <div class="container max-w-screen-xl mx-auto px-4 md:px-6 space-y-8 md:space-y-12">
+    <div class="row g-4 align-items-start md:gap-6">
       <!-- Left column -->
       <div class="col-12 col-lg-6">
-        <div class="section-title-pill d-inline-flex shadow align-items-center gap-3 px-3 py-2">
+        <div class="section-title-pill d-inline-flex shadow align-items-center gap-3 px-3 py-2 rounded-xl border border-black/10 bg-white/80 backdrop-blur-sm">
           <div class="step-badge">1</div>
-          <h5 class="fw-bold m-0">Set Up Your Own Trust</h5>
+          <h5 class="fw-bold m-0 text-slate-800 tracking-tight text-2xl md:text-3xl">Set Up Your Own Trust</h5>
         </div>
-        <p class="mt-3 mb-3 text-muted setup-copy">Hong Kong trusts, governed by the Trustee Ordinance and common law,
+        <p class="mt-4 mb-3 text-muted setup-copy leading-8 text-slate-600">Hong Kong trusts, governed by the Trustee Ordinance and common law,
           offer a robust and flexible framework for wealth management, particularly for high‑net‑worth individuals. They
           provide asset protection, tax efficiency, and the ability to structure trusts with perpetual duration,
           shielding assets from foreign forced heirship rules. Hong Kong's legal system also recognizes and enforces
           foreign trusts, making it a suitable location for international estate planning.</p>
-        <div class="d-flex flex-wrap gap-3">
-          <a class="ghost-pill shadow" href="/Learnmore"><span class="dot">$</span> <span>Learn More</span></a>
+        <div class="d-flex flex-wrap gap-3 mt-2">
+          <a class="ghost-pill shadow hover:shadow-md transition" href="/Learnmore"><span class="dot">$</span> <span>Learn More</span></a>
        
         </div>
 
       </div>
 
       <!-- Right column -->
-      <div class="col-12 col-lg-6 border-start-lg section-vrule">
+      <div class="col-12 col-lg-6 border-start-lg section-vrule lg:pl-8">
         <div class="mb-4">
           <button type="button" class="btn btn-cta label-pill shadow btn-brand-primary" (click)="openNotice()">
             <i class="bi bi-play-circle me-1"></i> Get Started
@@ -65,11 +70,11 @@
         </p>
       </div>
     </div>
-    <div class="mt-4 rounded">
-      <div class="mt-4 video-placeholder rounded overflow-hidden position-relative" style="cursor: pointer;"
+    <div class="mt-6 rounded">
+      <div class="mt-4 video-placeholder rounded-xl overflow-hidden relative cursor-pointer ring-1 ring-black/10 hover:ring-black/20 transition"
       onclick="this.innerHTML='<iframe src=&quot;https://drive.google.com/file/d/1ZVwhKUEJ9_ReN5xrKuetAbq34GubLJqV/preview&quot; width=&quot;100%&quot; height=&quot;480&quot; allow=&quot;autoplay&quot; allowfullscreen></iframe>'">
-      <img src="/HK-Banner-main.webp" alt="Hong Kong skyline preview" style="object-fit: cover; width: 100%; height: 70%;" />
-      <div class="position-absolute top-50 start-50 translate-middle bg-white rounded-circle d-flex align-items-center justify-content-center" style="width:60px; height:60px; box-shadow:0 4px 12px rgba(0,0,0,.3);">
+      <img src="/HK-Banner-main.webp" alt="Hong Kong skyline preview" class="w-full object-cover h-72 md:h-[480px]" />
+      <div class="position-absolute top-50 start-50 translate-middle bg-white rounded-full d-flex align-items-center justify-content-center shadow" style="width:60px; height:60px; box-shadow:0 4px 12px rgba(0,0,0,.3);">
         <i class="bi bi-play-fill fs-2 text-dark"></i>
       </div>
     </div>
@@ -85,22 +90,22 @@
 </app-notice>
 
 <!-- Section 2: Generate Cession and Sale Agreement -->
-<section id="sell" class="py-5" style="background: #F0F4F3;">
-  <div class="container">
-    <div class="row g-4 align-items-start">
+<section id="sell" class="py-5 md:py-16 bg-[#F0F4F3]" style="background: #F0F4F3;">
+  <div class="container max-w-screen-xl mx-auto px-4 md:px-6 space-y-8 md:space-y-12">
+    <div class="row g-4 align-items-start md:gap-6">
       <div class="col-12 col-lg-6">
         
-        <div class="section-title-pill d-inline-flex shadow align-items-center gap-3 px-3 py-2 mb-3">
+        <div class="section-title-pill d-inline-flex shadow align-items-center gap-3 px-3 py-2 mb-3 rounded-xl border border-black/10 bg-white/80 backdrop-blur-sm">
           <div class="step-badge">2</div>
-          <h5 class="fw-bold m-0">Generate Cession and Sale Agreement</h5>
+          <h5 class="fw-bold m-0 text-slate-800 tracking-tight text-2xl md:text-3xl">Generate Cession and Sale Agreement</h5>
         </div>
-        <p class="mt-3 mb-3 text-muted setup-copy">Sell and cede ownership of or rights to selected property or assets into your Hong Kong Foreign Trust at a low price. This simple legal tool empowers you to:</p>
-        <p class="text-muted setup-copy">⁠Secure future payout in your Trust’s name — Sell assets with high but uncertain future payouts to your trust now at low price, ensuring that ownership is transferred before their value emerges.</p>
-        <p class="text-muted setup-copy">Enhance asset protection — Internationalise your RSA S25 right to compensation in case of expropriation and benefit from the China–South Africa BIT.</p>
+        <p class="mt-3 mb-3 text-muted setup-copy leading-8 text-slate-600">Sell and cede ownership of or rights to selected property or assets into your Hong Kong Foreign Trust at a low price. This simple legal tool empowers you to:</p>
+        <p class="text-muted setup-copy leading-8 text-slate-600">⁠Secure future payout in your Trust’s name — Sell assets with high but uncertain future payouts to your trust now at low price, ensuring that ownership is transferred before their value emerges.</p>
+        <p class="text-muted setup-copy leading-8 text-slate-600">Enhance asset protection — Internationalise your RSA S25 right to compensation in case of expropriation and benefit from the China–South Africa BIT.</p>
       </div>
 
-      <div class="col-12 col-lg-6 ps-lg-4 border-start" style="border-color: #d9d4c7 !important;">
-        <div class="border-0 mt-lg-n5 p-3 rounded">
+      <div class="col-12 col-lg-6 ps-lg-4 border-start lg:pl-8" style="border-color: #d9d4c7 !important;">
+        <div class="border-0 -mt-6 lg:-mt-10 p-3 rounded-xl shadow-sm bg-white/80 backdrop-blur-sm">
           <div class="card-body">
             <div class="mb-3">
               <a href="/sale-and-cede-agreement" class="btn btn-cta fw-bold d-inline-flex align-items-center gap-2 btn-brand-primary">
@@ -119,10 +124,10 @@
         </div>
       </div>
     </div>
-    <div class="mt-4 video-placeholder rounded overflow-hidden position-relative" style="cursor: pointer;"
+    <div class="mt-6 video-placeholder rounded-xl overflow-hidden relative cursor-pointer ring-1 ring-black/10 hover:ring-black/20 transition"
       onclick="this.innerHTML='<iframe src=&quot;https://drive.google.com/file/d/1JCEK5db8ilVaftHj7qeMTsnWl4W8ED5u/preview&quot; width=&quot;100%&quot; height=&quot;480&quot; allow=&quot;autoplay&quot; allowfullscreen></iframe>'">
-      <img src="/HK-Banner-main.webp" alt="Hong Kong skyline preview" style="object-fit: cover; width: 100%; height: 70%;" />
-      <div class="position-absolute top-50 start-50 translate-middle bg-white rounded-circle d-flex align-items-center justify-content-center" style="width:60px; height:60px; box-shadow:0 4px 12px rgba(0,0,0,.3);">
+      <img src="/HK-Banner-main.webp" alt="Hong Kong skyline preview" class="w-full object-cover h-72 md:h-[480px]" />
+      <div class="position-absolute top-50 start-50 translate-middle bg-white rounded-full d-flex align-items-center justify-content-center shadow" style="width:60px; height:60px; box-shadow:0 4px 12px rgba(0,0,0,.3);">
         <i class="bi bi-play-fill fs-2 text-dark"></i>
       </div>
     </div>
@@ -132,22 +137,22 @@
 
 
 <!-- Section 3: Generate Free Supporting Documents -->
-<section id="free-docs" class="py-5 bg-white">
-  <div class="container">
-    <div class="section-title-pill d-inline-flex shadow align-items-center gap-3 px-3 py-2 mb-4">
+<section id="free-docs" class="py-5 md:py-16 bg-white">
+  <div class="container max-w-screen-xl mx-auto px-4 md:px-6 space-y-8 md:space-y-12">
+    <div class="section-title-pill d-inline-flex shadow align-items-center gap-3 px-3 py-2 mb-4 rounded-xl border border-black/10 bg-white/80 backdrop-blur-sm">
       <div class="step-badge">3</div>
-      <h5 class="fw-bold m-0">Generate Free Supporting Documents</h5>
+      <h5 class="fw-bold m-0 text-slate-800 tracking-tight text-2xl md:text-3xl">Generate Free Supporting Documents</h5>
     </div>
 
-    <div class="row g-4">
+    <div class="row g-4 md:gap-6 align-items-stretch">
       <!-- Resolution Card -->
       <div class="col-12 col-md-4">
-        <div class="text-center p-4 rounded h-100 d-flex flex-column" style="background: #F0F4F3;">
-          <div class="mx-auto mb-3 rounded-circle bg-white d-flex align-items-center justify-content-center" style="width:36px;height:36px;">
+        <div class="text-center p-6 rounded-xl h-100 d-flex flex-column shadow-sm hover:shadow-md transition" style="background: #F0F4F3;">
+          <div class="mx-auto mb-3 rounded-full bg-white d-flex align-items-center justify-content-center shadow-inner" style="width:36px;height:36px;">
             <i class="bi bi-file-earmark-text"></i>
           </div>
-          <h6 class="fw-bold">Resolution</h6>
-          <p class="small text-muted">Generate a resolution that authorises you as trustee to represent your Hong Kong Foreign Trust</p>
+          <h6 class="fw-bold text-slate-800">Resolution</h6>
+          <p class="small text-muted leading-7">Generate a resolution that authorises you as trustee to represent your Hong Kong Foreign Trust</p>
           <div class="mt-auto">
             <a class="btn btn-cta d-inline-flex align-items-center gap-2 mt-3 btn-brand-primary" href="/trustee-resolution">
               Generate 
@@ -174,12 +179,12 @@
 
       <!-- Loan Agreement Card -->
       <div class="col-12 col-md-4">
-        <div class="text-center p-4 rounded h-100 d-flex flex-column" style="background: #F0F4F3;">
-          <div class="mx-auto mb-3 rounded-circle bg-white d-flex align-items-center justify-content-center" style="width:36px;height:36px;">
+        <div class="text-center p-6 rounded-xl h-100 d-flex flex-column shadow-sm hover:shadow-md transition" style="background: #F0F4F3;">
+          <div class="mx-auto mb-3 rounded-full bg-white d-flex align-items-center justify-content-center shadow-inner" style="width:36px;height:36px;">
             <i class="bi bi-cash-coin"></i>
           </div>
-          <h6 class="fw-bold">Loan Agreement</h6>
-          <p class="small text-muted">Generate a loan agreement where you transfer funds or assets into your trust as a loan</p>
+          <h6 class="fw-bold text-slate-800">Loan Agreement</h6>
+          <p class="small text-muted leading-7">Generate a loan agreement where you transfer funds or assets into your trust as a loan</p>
           <div class="mt-auto">
             <a class="btn btn-cta d-inline-flex align-items-center gap-2 mt-3 shadow btn-brand-primary" href="/loan-agreement">
               Generate 

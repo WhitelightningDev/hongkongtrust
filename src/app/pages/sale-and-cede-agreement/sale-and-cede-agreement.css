@@ -5,7 +5,7 @@
 }
 
 .card-header.bg-gradient {
-  background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
+  background: linear-gradient(135deg, rgba(3, 63, 99, 0.08) 0%, rgba(40, 102, 110, 0.08) 100%);
 }
 
 .badge.bg-primary-subtle {
@@ -48,8 +48,8 @@
 }
 
 .form-control:focus, .form-select:focus {
-  border-color: #b3c7ff;
-  box-shadow: 0 0 0 .25rem rgba(59, 91, 255, 0.12);
+  border-color: #033f63;
+  box-shadow: 0 0 0 .25rem rgba(3, 63, 99, 0.15);
 }
 
 .invalid-feedback.d-block { margin-top: .25rem; }
@@ -96,12 +96,22 @@ details[open] summary::before { transform: rotate(270deg); }
 /* ---------- Buttons ---------- */
 .btn.rounded-pill { border-radius: 999px; }
 .btn-primary {
-  background: #3b5bff;
-  border-color: #3b5bff;
+  background: #033f63;
+  border-color: #033f63;
 }
 .btn-primary:hover {
-  background: #2f48cc;
-  border-color: #2f48cc;
+  background: #022e49;
+  border-color: #022e49;
+}
+.btn-secondary {
+  background: #28666e;
+  border-color: #28666e;
+  color: #fff;
+}
+.btn-secondary:hover {
+  background: #1f5057;
+  border-color: #1f5057;
+  color: #fff;
 }
 .btn-outline-dark:hover {
   color: #fff;
@@ -130,7 +140,7 @@ details[open] summary::before { transform: rotate(270deg); }
 .hk-modal-header {
   padding: .9rem 1rem;
   border-bottom: 1px solid rgba(0,0,0,0.06);
-  background: linear-gradient(180deg, #ffffff 0%, #f8f9ff 100%);
+  background: linear-gradient(135deg, rgba(3,63,99,.06) 0%, rgba(40,102,110,.06) 100%);
 }
 
 .hk-modal-body { padding: 1rem; }

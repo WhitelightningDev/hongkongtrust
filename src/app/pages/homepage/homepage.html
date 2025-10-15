@@ -1,6 +1,6 @@
 <!-- Loading spinner overlay with blur -->
 <div *ngIf="loading" class="loading-overlay" aria-live="assertive" aria-busy="true">
-  <div class="spinner-border text-primary" role="status" aria-label="Loading...">
+  <div class="spinner-border text-danger" role="status" aria-label="Loading...">
     <span class="visually-hidden">Loading...</span>
   </div>
 </div>
@@ -8,41 +8,40 @@
 
 
 
-<div class="min-h-screen flex justify-center items-start md:items-center px-3 md:px-6 py-6 md:py-12 bg-gradient-to-br from-[#033f63]/10 to-[#28666e]/10">
 <form [formGroup]="trustForm" (ngSubmit)="onSubmit()" enctype="multipart/form-data"
-  class="p-4 p-md-5 m-3 m-md-4 shadow-lg rounded-4 bg-light border-2 border-primary max-w-5xl mx-auto md:mx-auto md:p-8 rounded-2xl bg-white/90 backdrop-blur-sm border-[#033f63] space-y-6">
+  class="p-4 p-md-5 m-3 m-md-4 shadow-lg rounded-4 bg-light border-2 border-danger-subtle">
 
   <!-- Header -->
-  <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-6">
+  <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-3">
     <div class="d-flex align-items-center gap-3">
-      <button type="button" class="btn btn-outline-primary rounded-circle inline-flex items-center justify-center w-10 h-10" (click)="goBackToHome()" aria-label="Back">
+      <button type="button" class="btn btn-outline-dark rounded-circle" (click)="goBackToHome()" aria-label="Back">
         <i class="bi bi-arrow-left"></i>
       </button>
       <div>
-        <h2 class="mb-1 fw-bold text-primary tracking-tight">Apply for Hong Kong Foreign Trust</h2>
+        <h2 class="mb-1 fw-bold text-danger">Apply for Hong Kong Foreign Trust</h2>
         <div class="text-muted small">Complete your details, choose payment, and e‑sign.</div>
       </div>
     </div>
    
   </div>
   <!-- Step indicator -->
-  <div class="d-flex flex-wrap gap-2 align-items-center mb-6">
-    <span class="badge rounded-pill text-bg-primary"><span class="me-1">1</span> Details</span>
+  <div class="d-flex flex-wrap gap-2 align-items-center mb-4">
+    <span class="badge rounded-pill text-bg-dark"><span class="me-1">1</span> Details</span>
     <i class="bi bi-arrow-right"></i>
     <span class="badge rounded-pill text-bg-secondary"><span class="me-1">2</span> Pay</span>
     <i class="bi bi-arrow-right"></i>
-    <span class="badge rounded-pill text-bg-primary"><span class="me-1">3</span> E‑Sign</span>
+    <span class="badge rounded-pill text-bg-danger"><span class="me-1">3</span> E‑Sign</span>
   </div>
   
 
   <!-- Edit mode banner -->
-  <div *ngIf="isEditMode" class="alert alert-secondary d-flex align-items-center gap-3 rounded-4 shadow-sm">
+  <div *ngIf="isEditMode" class="alert alert-info d-flex align-items-center gap-3 rounded-4 shadow-sm">
     <i class="bi bi-info-circle fs-4"></i>
     <div class="flex-grow-1">
       <div class="fw-semibold">Editing existing trust</div>
       <div class="small text-muted">
-        <span class="me-2">Trust No: <span class="badge bg-secondary text-white border">{{ editTrustNumber }}</span></span>
-        <span>Trust Name: <span class="badge bg-secondary text-white border">{{ editTrustName }}</span></span>
+        <span class="me-2">Trust No: <span class="badge bg-secondary-subtle text-dark border">{{ editTrustNumber }}</span></span>
+        <span>Trust Name: <span class="badge bg-secondary-subtle text-dark border">{{ editTrustName }}</span></span>
       </div>
     </div>
     <button type="button" class="btn btn-outline-secondary btn-sm" (click)="exitEditMode()">Exit</button>
@@ -50,15 +49,10 @@
 
   <!-- General Information -->
   <div class="mb-4">
-    <div class="flex items-center gap-3 mb-3 mt-2">
-      <div class="w-1.5 h-6 rounded bg-[#033f63]"></div>
-      <h5 class="m-0 text-slate-800">General Information</h5>
-      <div class="h-px flex-1 bg-slate-200"></div>
-    </div>
     <div class="row g-4">
       <div class="col-12 col-md-6">
-        <label class="form-label fw-semibold text-slate-700">Full Names and Surname *</label>
-        <input formControlName="fullName" type="text" class="form-control form-control-lg border-secondary-subtle rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]"
+        <label class="form-label fw-semibold">Full Names and Surname *</label>
+        <input formControlName="fullName" type="text" class="form-control form-control-lg border-secondary-subtle"
           placeholder="Full name" />
         <div class="text-danger mt-1 fst-italic"
           *ngIf="trustForm.get('fullName')?.invalid && trustForm.get('fullName')?.touched">
@@ -66,8 +60,8 @@
         </div>
       </div>
       <div class="col-12 col-md-6">
-        <label class="form-label fw-semibold text-slate-700">Passport or ID Number *</label>
-        <input formControlName="idNumber" type="text" class="form-control form-control-lg border-secondary-subtle rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]"
+        <label class="form-label fw-semibold">Passport or ID Number *</label>
+        <input formControlName="idNumber" type="text" class="form-control form-control-lg border-secondary-subtle"
           placeholder="Document number" />
         <div class="text-danger mt-1 fst-italic"
           *ngIf="trustForm.get('idNumber')?.invalid && trustForm.get('idNumber')?.touched">
@@ -79,15 +73,10 @@
 
   <!-- Contact Details -->
   <div class="mb-4">
-    <div class="flex items-center gap-3 mb-3 mt-4">
-      <div class="w-1.5 h-6 rounded bg-[#033f63]"></div>
-      <h5 class="m-0 text-slate-800">Contact Details</h5>
-      <div class="h-px flex-1 bg-slate-200"></div>
-    </div>
     <div class="row g-4">
       <div class="col-12 col-md-6">
-        <label class="form-label fw-semibold text-slate-700">Email *</label>
-        <input formControlName="email" type="email" class="form-control form-control-lg border-secondary-subtle rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]"
+        <label class="form-label fw-semibold">Email *</label>
+        <input formControlName="email" type="email" class="form-control form-control-lg border-secondary-subtle"
           placeholder="you@example.com" />
         <div class="text-danger mt-1 fst-italic"
           *ngIf="trustForm.get('email')?.invalid && trustForm.get('email')?.touched">
@@ -95,8 +84,8 @@
         </div>
       </div>
       <div class="col-12 col-md-6">
-        <label class="form-label fw-semibold text-slate-700">Phone Number *</label>
-        <input formControlName="phoneNumber" type="text" class="form-control form-control-lg border-secondary-subtle rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]"
+        <label class="form-label fw-semibold">Phone Number *</label>
+        <input formControlName="phoneNumber" type="text" class="form-control form-control-lg border-secondary-subtle"
           placeholder="+27..." />
         <div class="text-danger mt-1 fst-italic"
           *ngIf="trustForm.get('phoneNumber')?.invalid && trustForm.get('phoneNumber')?.touched">
@@ -107,8 +96,8 @@
   </div>
 
   <!-- Trust Details -->
-  <div class="card border-primary shadow mb-4">
-    <div class="card-header bg-primary text-white fs-5">
+  <div class="card border-danger-subtle shadow mb-4">
+    <div class="card-header bg-danger text-white fs-5">
       🧾 Trust Structure & Details
     </div>
     <div class="card-body">
@@ -116,7 +105,7 @@
 
       <!-- Important Notice (centered at top) -->
       <div class="d-flex justify-content-center my-3">
-        <div class="alert alert-primary border-2 shadow-sm text-center mb-0 ring-1 ring-[#033f63]/20 rounded-xl" role="note" aria-label="Electronic signing requirements" style="max-width: 90%;">
+        <div class="alert alert-danger border-2 shadow-sm text-center mb-0" role="note" aria-label="Electronic signing requirements" style="max-width: 90%;">
           <div class="text-uppercase fw-bold small mb-2">Important</div>
           <ul class="mb-0 ps-3 text-start">
             <li>All documents (deed, resolution, lease for proof of address) are signed <strong>electronically</strong> by each party.</li>
@@ -127,19 +116,14 @@
       </div>
 
       <!-- Trust Key Fields Card -->
-      <div class="flex items-center gap-3 mb-3 mt-4">
-        <div class="w-1.5 h-6 rounded bg-[#033f63]"></div>
-        <h5 class="m-0 text-slate-800">Trust Key Fields</h5>
-        <div class="h-px flex-1 bg-slate-200"></div>
-      </div>
-      <div class="card border-0 shadow mt-2 mb-4">
+      <div class="card border-0 shadow mt-4 mb-4">
         <div class="card-body">
           <div class="row g-4">
             <!-- Trust Email -->
             <div class="col-12 col-md-4">
               <label class="form-label">Trust Email (Optional)</label>
               <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
-                <input formControlName="trustEmail" type="email" class="form-control w-100 w-md-auto rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]"
+                <input formControlName="trustEmail" type="email" class="form-control w-100 w-md-auto"
                        placeholder="trust@example.com" [readonly]="useUserEmailForTrustEmail" />
                 <div class="form-check">
                   <input class="form-check-input" type="checkbox" id="useUserEmailCheckbox"
@@ -156,8 +140,8 @@
 
             <!-- Name of Trust -->
             <div class="col-12 col-md-4">
-              <label class="form-label text-slate-700">Name of Trust *</label>
-              <input formControlName="trustName" type="text" class="form-control w-100 rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" [readonly]="isEditMode" />
+              <label class="form-label">Name of Trust *</label>
+              <input formControlName="trustName" type="text" class="form-control w-100" [readonly]="isEditMode" />
               <div class="text-danger mt-1 fst-italic"
                    *ngIf="trustForm.get('trustName')?.invalid && trustForm.get('trustName')?.touched">
                 Please enter a trust name.
@@ -176,9 +160,9 @@
 
             <!-- Date of Establishment -->
             <div class="col-12 col-md-4">
-              <label class="form-label text-slate-700">Date of Establishment *</label>
+              <label class="form-label">Date of Establishment *</label>
               <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
-                <input formControlName="establishmentDate" type="date" class="form-control w-100 rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" />
+                <input formControlName="establishmentDate" type="date" class="form-control w-100" />
                 <div *ngIf="trustForm.get('establishmentDate')?.value" class="text-muted"><em>{{ trustForm.get('establishmentDate')?.value | date: 'd MMMM yyyy' }}</em></div>
               </div>
               <div class="text-danger mt-1 fst-italic"
@@ -191,14 +175,9 @@
       </div>
 
       <!-- Settlor -->
-      <div class="flex items-center gap-3 mb-3 mt-4">
-        <div class="w-1.5 h-6 rounded bg-[#033f63]"></div>
-        <h5 class="m-0 text-slate-800">Settlor</h5>
-        <div class="h-px flex-1 bg-slate-200"></div>
-      </div>
       <div class="mb-4" formGroupName="settlor">
         <label class="form-label fw-semibold d-flex align-items-center gap-3">
-          <span class="text-primary fs-5">Settlor</span>
+          <span class="text-danger fs-5">Settlor</span>
           <div class="form-check form-switch mb-0">
             <input type="checkbox" id="isSettlorCheckbox" class="form-check-input"
               [checked]="trustForm.get('isSettlor')?.value" (change)="onSettlorCheckboxChange($event)" [disabled]="isEditMode" />
@@ -207,24 +186,24 @@
         </label>
 
         <div class="card border shadow bg-light-subtle p-3">
-          <label class="text-slate-700">Full Name *</label>
+          <label>Full Name *</label>
           <input type="text" formControlName="name" [readonly]="trustForm.get('isSettlor')?.value"
-            class="form-control rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" />
+            class="form-control" />
           <div class="text-danger mt-1 fst-italic"
             *ngIf="trustForm.get('settlor.name')?.invalid && trustForm.get('settlor.name')?.touched">
             Settlor name is required.
           </div>
 
-          <label class="text-slate-700">ID / Passport No *</label>
+          <label>ID / Passport No *</label>
           <input type="text" formControlName="id" [readonly]="trustForm.get('isSettlor')?.value"
-            class="form-control mb-2 rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" />
+            class="form-control mb-2" />
           <div class="text-danger mt-1 fst-italic"
             *ngIf="trustForm.get('settlor.id')?.invalid && trustForm.get('settlor.id')?.touched">
             Settlor ID/Passport is required.
           </div>
 
-          <label class="text-slate-700">Email *</label>
-          <input type="email" formControlName="email" class="form-control mb-2 rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" placeholder="settlor@example.com" />
+          <label>Email *</label>
+          <input type="email" formControlName="email" class="form-control mb-2" placeholder="settlor@example.com" />
           <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('settlor.email')?.invalid && trustForm.get('settlor.email')?.touched">
             Settlor email is required.
           </div>
@@ -236,15 +215,10 @@
       <div class="row g-3">
 
         <!-- Trustee 1 -->
-        <div class="flex items-center gap-3 mb-3 mt-2">
-          <div class="w-1.5 h-6 rounded bg-[#033f63]"></div>
-          <h5 class="m-0 text-slate-800">Trustees</h5>
-          <div class="h-px flex-1 bg-slate-200"></div>
-        </div>
         <div class="col-12 col-md-6">
           <div class="mb-4">
             <label class="form-label fw-semibold d-flex align-items-center gap-3">
-        <span class="text-primary fs-5">Trustee 1</span>
+              <span class="text-danger fs-5">Trustee 1</span>
               <div class="form-check form-switch mb-0">
                 <input type="checkbox" id="isTrusteeCheckbox" class="form-check-input"
                   [checked]="trustForm.get('isTrustee')?.value" (change)="onTrusteeCheckboxChange($event)" [disabled]="isEditMode" />
@@ -253,20 +227,20 @@
             </label>
 
             <div [formGroup]="firstTrustee" class="card border shadow bg-light-subtle p-3">
-              <label class="text-slate-700">Full Name *</label>
-              <input type="text" formControlName="name" [readonly]="trustForm.get('isTrustee')?.value" class="form-control rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" />
+              <label>Full Name *</label>
+              <input type="text" formControlName="name" [readonly]="trustForm.get('isTrustee')?.value" class="form-control" />
               <div class="text-danger mt-1 fst-italic" *ngIf="firstTrustee.get('name')?.invalid && firstTrustee.get('name')?.touched">
                 Trustee 1 name is required.
               </div>
 
-              <label class="text-slate-700">ID / Passport No *</label>
-              <input type="text" formControlName="id" [readonly]="trustForm.get('isTrustee')?.value" class="form-control mb-2 rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" />
+              <label>ID / Passport No *</label>
+              <input type="text" formControlName="id" [readonly]="trustForm.get('isTrustee')?.value" class="form-control mb-2" />
               <div class="text-danger mt-1 fst-italic" *ngIf="firstTrustee.get('id')?.invalid && firstTrustee.get('id')?.touched">
                 Trustee 1 ID/Passport is required.
               </div>
 
-              <label class="text-slate-700">Email *</label>
-              <input type="email" formControlName="email" class="form-control mb-2 rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" placeholder="trustee1@example.com" />
+              <label>Email *</label>
+              <input type="email" formControlName="email" class="form-control mb-2" placeholder="trustee1@example.com" />
               <div class="text-danger mt-1 fst-italic" *ngIf="firstTrustee.get('email')?.invalid && firstTrustee.get('email')?.touched">
                 Trustee 1 email is required.
               </div>
@@ -277,22 +251,22 @@
         <!-- Trustee 2 -->
         <div class="col-12 col-md-6" [formGroup]="secondTrustee">
           <div class="mb-4">
-            <label class="form-label fw-semibold text-primary fs-5">Trustee 2 *</label>
+            <label class="form-label fw-semibold text-danger fs-5">Trustee 2 *</label>
             <div class="card border shadow bg-light-subtle p-3">
-              <label class="text-slate-700">Full Name *</label>
-              <input type="text" formControlName="name" class="form-control rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" />
+              <label>Full Name *</label>
+              <input type="text" formControlName="name" class="form-control" />
               <div class="text-danger mt-1 fst-italic" *ngIf="secondTrustee.get('name')?.invalid && secondTrustee.get('name')?.touched">
                 Trustee 2 name is required.
               </div>
 
-              <label class="text-slate-700">ID / Passport No *</label>
-              <input type="text" formControlName="id" class="form-control mb-2 rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" />
+              <label>ID / Passport No *</label>
+              <input type="text" formControlName="id" class="form-control mb-2" />
               <div class="text-danger mt-1 fst-italic" *ngIf="secondTrustee.get('id')?.invalid && secondTrustee.get('id')?.touched">
                 Trustee 2 ID is required.
               </div>
 
-              <label class="text-slate-700">Email *</label>
-              <input type="email" formControlName="email" class="form-control mb-2 rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" placeholder="trustee2@example.com" />
+              <label>Email *</label>
+              <input type="email" formControlName="email" class="form-control mb-2" placeholder="trustee2@example.com" />
               <div class="text-danger mt-1 fst-italic" *ngIf="secondTrustee.get('email')?.invalid && secondTrustee.get('email')?.touched">
                 Trustee 2 email is required.
               </div>
@@ -303,14 +277,14 @@
         <!-- Trustee 3 -->
         <div class="col-12 col-md-6">
           <div class="mb-4" [formGroup]="thirdTrustee">
-            <label class="form-label fw-semibold text-primary fs-5">Trustee 3 (Optional)</label>
+            <label class="form-label fw-semibold text-danger fs-5">Trustee 3 (Optional)</label>
             <div class="card border shadow bg-light-subtle p-3">
-              <label class="text-slate-700">Full Name</label>
-              <input type="text" formControlName="name" class="form-control mb-2 rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" placeholder="Full name" />
-              <label class="text-slate-700">ID / Passport No</label>
-              <input type="text" formControlName="id" class="form-control mb-2 rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" placeholder="ID/Passport" />
-              <label class="text-slate-700">Email</label>
-              <input type="email" formControlName="email" class="form-control mb-2 rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" placeholder="trustee3@example.com" />
+              <label>Full Name</label>
+              <input type="text" formControlName="name" class="form-control mb-2" placeholder="Full name" />
+              <label>ID / Passport No</label>
+              <input type="text" formControlName="id" class="form-control mb-2" placeholder="ID/Passport" />
+              <label>Email</label>
+              <input type="email" formControlName="email" class="form-control mb-2" placeholder="trustee3@example.com" />
             </div>
           </div>
         </div>
@@ -326,7 +300,7 @@
           List of Beneficiaries
           <span class="badge rounded-pill bg-warning text-dark">MAY NOT BE A TRUSTEE</span>
         </label>
-        <textarea formControlName="beneficiaries" class="form-control rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" rows="4" (blur)="onBeneficiariesBlur()"
+        <textarea formControlName="beneficiaries" class="form-control" rows="4" (blur)="onBeneficiariesBlur()"
           placeholder="e.g. John Lee - 9001011234567"></textarea>
         <div class="form-text">Tip: We alert you if any trustee appears in this list.</div>
       </div>
@@ -335,8 +309,8 @@
       <div class="modal fade" id="trusteeConflictModal" #trusteeConflictModal tabindex="-1"
         aria-labelledby="trusteeConflictModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content border-primary">
-            <div class="modal-header bg-primary text-white">
+          <div class="modal-content border-danger">
+            <div class="modal-header bg-danger text-white">
               <h5 class="modal-title" id="trusteeConflictModalLabel">🚫 Invalid Entry</h5>
               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                 aria-label="Close"></button>
@@ -355,21 +329,21 @@
       <div class="modal fade" id="paymentMethodModal" #paymentMethodModal tabindex="-1"
         aria-labelledby="paymentMethodModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content border-primary">
-            <div class="modal-header bg-primary text-white">
+          <div class="modal-content border-danger">
+            <div class="modal-header bg-danger text-white">
               <h5 class="modal-title" id="paymentMethodModalLabel">Choose Payment Method</h5>
               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                 aria-label="Close"></button>
             </div>
       <div class="modal-body" [formGroup]="trustForm">
         <div class="d-grid gap-3">
-          <button type="button" class="btn btn-primary btn-lg d-flex align-items-center justify-content-center gap-2"
+          <button type="button" class="btn btn-dark btn-lg d-flex align-items-center justify-content-center gap-2"
                   (click)="trustForm.get('paymentMethod')?.setValue('cardEFT'); confirmPaymentMethod()"
                   data-bs-dismiss="modal">
             <i class="bi bi-credit-card"></i>
             Pay with Card / EFT
           </button>
-          <button type="button" class="btn btn-outline-secondary btn-lg d-flex align-items-center justify-content-center gap-2"
+          <button type="button" class="btn btn-outline-dark btn-lg d-flex align-items-center justify-content-center gap-2"
                   (click)="trustForm.get('paymentMethod')?.setValue('crypto'); confirmPaymentMethod()"
                   data-bs-dismiss="modal">
             <i class="bi bi-currency-bitcoin"></i>
@@ -379,7 +353,7 @@
         <div class="form-text mt-3 text-center">Choose a payment method to continue.</div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancel</button>
       </div>
           </div>
         </div>
@@ -389,7 +363,7 @@
       <div class="modal fade" id="editTrustModal" #editTrustModal tabindex="-1" aria-labelledby="editTrustModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-secondary text-white">
+            <div class="modal-header bg-dark text-white">
               <h5 class="modal-title d-flex align-items-center gap-2" id="editTrustModalLabel">
                 <i class="bi bi-pencil-square"></i>
                 Edit Existing Trust
@@ -400,14 +374,14 @@
               <form [formGroup]="editLookupForm" class="vstack gap-3">
                 <div>
                   <label class="form-label">Trust Number</label>
-                  <input type="text" class="form-control rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" formControlName="trust_number" placeholder="e.g. 3205/25" />
+                  <input type="text" class="form-control" formControlName="trust_number" placeholder="e.g. 3205/25" />
                   <div class="text-danger mt-1 fst-italic" *ngIf="editLookupForm.get('trust_number')?.invalid && editLookupForm.get('trust_number')?.touched">
                     Please enter your trust number.
                   </div>
                 </div>
                 <div>
                   <label class="form-label">Your ID / Passport</label>
-                  <input type="text" class="form-control rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" formControlName="id_or_passport" placeholder="e.g. 9501 09504 3087 or 9501095043087" />
+                  <input type="text" class="form-control" formControlName="id_or_passport" placeholder="e.g. 9501 09504 3087 or 9501095043087" />
                   <div class="form-text">Spaces or dashes are fine — we normalize this automatically.</div>
                   <div class="text-danger mt-1 fst-italic" *ngIf="editLookupForm.get('id_or_passport')?.invalid && editLookupForm.get('id_or_passport')?.touched">
                     Please enter your ID or passport number.
@@ -417,7 +391,7 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-              <button type="button" class="btn btn-secondary d-inline-flex align-items-center gap-2"
+              <button type="button" class="btn btn-dark d-inline-flex align-items-center gap-2"
                       (click)="performEditLookup()"
                       [disabled]="editLookupForm.invalid || lookupLoading">
                 <span class="spinner-border spinner-border-sm me-1" *ngIf="lookupLoading" role="status" aria-hidden="true"></span>
@@ -433,8 +407,8 @@
 
 
   <!-- Lease Agreement Details Section -->
-  <div class="card border-secondary shadow mb-4">
-    <div class="card-header bg-secondary text-white fs-5">
+  <div class="card border-info-subtle shadow mb-4">
+    <div class="card-header bg-info text-white fs-5">
       🏠 Lease Agreement Details
     </div>
     <div class="alert alert-warning border-2 shadow-sm mb-4" role="note" aria-label="Lease agreement guidance">
@@ -452,23 +426,23 @@
         <div class="col-12 col-lg-7">
           <div class="mb-4">
             <label class="form-label fw-semibold">Property Address (One Line) *</label>
-            <input formControlName="propertyAddress" type="text" class="form-control rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" placeholder="e.g. 187 Kameeldrift Weg, Roodepoort, Pretoria, Gauteng, South Africa, 0182" />
+            <input formControlName="propertyAddress" type="text" class="form-control" placeholder="e.g. 187 Kameeldrift Weg, Roodepoort, Pretoria, Gauteng, South Africa, 0182" />
             <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('propertyAddress')?.invalid && trustForm.get('propertyAddress')?.touched">
               Please enter the property address.
             </div>
           </div>
           <div class="mb-4">
             <label class="form-label fw-semibold">Property Owner (Whose name the property is in) *</label>
-            <input formControlName="propertyOwner" type="text" class="form-control rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]"
+            <input formControlName="propertyOwner" type="text" class="form-control"
                    placeholder="Defaults to Trustee 1" />
             <div class="form-text">By default, this will use Trustee 1's details (name, ID, email).</div>
             <div class="mb-3">
               <label class="form-label">Owner ID</label>
-              <input type="text" class="form-control rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" [value]="firstTrustee.get('id')?.value" />
+              <input type="text" class="form-control" [value]="firstTrustee.get('id')?.value" />
             </div>
             <div class="mb-3">
               <label class="form-label">Owner Email</label>
-              <input type="text" class="form-control rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" [value]="firstTrustee.get('email')?.value" />
+              <input type="text" class="form-control" [value]="firstTrustee.get('email')?.value" />
             </div>
             <div class="text-danger mt-1 fst-italic"
                  *ngIf="trustForm.get('propertyOwner')?.invalid && trustForm.get('propertyOwner')?.touched">
@@ -479,29 +453,29 @@
 
         <!-- Right: Signer Details (Usually Trustee 2) -->
         <div class="col-12 col-lg-5">
-          <label class="form-label fw-semibold text-primary fs-5 d-flex align-items-center gap-2">
-            Signer Details <span class="badge bg-secondary text-white border">Usually Trustee 2</span>
+          <label class="form-label fw-semibold text-danger fs-5 d-flex align-items-center gap-2">
+            Signer Details <span class="badge bg-secondary-subtle text-dark border">Usually Trustee 2</span>
           </label>
-            <div class="text-white bg-secondary p-2 rounded small mb-1">Another Trustee must signing the<strong> LEASE AGREEMENT</strong> on behalf of the trust</div>
+            <div class="text-black bg-info p-2 rounded small mb-1">Another Trustee must signing the<strong> LEASE AGREEMENT</strong> on behalf of the trust</div>
           <div class="card border shadow bg-light-subtle p-3">
             <div class="row g-3">
               <div class="col-12">
                 <label class="form-label">Signer Name *</label>
-                <input type="text" class="form-control rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" formControlName="signer_name" placeholder="Usually Trustee 2 full name" />
+                <input type="text" class="form-control" formControlName="signer_name" placeholder="Usually Trustee 2 full name" />
                 <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('signer_name')?.invalid && trustForm.get('signer_name')?.touched">
                   Signer name is required.
                 </div>
               </div>
               <div class="col-12">
                 <label class="form-label">Signer ID / Passport No *</label>
-                <input type="text" class="form-control rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" formControlName="signer_id" placeholder="Usually Trustee 2 ID / Passport" />
+                <input type="text" class="form-control" formControlName="signer_id" placeholder="Usually Trustee 2 ID / Passport" />
                 <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('signer_id')?.invalid && trustForm.get('signer_id')?.touched">
                   Signer ID / Passport is required.
                 </div>
               </div>
               <div class="col-12">
                 <label class="form-label">Signer Email *</label>
-                <input type="email" class="form-control rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]" formControlName="signer_email" placeholder="Usually trustee2@example.com" />
+                <input type="email" class="form-control" formControlName="signer_email" placeholder="Usually trustee2@example.com" />
                 <div class="text-danger mt-1 fst-italic" *ngIf="trustForm.get('signer_email')?.invalid && trustForm.get('signer_email')?.touched">
                   Please enter a valid signer email.
                 </div>
@@ -518,11 +492,6 @@
 
   <!-- Bullion Membership Section -->
   <div class="mb-4">
-    <div class="flex items-center gap-3 mb-3 mt-4">
-      <div class="w-1.5 h-6 rounded bg-[#033f63]"></div>
-      <h5 class="m-0 text-slate-800">Membership & Referral</h5>
-      <div class="h-px flex-1 bg-slate-200"></div>
-    </div>
     <label class="form-label fw-semibold d-block">Are you a member qualifying for a discount price?</label>
 
     <div class="form-check form-check-inline">
@@ -546,8 +515,8 @@
 
     <!-- Member Number Input -->
     <div class="mt-3" *ngIf="trustForm.get('isBullionMember')?.value">
-      <label for="memberNumber" class="form-label fw-semibold text-slate-700">Enter your Member Number *</label>
-      <input type="text" id="memberNumber" class="form-control form-control-lg border-secondary-subtle rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]"
+      <label for="memberNumber" class="form-label fw-semibold">Enter your Member Number *</label>
+      <input type="text" id="memberNumber" class="form-control form-control-lg border-secondary-subtle"
         formControlName="memberNumber" placeholder="e.g. CB000077" />
       <div class="text-danger mt-1 fst-italic"
         *ngIf="trustForm.get('memberNumber')?.invalid && trustForm.get('memberNumber')?.touched">
@@ -565,8 +534,8 @@
 
     <!-- Referrer Number Input -->
     <div class="mt-3" *ngIf="trustForm.get('wasReferredByMember')?.value">
-      <label for="referrerNumber" class="form-label fw-semibold text-slate-700">Enter the Referrer’s Member Number</label>
-      <input type="text" id="referrerNumber" class="form-control form-control-lg border-secondary-subtle rounded-lg focus:ring-2 focus:ring-[#033f63] focus:border-[#033f63]"
+      <label for="referrerNumber" class="form-label fw-semibold">Enter the Referrer’s Member Number</label>
+      <input type="text" id="referrerNumber" class="form-control form-control-lg border-secondary-subtle"
         formControlName="referrerNumber" placeholder="e.g. CB000077" />
       <div class="text-danger mt-1 fst-italic"
         *ngIf="trustForm.get('referrerNumber')?.invalid && trustForm.get('referrerNumber')?.touched">
@@ -588,11 +557,6 @@
   </div>
 
   <!-- Display Price Based on Membership & Valid Member Number -->
-  <div class="flex items-center gap-3 mb-3 mt-6">
-    <div class="w-1.5 h-6 rounded bg-[#033f63]"></div>
-    <h5 class="m-0 text-slate-800">Review & Submit</h5>
-    <div class="h-px flex-1 bg-slate-200"></div>
-  </div>
   <div *ngIf="!isEditMode" class="mb-4 p-3 border rounded bg-light-subtle text-center fs-5 fw-semibold">
     <ng-container
       *ngIf="trustForm.get('isBullionMember')?.value && trustForm.get('memberNumber')?.valid; else nonMemberPrice">
@@ -602,10 +566,10 @@
       Your price if not a member is: <span class="text-danger">R7,150</span>
     </ng-template>
   </div>
- 
+
   <!-- Submit Button -->
   <div class="d-grid">
-    <button type="submit" class="btn btn-primary btn-lg d-flex align-items-center justify-content-center gap-2" [disabled]="editSaving">
+    <button type="submit" class="btn btn-danger btn-lg d-flex align-items-center justify-content-center gap-2" [disabled]="editSaving">
       <span *ngIf="!isEditMode">📤 Submit Trust Application</span>
       <ng-container *ngIf="isEditMode">
         <span class="spinner-border spinner-border-sm" *ngIf="editSaving" role="status" aria-hidden="true"></span>
@@ -614,4 +578,3 @@
     </button>
   </div>
 </form>
-</div>
